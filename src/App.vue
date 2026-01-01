@@ -1,12 +1,17 @@
 <template>
   <div class="app-container">
-    <h1>Phaser 游戏示例</h1>
-    <PhaserGame />
-    
-    <div class="conversation-section">
-      <h2>对话系统</h2>
+    <div>
+      <PhaserGame />
+    </div>
+
+    <div style="width: 270px">
       <TypeWriterContainer ref="typeWriterContainerRef">
-        <div v-for="(item, index) in conversationList" :key="index" class="item">
+        <div
+          v-for="(item, index) in conversationList"
+          :key="index"
+          class="item"
+          style="margin-bottom: 12px"
+        >
           {{ item.speaker }} : <TypeWriter :content="getConversation(item)" />
         </div>
       </TypeWriterContainer>
@@ -86,29 +91,20 @@ const getConversation = (item: IConversationData) => {
 };
 </script>
 
-<style scoped>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .app-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.conversation-section {
-  margin-top: 20px;
-}
-
-.person-info {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.id-generator {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
+  display: flex;
+  min-width: 1366px;
 }
 </style>
