@@ -140,7 +140,9 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  collectStar(player: Phaser.Physics.Arcade.Sprite, star: Phaser.Physics.Arcade.Sprite) {
+  collectStar(object1: any, object2: any) {
+    // 确保object2是星星
+    const star = object2 as Phaser.Physics.Arcade.Sprite;
     star.disableBody(true, true);
 
     // 增加分数
@@ -157,7 +159,7 @@ class GameScene extends Phaser.Scene {
       });
 
       // 创建一个炸弹
-      const x = this.player.x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+      const x = (this.player as Phaser.Physics.Arcade.Sprite).x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
       const bomb = this.bombs.create(x, 16, 'bomb');
       bomb.setBounce(1);
       bomb.setCollideWorldBounds(true);
