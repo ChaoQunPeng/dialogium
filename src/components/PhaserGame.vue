@@ -44,7 +44,6 @@ class GameScene extends Phaser.Scene {
 
     // 创建玩家 - 使用精灵并设置为蓝色
     this.player = this.physics.add.sprite(100, 450, 'dude');
-    this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
     this.player.setTint(0x3498db); // 设置为蓝色
     this.player.setDisplaySize(40, 40); // 设置显示大小
@@ -61,7 +60,7 @@ class GameScene extends Phaser.Scene {
       const star = child as Phaser.Physics.Arcade.Sprite;
       star.setTint(0xffd700); // 金色
       star.setDisplaySize(20, 20); // 设置显示大小
-      star.setBounce(1);
+      star.setBounce(0.5);
       star.setCollideWorldBounds(true);
       star.setVelocity(Phaser.Math.Between(-200, 200), 20);
       return true;
@@ -98,6 +97,9 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
+    // 设置玩家为无重力状态，实现自由移动
+    this.player.setAcceleration(0); // 无加速度
+    
     // 玩家移动
     if (this.cursors.left.isDown) {
       this.player.setVelocityX(-160);
@@ -107,9 +109,12 @@ class GameScene extends Phaser.Scene {
       this.player.setVelocityX(0);
     }
 
-    // 跳跃
-    if (this.cursors.up.isDown && this.player.body?.touching.down) {
-      this.player.setVelocityY(-330);
+    if (this.cursors.up.isDown) {
+      this.player.setVelocityY(-160); // 向上移动
+    } else if (this.cursors.down.isDown) {
+      this.player.setVelocityY(160); // 向下移动
+    } else {
+      this.player.setVelocityY(0); // 垂直方向速度为0
     }
   }
 
@@ -139,7 +144,7 @@ class GameScene extends Phaser.Scene {
       const bomb = this.bombs.create(x, 16, 'bomb') as Phaser.Physics.Arcade.Sprite;
       bomb.setTint(0xff0000); // 红色
       bomb.setDisplaySize(30, 30); // 设置显示大小
-      bomb.setBounce(1);
+      bomb.setBounce(0.5);
       bomb.setCollideWorldBounds(true);
       bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
     }
@@ -163,7 +168,7 @@ const config: Phaser.Types.Core.GameConfig = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { x: 0, y: 300 },
+      gravity: { x: 0, y: 0 }, // 移除重力
       debug: false,
     },
   },
