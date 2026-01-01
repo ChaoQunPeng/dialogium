@@ -1,9 +1,17 @@
 <template>
-  <TypeWriterContainer ref="typeWriterContainerRef">
-    <div v-for="(item, index) in conversationList" :key="index" class="item">
-      {{ item.speaker }} : <TypeWriter :content="getConversation(item)" />
+  <div class="app-container">
+    <h1>Phaser 游戏示例</h1>
+    <PhaserGame />
+    
+    <div class="conversation-section">
+      <h2>对话系统</h2>
+      <TypeWriterContainer ref="typeWriterContainerRef">
+        <div v-for="(item, index) in conversationList" :key="index" class="item">
+          {{ item.speaker }} : <TypeWriter :content="getConversation(item)" />
+        </div>
+      </TypeWriterContainer>
     </div>
-  </TypeWriterContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -12,11 +20,13 @@ import { scene1 } from '@/data/data';
 import TypeWriter from './components/TypeWriter/TypeWriter.vue';
 import { defineComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import TypeWriterContainer from './components/TypeWriter/TypeWriterContainer.vue';
+import PhaserGame from './components/PhaserGame.vue';
 
 defineComponent({
   components: {
     TypeWriterContainer,
     TypeWriter,
+    PhaserGame,
   },
 });
 
@@ -77,12 +87,23 @@ const getConversation = (item: IConversationData) => {
 </script>
 
 <style scoped>
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.conversation-section {
+  margin-top: 20px;
+}
+
 .person-info {
   margin-top: 20px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .id-generator {
   margin-top: 20px;
   padding: 10px;
