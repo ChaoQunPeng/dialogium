@@ -24,81 +24,57 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    // 预加载资源
-    // 这里我们使用 Phaser 的内置图形作为示例，实际项目中可以加载图片资源
-    // 加载玩家精灵
-    this.load.image('sky', 'https://labs.phaser.io/assets/skies/space3.png');
-    this.load.image('ground', 'https://labs.phaser.io/assets/platforms/platform.png');
-    this.load.image('star', 'https://labs.phaser.io/assets/sprites/star.png');
-    this.load.image('bomb', 'https://labs.phaser.io/assets/sprites/bomb.png');
-    this.load.spritesheet('dude', 'https://labs.phaser.io/assets/sprites/dude.png', {
-      frameWidth: 32,
-      frameHeight: 48,
-    });
+    // 预加载资源 - 为基本形状创建图形资源
   }
 
   create() {
-    // 创建游戏对象
-    this.add.image(400, 300, 'sky');
+    // 创建蓝色背景
+    this.add.rectangle(400, 300, 800, 600, 0x87ceeb); // 天空蓝背景
 
     // 创建平台
     this.platforms = this.physics.add.staticGroup();
-    this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    this.platforms.create(600, 400, 'ground');
-    this.platforms.create(50, 250, 'ground');
-    this.platforms.create(750, 220, 'ground');
 
-    // 创建玩家
+    // 地面平台 - 棕色矩形
+    this.platforms.create(400, 568, 'ground').setScale(2).refreshBody().setTint(0x8b4513); // 棕色
+
+    // 其他平台 - 棕色矩形
+    this.platforms.create(600, 400, 'ground').setTint(0x8b4513);
+    this.platforms.create(50, 250, 'ground').setTint(0x8b4513);
+    this.platforms.create(750, 220, 'ground').setTint(0x8b4513);
+
+    // 创建玩家 - 使用精灵并设置为蓝色
     this.player = this.physics.add.sprite(100, 450, 'dude');
     this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
+    this.player.setTint(0x3498db); // 设置为蓝色
+    this.player.setDisplaySize(40, 40); // 设置显示大小
 
-    // 玩家动画
-    this.anims.create({
-      key: 'left',
-      frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: 'turn',
-      frames: [{ key: 'dude', frame: 4 }],
-      frameRate: 20,
-    });
-
-    this.anims.create({
-      key: 'right',
-      frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    // 碰撞检测
-    this.physics.add.collider(this.player, this.platforms);
-
-    // 创建星星
+    // 创建星星 - 黄色精灵
     this.stars = this.physics.add.group({
       key: 'star',
       repeat: 11,
       setXY: { x: 12, y: 0, stepX: 70 },
     });
 
+    // 为每个星星设置为黄色
     this.stars.children.iterate((child) => {
       const star = child as Phaser.Physics.Arcade.Sprite;
+      star.setTint(0xffd700); // 金色
+      star.setDisplaySize(20, 20); // 设置显示大小
       star.setBounce(1);
       star.setCollideWorldBounds(true);
       star.setVelocity(Phaser.Math.Between(-200, 200), 20);
       return true;
     });
 
-    // 星星与平台碰撞
+    // 碰撞检测
+    this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.stars, this.platforms);
 
     // 收集星星
     this.physics.add.overlap(this.player, this.stars, this.collectStar, undefined, this);
 
-    // 创建炸弹
+    // 创建炸弹 - 红色精灵
     this.bombs = this.physics.add.group();
 
     // 炸弹与平台碰撞
@@ -125,13 +101,10 @@ class GameScene extends Phaser.Scene {
     // 玩家移动
     if (this.cursors.left.isDown) {
       this.player.setVelocityX(-160);
-      this.player.anims.play('left', true);
     } else if (this.cursors.right.isDown) {
       this.player.setVelocityX(160);
-      this.player.anims.play('right', true);
     } else {
       this.player.setVelocityX(0);
-      this.player.anims.play('turn');
     }
 
     // 跳跃
@@ -158,9 +131,14 @@ class GameScene extends Phaser.Scene {
         return true;
       });
 
-      // 创建一个炸弹
-      const x = (this.player as Phaser.Physics.Arcade.Sprite).x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-      const bomb = this.bombs.create(x, 16, 'bomb');
+      // 创建一个炸弹 - 红色精灵
+      const x =
+        (this.player as Phaser.Physics.Arcade.Sprite).x < 400
+          ? Phaser.Math.Between(400, 800)
+          : Phaser.Math.Between(0, 400);
+      const bomb = this.bombs.create(x, 16, 'bomb') as Phaser.Physics.Arcade.Sprite;
+      bomb.setTint(0xff0000); // 红色
+      bomb.setDisplaySize(30, 30); // 设置显示大小
       bomb.setBounce(1);
       bomb.setCollideWorldBounds(true);
       bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
@@ -170,8 +148,8 @@ class GameScene extends Phaser.Scene {
   hitBomb() {
     this.physics.pause();
 
+    // 将玩家设置为红色表示游戏结束
     this.player.setTint(0xff0000);
-    this.player.anims.play('turn');
 
     this.gameOver = true;
   }
