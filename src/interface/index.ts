@@ -1,4 +1,4 @@
-export interface IConversationData {
+export interface IFlowData {
   type: string;
   speaker?: string;
   contentList?: IConversationItem[];

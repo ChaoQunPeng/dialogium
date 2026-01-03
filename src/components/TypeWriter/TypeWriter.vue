@@ -1,11 +1,13 @@
-<template>{{ typewriterContent }}</template>
+<template>
+  {{ typewriterContent }}
+</template>
 
 <script setup lang="ts">
-import type { IConversationData } from '@interface/index';
+import type { IFlowData } from '@interface/index';
 import { onMounted, ref, getCurrentInstance, inject } from 'vue';
 
 const props = defineProps<{
-  data: IConversationData;
+  data: IFlowData;
 }>();
 
 // 导入类型定义

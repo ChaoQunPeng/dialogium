@@ -5,15 +5,15 @@
 </template>
 
 <script setup lang="ts">
-import type { IConversationData } from '@/interface';
+import type { IFlowData } from '@/interface';
 import { nextTick, onMounted, onUnmounted, provide, reactive, ref } from 'vue';
 
 const props = defineProps<{
-  data: IConversationData[];
+  data: IFlowData[];
 }>();
 
 const index = ref(0);
-const dataList = ref<IConversationData[]>([]);
+const dataList = ref<IFlowData[]>([]);
 const typeWriterMaps = reactive(new Map<string, any>());
 
 const save = (id: string, instance: any) => {
@@ -39,11 +39,11 @@ const getTypingItem = () => {
 };
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeydonwSpace);
+  // document.addEventListener('keydown', handleKeydonwSpace);
 });
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeydonwSpace);
+  // document.removeEventListener('keydown', handleKeydonwSpace);
 });
 
 const handleKeydonwSpace = async (e: KeyboardEvent) => {
@@ -69,6 +69,17 @@ const handleKeydonwSpace = async (e: KeyboardEvent) => {
   }
 };
 
+const endCurrentFlow = () => {
+  const firstItem = getTypingItem();
+  if (firstItem) {
+    firstItem.showAll();
+  }
+};
+
+const addFlowItem = (item: IFlowData) => {
+  dataList.value.push(item);
+};
+
 provide('typeWriterManager', {
   save,
   getMaps,
@@ -82,6 +93,8 @@ defineExpose({
   getList,
   get,
   getTypingItem,
+  addFlowItem,
+  endCurrentFlow,
 });
 </script>
 
