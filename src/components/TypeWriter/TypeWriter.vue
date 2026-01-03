@@ -40,9 +40,13 @@ onMounted(() => {
   handleStart();
 });
 
+const emits = defineEmits<{
+  isTyping: [status: boolean];
+}>();
+
 const getRandomContent = () => {
   const contentList = props.data.contentList ?? [];
-  const random = Math.floor(Math.random());
+  const random = Math.floor(Math.random() * contentList.length);
 
   const contentItem = contentList[random * contentList.length];
 
@@ -62,8 +66,10 @@ const handleStart = () => {
     if (index.value <= maxIndex.value) {
       typewriterContent.value += content.value.charAt(index.value);
       index.value++;
+      emits('isTyping', true);
     } else {
       isTyping.value = false;
+      emits('isTyping', false);
       clearInterval(timer.value);
     }
   }, 50);
@@ -71,6 +77,7 @@ const handleStart = () => {
 
 const handlePause = () => {
   clearInterval(timer.value);
+  emits('isTyping', false);
   isPause.value = true;
   isTyping.value = false;
 };
@@ -80,6 +87,7 @@ const handlePause = () => {
  */
 const showAll = () => {
   clearInterval(timer.value);
+  emits('isTyping', false);
   typewriterContent.value = content.value;
   isDone.value = true;
   isTyping.value = false;

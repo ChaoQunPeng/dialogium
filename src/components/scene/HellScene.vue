@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div v-if="!isTyping">
       <button @click="add">add</button>
     </div>
 
@@ -11,7 +11,7 @@
           <!-- 对话 -->
           <template v-if="item.type === 'conv'">
             <div class="item" style="margin-bottom: 12px">
-              {{ item.speaker }} : <TypeWriter :data="item" />
+              {{ item.speaker }} : <TypeWriter :data="item" @is-typing="listenOnTyping" />
             </div>
           </template>
         </template>
@@ -46,6 +46,15 @@ const add = () => {
     });
   }
 };
+
+const isTyping = ref(false);
+const listenOnTyping = (status: boolean) => {
+  isTyping.value = status;
+};
 </script>
 
-<style></style>
+<style>
+.item {
+  color: #d4d4d4;
+}
+</style>
