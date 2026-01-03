@@ -1,10 +1,11 @@
 <template>{{ typewriterContent }}</template>
 
 <script setup lang="ts">
+import type { IConversationData } from '@interface/index';
 import { onMounted, ref, getCurrentInstance, inject } from 'vue';
 
 const props = defineProps<{
-  content: string;
+  data: IConversationData;
 }>();
 
 // 导入类型定义
@@ -12,15 +13,16 @@ interface TypewriterContainer {
   save: (id: string, instance: any) => void;
 }
 
-const typewriterContainer = inject<TypewriterContainer>('typewriterManager');
+const typewriterContainer = inject<TypewriterContainer>('typeWriterManager');
 
 const index = ref(0);
 const typewriterContent = ref('');
-const maxIndex = props.content.length - 1;
+const maxIndex = ref(0);
 const timer = ref();
 const isTyping = ref(false);
 const isDone = ref(false);
 const isPause = ref(false);
+const content = ref('');
 
 onMounted(() => {
   const currentInstance = getCurrentInstance();
@@ -32,15 +34,31 @@ onMounted(() => {
     isDone,
     isPause,
   });
+  getRandomContent();
   handleStart();
 });
+
+const getRandomContent = () => {
+  const contentList = props.data.contentList;
+  const random = Math.floor(Math.random());
+
+  const contentItem = contentList[random * contentList.length];
+
+  if (contentItem) {
+    content.value = contentItem.content;
+  } else {
+    content.value = '';
+  }
+
+  maxIndex.value = content.value.length - 1;
+};
 
 const handleStart = () => {
   isPause.value = false;
   isTyping.value = true;
   timer.value = setInterval(() => {
-    if (index.value <= maxIndex) {
-      typewriterContent.value += props.content.charAt(index.value);
+    if (index.value <= maxIndex.value) {
+      typewriterContent.value += content.value.charAt(index.value);
       index.value++;
     } else {
       isTyping.value = false;
@@ -60,7 +78,7 @@ const handlePause = () => {
  */
 const showAll = () => {
   clearInterval(timer.value);
-  typewriterContent.value = props.content;
+  typewriterContent.value = content.value;
   isDone.value = true;
   isTyping.value = false;
 };

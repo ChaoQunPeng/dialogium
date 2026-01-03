@@ -1,6 +1,4 @@
-import type { IConversationScene } from '@/interface';
-
-export const scene1: IConversationScene = {
+export const scene1 = {
   scene: '场景1',
   conversationData: [
     {

@@ -1,10 +1,5 @@
-export interface IConversationScene {
-  scene: string;
-  conversationData: Array<IConversationData>;
-}
-
 export interface IConversationData {
-  speaker: string;
+  speaker?: string;
   contentList: IConversationItem[];
 }
 
