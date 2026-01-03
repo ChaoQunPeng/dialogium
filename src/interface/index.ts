@@ -1,6 +1,7 @@
 export interface IConversationData {
+  type: string;
   speaker?: string;
-  contentList: IConversationItem[];
+  contentList?: IConversationItem[];
 }
 
 export interface IConversationItem {

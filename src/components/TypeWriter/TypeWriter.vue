@@ -39,7 +39,7 @@ onMounted(() => {
 });
 
 const getRandomContent = () => {
-  const contentList = props.data.contentList;
+  const contentList = props.data.contentList ?? [];
   const random = Math.floor(Math.random());
 
   const contentItem = contentList[random * contentList.length];

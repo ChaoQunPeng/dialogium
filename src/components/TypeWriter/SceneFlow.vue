@@ -39,7 +39,6 @@ const getTypingItem = () => {
 };
 
 onMounted(() => {
-  // 监听按下空格键
   document.addEventListener('keydown', handleKeydonwSpace);
 });
 

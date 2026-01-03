@@ -1,7 +1,9 @@
 export const scene1 = {
-  scene: '场景1',
-  conversationData: [
+  sceneId: '场景1',
+  sceneName: '场景1',
+  flow: [
     {
+      type: 'conv',
       speaker: '彭超群',
       contentList: [
         {
@@ -11,6 +13,7 @@ export const scene1 = {
       ],
     },
     {
+      type: 'conv',
       speaker: '裴勇俊',
       contentList: [
         {
@@ -20,6 +23,7 @@ export const scene1 = {
       ],
     },
     {
+      type: 'conv',
       speaker: '彭超群',
       contentList: [
         {

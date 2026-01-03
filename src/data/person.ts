@@ -15,7 +15,7 @@ export const person: IPerson[] = [
   },
   {
     id: '1620ccf781cd4eeea212151868ac535d',
-    name: 'UI',
+    name: 'bitch',
     gender: 2,
     roles: ['bitch'],
   },
