@@ -24,10 +24,18 @@
 import SceneFlow from '../TypeWriter/SceneFlow.vue';
 import TypeWriter from '../TypeWriter/TypeWriter.vue';
 import type { IConversationItem, INpc } from '@/interface';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 const conversationDataList = ref<IConversationItem[]>([]);
-
 const typeWriterContainerRef = ref<InstanceType<typeof SceneFlow>>();
+
+import { scene } from '@/data/scene';
+import { getRandomElement } from '@/utils/arrayUtils';
+
+onMounted(() => {
+  setInterval(() => {
+    console.log(getRandomElement(scene.monsterList));
+  }, 500);
+});
 
 const getNpc = (): INpc => {
   return {
