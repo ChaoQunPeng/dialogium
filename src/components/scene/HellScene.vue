@@ -29,12 +29,17 @@ const conversationDataList = ref<IConversationItem[]>([]);
 const typeWriterContainerRef = ref<InstanceType<typeof SceneFlow>>();
 
 import { scene } from '@/data/scene';
-import { getRandomElement } from '@/utils/arrayUtils';
+import { getWeightedRandomElement } from '@/utils/arrayUtils';
+
+const count = ref(0);
 
 onMounted(() => {
   setInterval(() => {
-    console.log(getRandomElement(scene.monsterList));
-  }, 500);
+    // count.value++;
+    const data = getWeightedRandomElement(scene.monsterList);
+    if (data?.name === '大妖') {
+    }
+  }, 1000);
 });
 
 const getNpc = (): INpc => {

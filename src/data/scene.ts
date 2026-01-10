@@ -15,8 +15,9 @@ export const scene: Scene = {
   ],
   monsterList: [
     {
-      name: '血牙狼妖',
+      name: '小妖',
       type: 'elite', // 精英怪
+      weight: 1000,
       level: 42,
       hp: 9600,
       attack: 480,
@@ -37,8 +38,9 @@ export const scene: Scene = {
       ],
     },
     {
-      name: '烈焰魔蛛',
+      name: '中妖',
       type: 'normal', // 普通怪
+      weight: 100,
       level: 35,
       hp: 6500,
       attack: 360,
@@ -54,8 +56,9 @@ export const scene: Scene = {
       ],
     },
     {
-      name: '石甲力士',
+      name: '大妖',
       type: 'elite', // 精英怪
+      weight: 10,
       level: 45,
       hp: 12000,
       attack: 520,
@@ -75,49 +78,51 @@ export const scene: Scene = {
         },
       ],
     },
-    {
-      name: '幻影刺客',
-      type: 'boss', // BOSS怪
-      level: 50,
-      hp: 20000,
-      attack: 750,
-      defense: 400,
-      exp: 3500,
-      conversationList: [],
-      dropList: [
-        {
-          id: 'equip',
-          name: '暗影匕首',
-          count: 1,
-        },
-        {
-          id: 'skill',
-          name: '刺客秘籍',
-          count: 1,
-        },
-        {
-          id: 'material',
-          name: '神秘精华',
-          count: 3,
-        },
-      ],
-    },
-    {
-      name: '冰霜法师',
-      type: 'normal', // 普通怪
-      level: 39,
-      hp: 5800,
-      attack: 550,
-      defense: 200,
-      exp: 950,
-      conversationList: [],
-      dropList: [
-        {
-          id: 'item',
-          name: '寒冰水晶',
-          count: 1,
-        },
-      ],
-    },
+    // {
+    //   name: '幻影刺客',
+    //   type: 'boss', // BOSS怪
+    //   weight: 1000,
+    //   level: 50,
+    //   hp: 20000,
+    //   attack: 750,
+    //   defense: 400,
+    //   exp: 3500,
+    //   conversationList: [],
+    //   dropList: [
+    //     {
+    //       id: 'equip',
+    //       name: '暗影匕首',
+    //       count: 1,
+    //     },
+    //     {
+    //       id: 'skill',
+    //       name: '刺客秘籍',
+    //       count: 1,
+    //     },
+    //     {
+    //       id: 'material',
+    //       name: '神秘精华',
+    //       count: 3,
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: '冰霜法师',
+    //   type: 'normal', // 普通怪
+    //   weight: 1000,
+    //   level: 39,
+    //   hp: 5800,
+    //   attack: 550,
+    //   defense: 200,
+    //   exp: 950,
+    //   conversationList: [],
+    //   dropList: [
+    //     {
+    //       id: 'item',
+    //       name: '寒冰水晶',
+    //       count: 1,
+    //     },
+    //   ],
+    // },
   ],
 };

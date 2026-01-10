@@ -44,6 +44,8 @@ export interface IMonster {
   level: number;
   /** 掉落物品列表 */
   dropList: IItem[];
+  /** 权重值，影响出现概率 */
+  weight: number;
 }
 
 /**
