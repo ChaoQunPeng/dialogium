@@ -6,17 +6,10 @@
 
 <script setup lang="ts">
 import { defineComponent } from 'vue';
-// import TypeWriter from './components/TypeWriter/TypeWriter.vue';
-// import TypeWriterContainer from './components/TypeWriter/TypeWriterContainer.vue';
-// import PhaserGame from './components/PhaserGame.vue';
-// import HelloWorld from './components/HelloWorld.vue';
 import HellScene from './components/scene/HellScene.vue';
 
 defineComponent({
   components: {
-    // TypeWriterContainer,
-    // TypeWriter,
-    // HelloWorld,
     HellScene,
   },
 });

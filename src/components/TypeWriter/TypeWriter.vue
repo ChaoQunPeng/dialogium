@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import type { IFlowData } from '@interface/index';
+import type { IConversationItem } from '@interface/index';
 import { onMounted, ref, getCurrentInstance, inject } from 'vue';
 
 const props = defineProps<{
-  data: IFlowData;
+  data: IConversationItem;
 }>();
 
 // 导入类型定义
@@ -51,7 +51,7 @@ const getRandomContent = () => {
   const contentItem = contentList[random * contentList.length];
 
   if (contentItem) {
-    content.value = contentItem.content;
+    content.value = contentItem;
   } else {
     content.value = '';
   }

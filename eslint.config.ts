@@ -32,6 +32,7 @@ export default defineConfigWithVueTs(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/prefer-const': 'off', // 关闭 prefer-const 规则
+      '@typescript-eslint/no-empty-interface': 'off',
       // 或者
       // 'prefer-const': 'off', // 关闭 JavaScript 原生的 prefer-const 规则
     },

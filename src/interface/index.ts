@@ -1,16 +1,71 @@
-export interface IFlowData {
-  type: string;
-  speaker?: string;
-  contentList?: IConversationItem[];
-}
-
-export interface IConversationItem {
-  content: string;
-}
-
-export interface IPerson {
-  id: string;
+/**
+ * 表示游戏场景的数据结构
+ */
+export interface Scene {
+  /** 场景名称 */
   name: string;
-  gender: number;
-  roles: string[];
+  /** NPC 列表 */
+  npcList: INpc[];
+  /** 怪物列表 */
+  monsterList: IMonster[];
+}
+
+/**
+ * 表示游戏中NPC的数据结构
+ * 包含名称和对话列表
+ */
+export interface INpc {
+  /** NPC 名称 */
+  name: string;
+  /** 对话列表 */
+  conversationList: IConversationItem[];
+}
+
+/**
+ * 表示游戏中怪物的数据结构
+ * 包含基本信息、战斗属性和掉落物品
+ */
+export interface IMonster {
+  /** 怪物名称 */
+  name: string;
+  /** 对话列表 */
+  conversationList: IConversationItem[];
+  /** 怪物类型（如：elite精英怪，normal普通怪等） */
+  type: string;
+  /** 生命值 */
+  hp: number;
+  /** 攻击力 */
+  attack: number;
+  /** 防御力 */
+  defense: number;
+  /** 经验值 */
+  exp: number;
+  /** 等级 */
+  level: number;
+  /** 掉落物品列表 */
+  dropList: IItem[];
+}
+
+/**
+ * 表示单个对话项的数据结构
+ * 包含类型和内容数组
+ */
+export interface IConversationItem {
+  /** 对话项类型（如：text文本，choice选择等） */
+  type: string;
+  /** 对话内容数组 */
+  contentList: string[];
+}
+
+/**
+ * 表示物品的数据结构
+ * 包含ID、名称和数量
+ */
+export interface IItem {
+  /** 物品唯一标识ID */
+  id: string;
+  /** 物品名称 */
+  name: string;
+  /** 物品数量 */
+  count: number;
 }
