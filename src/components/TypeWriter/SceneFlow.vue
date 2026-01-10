@@ -1,11 +1,11 @@
 <template>
-  <div v-for="(item, index) in dataList" :key="index">
+  <div v-for="(item, index) in dataList" :key="index" class="item-data">
     <slot :speaker="speaker" :item="item" :index="index"></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { IConversationItem } from '@/interface';
+import type { IConversationItem, IMonster, INpc } from '@/interface';
 import { onMounted, onUnmounted, provide, reactive, ref } from 'vue';
 
 // const props = defineProps<{
@@ -13,7 +13,8 @@ import { onMounted, onUnmounted, provide, reactive, ref } from 'vue';
 // }>();
 
 // const index = ref(0);
-const dataList = ref<IConversationItem[]>([]);
+// const dataList = ref<INpc[] | IMonster[] | IConversationItem[]>([]);
+const dataList = ref<Array<INpc | IMonster | IConversationItem>>([]);
 const typeWriterMaps = reactive(new Map<string, any>());
 const speaker = ref('');
 
@@ -77,9 +78,14 @@ const endCurrentFlow = () => {
   }
 };
 
-const addFlowItem = (speakerName: string, conversationItem: IConversationItem) => {
-  speaker.value = speakerName;
-  dataList.value.push(conversationItem);
+const addFlowItem = (item: INpc | IMonster) => {
+  speaker.value = item.name;
+
+  if (item.__type == 'npc') {
+  } else if (item.__type == 'monster') {
+  }
+
+  dataList.value.push(item);
 };
 
 provide('typeWriterManager', {
@@ -100,4 +106,8 @@ defineExpose({
 });
 </script>
 
-<style></style>
+<style>
+.item-data {
+  color: #fff;
+}
+</style>

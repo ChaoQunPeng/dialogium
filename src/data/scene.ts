@@ -4,9 +4,11 @@ export const scene: Scene = {
   name: '封缘星',
   npcList: [
     {
+      __type: 'npc',
       name: '重玄派师弟',
       conversationList: [
         {
+          __type: 'conversationItem',
           contentList: ['这是封缘星，请坐。'],
           type: 'text',
         },
@@ -15,15 +17,23 @@ export const scene: Scene = {
   ],
   monsterList: [
     {
+      __type: 'monster',
       name: '小妖',
       type: 'elite', // 精英怪
       weight: 1000,
+      action: 'battle',
       level: 42,
       hp: 9600,
       attack: 480,
       defense: 320,
       exp: 1450,
-      conversationList: [],
+      conversationList: [
+        {
+          __type: 'conversationItem',
+          contentList: ['这是封缘星，请坐。'],
+          type: 'text',
+        },
+      ],
       dropList: [
         {
           id: 'material',
@@ -38,15 +48,23 @@ export const scene: Scene = {
       ],
     },
     {
+      __type: 'monster',
       name: '中妖',
       type: 'normal', // 普通怪
       weight: 100,
+      action: 'battle',
       level: 35,
       hp: 6500,
       attack: 360,
       defense: 180,
       exp: 800,
-      conversationList: [],
+      conversationList: [
+        {
+          __type: 'conversationItem',
+          contentList: ['这是封缘星，请坐。'],
+          type: 'text',
+        },
+      ],
       dropList: [
         {
           id: 'material',
@@ -56,15 +74,23 @@ export const scene: Scene = {
       ],
     },
     {
+      __type: 'monster',
       name: '大妖',
       type: 'elite', // 精英怪
       weight: 10,
+      action: 'battle',
       level: 45,
       hp: 12000,
       attack: 520,
       defense: 450,
       exp: 1800,
-      conversationList: [],
+      conversationList: [
+        {
+          __type: 'conversationItem',
+          contentList: ['这是封缘星，请坐。'],
+          type: 'text',
+        },
+      ],
       dropList: [
         {
           id: 'item',

@@ -7,7 +7,7 @@ import type { IConversationItem } from '@interface/index';
 import { onMounted, ref, getCurrentInstance, inject } from 'vue';
 
 const props = defineProps<{
-  data: IConversationItem;
+  data?: IConversationItem;
 }>();
 
 // 导入类型定义
@@ -45,7 +45,7 @@ const emits = defineEmits<{
 }>();
 
 const getRandomContent = () => {
-  const contentList = props.data.contentList ?? [];
+  const contentList = props.data?.contentList ?? [];
   const random = Math.floor(Math.random() * contentList.length);
 
   const contentItem = contentList[random * contentList.length];

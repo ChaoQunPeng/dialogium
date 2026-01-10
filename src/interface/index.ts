@@ -15,6 +15,7 @@ export interface Scene {
  * 包含名称和对话列表
  */
 export interface INpc {
+  __type: 'npc';
   /** NPC 名称 */
   name: string;
   /** 对话列表 */
@@ -26,12 +27,15 @@ export interface INpc {
  * 包含基本信息、战斗属性和掉落物品
  */
 export interface IMonster {
+  __type: 'monster';
   /** 怪物名称 */
   name: string;
   /** 对话列表 */
   conversationList: IConversationItem[];
   /** 怪物类型（如：elite精英怪，normal普通怪等） */
   type: string;
+  /** 行为 battle,event,talk */
+  action: string;
   /** 生命值 */
   hp: number;
   /** 攻击力 */
@@ -53,6 +57,7 @@ export interface IMonster {
  * 包含类型和内容数组
  */
 export interface IConversationItem {
+  __type: 'conversationItem';
   /** 对话项类型（如：text文本，choice选择等） */
   type: string;
   /** 对话内容数组 */

@@ -2,12 +2,20 @@
   <div>
     <!-- SceneFlow -->
     <div>
-      <SceneFlow ref="typeWriterContainerRef" :data="conversationDataList">
+      <SceneFlow ref="sceneFlowRef" class="SceneFlow">
         <template #default="{ speaker, item }">
-          <!-- 对话 -->
-          <template v-if="item.type === 'text'">
+          <template v-if="item.__type === 'npc'">
             <div class="item" style="margin-bottom: 12px">
-              {{ speaker }} : <TypeWriter :data="item" @is-typing="listenOnTyping" />
+              {{ speaker }}
+
+              <TypeWriter :data="getRandomConversation(item)" @is-typing="listenOnTyping" />
+            </div>
+          </template>
+
+          <template v-if="item.__type === 'monster'">
+            <div class="item" style="margin-bottom: 12px">
+              {{ speaker }}
+              <TypeWriter :data="getRandomConversation(item)" @is-typing="listenOnTyping" />
             </div>
           </template>
         </template>
@@ -23,44 +31,47 @@
 <script setup lang="ts">
 import SceneFlow from '../TypeWriter/SceneFlow.vue';
 import TypeWriter from '../TypeWriter/TypeWriter.vue';
-import type { IConversationItem, INpc } from '@/interface';
+import type { IMonster, INpc } from '@/interface';
 import { onMounted, ref } from 'vue';
-const conversationDataList = ref<IConversationItem[]>([]);
-const typeWriterContainerRef = ref<InstanceType<typeof SceneFlow>>();
+const sceneFlowRef = ref<InstanceType<typeof SceneFlow>>();
 
 import { scene } from '@/data/scene';
-import { getWeightedRandomElement } from '@/utils/arrayUtils';
-
-const count = ref(0);
+import { getRandomElement, getWeightedRandomElement } from '@/utils/arrayUtils';
 
 onMounted(() => {
   setInterval(() => {
-    // count.value++;
     const data = getWeightedRandomElement(scene.monsterList);
-    if (data?.name === '大妖') {
-    }
+    sceneFlowRef.value?.addFlowItem(data!);
   }, 1000);
 });
 
+const getRandomConversation = (item: INpc | IMonster) => {
+  if (item.conversationList.length) {
+    return getRandomElement(item.conversationList);
+  }
+};
+
 const getNpc = (): INpc => {
   return {
+    __type: 'npc',
     name: '小师弟',
     conversationList: [
       {
+        __type: 'conversationItem',
         contentList: ['这是封缘星，请坐。'],
-        type: 'text',
+        type: 'conversation',
       },
     ],
   };
 };
 
 const add = () => {
-  const hasTypingItem = typeWriterContainerRef.value?.getTypingItem();
+  const hasTypingItem = sceneFlowRef.value?.getTypingItem();
   if (hasTypingItem) {
-    typeWriterContainerRef.value?.endCurrentFlow();
+    sceneFlowRef.value?.endCurrentFlow();
   } else {
     const data = getNpc();
-    typeWriterContainerRef.value?.addFlowItem(data.name, data.conversationList[0]!);
+    sceneFlowRef.value?.addFlowItem(data);
   }
 };
 
@@ -73,5 +84,9 @@ const listenOnTyping = (status: boolean) => {
 <style>
 .item {
   color: #d4d4d4;
+}
+
+.SceneFlow {
+  color: #fff;
 }
 </style>
