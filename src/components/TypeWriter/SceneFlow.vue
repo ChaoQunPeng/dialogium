@@ -85,7 +85,7 @@ const addFlowItem = (item: INpc | IMonster) => {
   } else if (item.__type == 'monster') {
   }
 
-  dataList.value.push(item);
+  dataList.value.unshift(item);
 };
 
 provide('typeWriterManager', {

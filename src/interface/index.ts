@@ -76,3 +76,52 @@ export interface IItem {
   /** 物品数量 */
   count: number;
 }
+
+export interface IEquip {
+  /** 装备ID */
+  id: string;
+  /** 装备名称 */
+  name: string;
+  /** 装备类型 */
+  type: string;
+  /** 装备等级 */
+  level: number;
+  /** 装备攻击力 */
+  attack: number;
+  /** 装备防御力 */
+  defense: number;
+  /** 装备价格 */
+  price: number;
+  /** 装备图标 */
+  icon: string;
+}
+
+export interface ICultivation {
+  /** 级别 */
+  level: number;
+  /** 当前经验 */
+  currentExp: number;
+  /** 境界 */
+  realm: number;
+}
+
+export interface IPlayer {
+  /** 玩家名称 */
+  name: string;
+  /** 生命值 */
+  hp: number;
+  /** 法力值 */
+  mp: number;
+  /** 攻击力 */
+  atk: number;
+  /** 防御力 */
+  def: number;
+  /** 修真者 */
+  daoCultivation?: ICultivation;
+  /** 修仙者 */
+  immortalCultivation?: ICultivation;
+  /** 修魔者 */
+  demonicCultivation?: ICultivation;
+  /** 修神者 */
+  divineCultivation?: ICultivation;
+}

@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { defineComponent } from 'vue';
-import HellScene from './components/scene/HellScene.vue';
+import HellScene from './components/scene/SceneView.vue';
 
 defineComponent({
   components: {
