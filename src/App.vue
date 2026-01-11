@@ -1,59 +1,47 @@
 <template>
   <div class="app-container">
-    <HellScene></HellScene>
+    <header>头部</header>
+    <main>
+      <SceneView></SceneView>
+    </main>
+    <footer>底部</footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineComponent } from 'vue';
-import HellScene from './components/scene/SceneView.vue';
+import SceneView from './components/scene/SceneView.vue';
 
 defineComponent({
   components: {
-    HellScene,
+    SceneView,
   },
 });
-
-// const index = ref(0);
-// const conversationData = ref<Array<IConversationData>>(scene1.conversationData);
-// const conversationList = ref<Array<IConversationData>>([]);
-// const typeWriterContainerRef = ref<InstanceType<typeof TypeWriterContainer>>();
-
-// const getConversation = (item: IConversationData) => {
-//   if (!item.contentList || item.contentList.length === 0) {
-//     return ''; // 或返回默认值
-//   }
-
-//   const contentList = item.contentList;
-//   const random = Math.floor(Math.random());
-
-//   // 数组随机取一个
-//   const contentItem = contentList[random * contentList.length];
-
-//   if (!contentItem) {
-//     return '';
-//   }
-
-//   return contentItem.content;
-// };
 </script>
 
-<style>
+<style lang="scss">
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: serif;
+  color: #d4d4d4;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #111111;
+  background-color: #404040;
 }
 
 .app-container {
   display: flex;
-  /* min-width: 1366px; */
+  flex-direction: column;
+  height: 100vh;
+
+  main {
+    flex: 1;
+    overflow: auto;
+  }
 }
 </style>
