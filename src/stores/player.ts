@@ -6,7 +6,7 @@ import { CharacterType } from '@/enums';
 export const usePlayerStore = defineStore('player', () => {
   const player = reactive<ICharacter>({
     id: 'player',
-    name: '萧炎',
+    name: '李强',
     type: CharacterType.Player,
     baseInfo: { level: 10, hp: 100, maxHp: 100, mp: 50, maxMp: 50 },
     battle: { attack: 100, defense: 100 },
