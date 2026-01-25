@@ -1,55 +1,191 @@
+import type {
+  CharacterType,
+  CultivationType,
+  DaoRealms,
+  DemonicRealms,
+  DivineRealms,
+  ImmortalRealms,
+} from '@/enums';
+
 /**
  * 表示游戏场景的数据结构
  */
 export interface Scene {
+  /** 场景唯一标识 */
+  id: string;
   /** 场景名称 */
   name: string;
-  /** NPC 列表 */
-  npcList: INpc[];
-  /** 怪物列表 */
-  monsterList: IMonster[];
+  /** 出现的角色 */
+  characters: ICharacter[];
 }
 
-/**
- * 表示游戏中NPC的数据结构
- * 包含名称和对话列表
- */
-export interface INpc {
-  __type: 'npc';
-  /** NPC 名称 */
-  name: string;
-  /** 对话列表 */
-  conversationList: IConversationItem[];
-}
-
-/**
- * 表示游戏中怪物的数据结构
- * 包含基本信息、战斗属性和掉落物品
- */
-export interface IMonster {
-  __type: 'monster';
-  /** 怪物名称 */
-  name: string;
-  /** 对话列表 */
-  conversationList: IConversationItem[];
-  /** 怪物类型（如：elite精英怪，normal普通怪等） */
-  type: string;
-  /** 行为 battle,event,talk */
-  action: string;
-  /** 生命值 */
-  hp: number;
-  /** 攻击力 */
-  attack: number;
-  /** 防御力 */
-  defense: number;
-  /** 经验值 */
-  exp: number;
-  /** 等级 */
+// 定义特定修炼路径的境界信息
+export interface IDaoCultivation {
+  type: CultivationType.Dao;
+  /** 级别 */
   level: number;
-  /** 掉落物品列表 */
-  dropList: IItem[];
-  /** 权重值，影响出现概率 */
-  weight: number;
+  /** 当前经验 */
+  currentExp: number;
+  /** 境界 */
+  realm: DaoRealms;
+  // subStage?: 'early' | 'middle' | 'late' | 'peak'; // 子阶段
+}
+
+export interface IImmortalCultivation {
+  type: CultivationType.Immortal;
+  /** 级别 */
+  level: number;
+  /** 当前经验 */
+  currentExp: number;
+  /** 境界 */
+  realm: ImmortalRealms;
+}
+
+export interface IDemonicCultivation {
+  type: CultivationType.Demonic;
+  /** 级别 */
+  level: number;
+  /** 当前经验 */
+  currentExp: number;
+  /** 境界 */
+  realm: DemonicRealms;
+}
+
+export interface IDivineCultivation {
+  type: CultivationType.Divine;
+  /** 级别 */
+  level: number;
+  /** 当前经验 */
+  currentExp: number;
+  /** 境界 */
+  realm: DivineRealms;
+}
+
+// 使用联合类型表示具体的修炼状态
+export type ICultivation =
+  | IDaoCultivation
+  | IImmortalCultivation
+  | IDemonicCultivation
+  | IDivineCultivation;
+
+/**
+ * 统一的游戏角色接口
+ */
+export interface ICharacter {
+  // 核心标识
+  id: string; // 建议加上唯一ID
+  name: string;
+  type: CharacterType;
+
+  // 基础信息（所有角色都有）
+  baseInfo: {
+    level: number;
+    // 生命值
+    hp: number; // 当前生命值
+    maxHp: number; // 最大生命值
+
+    // 法力值（可选）
+    mp: number; // 当前法力值
+    maxMp: number; // 最大法力值
+
+    // 经验值
+    // exp: number; // 当前经验值
+    // expToNextLevel?: number; // 下一级所需经验
+
+    cultivation?: ICultivation;
+  };
+
+  // 战斗相关（可选）
+  battle?: {
+    attack: number;
+    defense: number;
+    // magicAttack?: number;
+    // magicDefense?: number;
+    // speed?: number;
+    // critRate?: number;
+    dropList?: IItem[]; // 建议用 dropList 更语义化
+    // dropRate?: number; // 掉落概率
+    // skills?: ISkill[]; // 技能列表
+  };
+
+  // 交互相关（可选）
+  interact?: {
+    canTalk: boolean; // 明确标记是否能对话
+    conversations?: IConversationItem[];
+    quests?: string[]; // 关联的任务ID
+    services?: ('shop' | 'repair' | 'train')[]; // 提供的服务
+    shopItems?: IItem[]; // 如果是商人
+  };
+
+  // 位置信息（游戏内定位）
+  // position?: {
+  //   sceneId: string;
+  //   x: number;
+  //   y: number;
+  //   rotation?: number;
+  // };
+
+  // 外观/表现层
+  // appearance?: {
+  //   model: string;
+  //   texture?: string;
+  //   scale?: number;
+  //   color?: string;
+  //   animations?: string[];
+  // };
+
+  // 状态/效果
+  // status?: {
+  //   isDead?: boolean;
+  //   isInCombat?: boolean;
+  //   buffs?: IBuff[];
+  //   debuffs?: IDebuff[];
+  // };
+}
+
+/** 统一物品接口：采用组合模式 */
+export interface IItem {
+  // --- 核心标识 ---
+  id: string;
+  name: string;
+  category: 'equipment' | 'consumable' | 'material' | 'quest';
+  count: number;
+
+  // --- 表现层 (UI用) ---
+  icon?: string;
+  description?: string;
+  price?: number;
+
+  // --- 组合属性模块 (Components) ---
+
+  /** 装备/数值组件：如果物品有属性加成，就填入此项 */
+  stats?: {
+    level?: number;
+    attack?: number;
+    defense?: number;
+    hpMax?: number;
+    mpMax?: number;
+    /** 装备位：头部、身体、武器等 */
+    slot?: 'head' | 'body' | 'weapon' | 'accessory';
+  };
+
+  /** 消耗组件：如果物品可以被使用（吃药、开礼包） */
+  useAction?: {
+    /** 恢复值 */
+    hpRestore?: number;
+    mpRestore?: number;
+    /** 触发的脚本ID或效果代码 */
+    effectId?: string;
+    /** 使用后是否消失（消耗数量） */
+    isConsumable: boolean;
+  };
+
+  /** 修仙/特殊组件：存储特定逻辑数据 */
+  meta?: {
+    realmReq?: number; // 境界要求
+    rarity?: string; // 稀有度颜色
+    isLocked?: boolean; // 是否绑定
+  };
 }
 
 /**
@@ -57,71 +193,8 @@ export interface IMonster {
  * 包含类型和内容数组
  */
 export interface IConversationItem {
-  __type: 'conversationItem';
   /** 对话项类型（如：text文本，choice选择等） */
   type: string;
   /** 对话内容数组 */
   contentList: string[];
-}
-
-/**
- * 表示物品的数据结构
- * 包含ID、名称和数量
- */
-export interface IItem {
-  /** 物品唯一标识ID */
-  id: string;
-  /** 物品名称 */
-  name: string;
-  /** 物品数量 */
-  count: number;
-}
-
-export interface IEquip {
-  /** 装备ID */
-  id: string;
-  /** 装备名称 */
-  name: string;
-  /** 装备类型 */
-  type: string;
-  /** 装备等级 */
-  level: number;
-  /** 装备攻击力 */
-  attack: number;
-  /** 装备防御力 */
-  defense: number;
-  /** 装备价格 */
-  price: number;
-  /** 装备图标 */
-  icon: string;
-}
-
-export interface ICultivation {
-  /** 级别 */
-  level: number;
-  /** 当前经验 */
-  currentExp: number;
-  /** 境界 */
-  realm: number;
-}
-
-export interface IPlayer {
-  /** 玩家名称 */
-  name: string;
-  /** 生命值 */
-  hp: number;
-  /** 法力值 */
-  mp: number;
-  /** 攻击力 */
-  atk: number;
-  /** 防御力 */
-  def: number;
-  /** 修真者 */
-  daoCultivation?: ICultivation;
-  /** 修仙者 */
-  immortalCultivation?: ICultivation;
-  /** 修魔者 */
-  demonicCultivation?: ICultivation;
-  /** 修神者 */
-  divineCultivation?: ICultivation;
 }
