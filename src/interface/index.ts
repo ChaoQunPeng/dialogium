@@ -108,10 +108,11 @@ export interface ICharacter {
     // skills?: ISkill[]; // 技能列表
   };
 
+  conversations?: IConversationItem[];
+
   // 交互相关（可选）
   interact?: {
     canTalk: boolean; // 明确标记是否能对话
-    conversations?: IConversationItem[];
     quests?: string[]; // 关联的任务ID
     services?: ('shop' | 'repair' | 'train')[]; // 提供的服务
     shopItems?: IItem[]; // 如果是商人
