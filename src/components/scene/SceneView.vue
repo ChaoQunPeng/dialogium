@@ -43,6 +43,7 @@ const fight = () => {
   startBattle(player, slime, {
     delay: 1000,
     onTurn: (event) => {
+      debugger;
       player.baseInfo.hp = event.attack.attackerHp;
       slime.baseInfo.hp = event.defender?.defenderHp ?? 0;
       battleLogs.value.unshift(event.msg);
