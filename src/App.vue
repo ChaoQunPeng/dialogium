@@ -11,7 +11,10 @@
     <main class="game-content">
       <SceneView v-if="activeTab === 'adventure'" />
       <div v-if="activeTab === 'realm'" class="placeholder-view">境界感悟中...</div>
-      <div v-if="activeTab === 'storage'" class="placeholder-view">纳戒乾坤内...</div>
+      <div v-if="activeTab === 'practice'" class="practice-view">
+        <div class="meditation-circle"></div>
+        <p>天地灵气汇聚中...</p>
+      </div>
     </main>
 
     <footer class="game-nav">
@@ -31,121 +34,140 @@
 import { ref } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
 
-// 定义 Tab 数据
+// 定义 Tab 数据，第三个修改为“修炼”
 const tabs = [
-  { id: 'adventure', name: '历练' },
   { id: 'realm', name: '境界' },
-  { id: 'storage', name: '纳戒' },
+  { id: 'adventure', name: '飘邈之旅' },
+  { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
 ];
 
 const activeTab = ref('adventure');
 </script>
 
 <style lang="scss">
-/* 修仙风格配色变量 */
-$bg-dark: #1a1a1a; // 深墨色
-$border-gold: #8c7355; // 古铜/金
-$active-cyan: #40e0d0; // 灵力青
-$text-gray: #d4d4d4;
+/* 建议将此部分放入全局样式文件 */
+:root {
+  --bg-main: #121212;
+  --bg-card: #1e1e1e;
+  --color-gold: #b49b70;
+  --color-cyan: #40e0d0;
+  --color-text: #d4d4d4;
+  --color-sub: #666666;
+  --border-style: 1px solid var(--color-gold);
+  --shadow-glow: 0 0 10px rgba(64, 224, 208, 0.3);
+}
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'PingFang SC', 'Microsoft YaHei', serif;
+  //  'PingFang SC',
+  font-family: 'STKaiti', serif; /* 加入楷体更有修仙感 */
 }
 
 body {
-  background-color: $bg-dark;
-  color: $text-gray;
+  background-color: var(--bg-main);
+  color: var(--color-text);
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 500px; /* 模拟手机端宽度 */
+  max-width: 500px;
   margin: 0 auto;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
 
-  /* 头部样式 */
   .game-header {
     height: 60px;
-    padding: 10px 20px;
-    background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
-    border-bottom: 2px solid $border-gold;
+    padding: 0 20px;
+    background: var(--bg-card);
+    border-bottom: 2px solid var(--color-gold);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 
     .realm {
       margin-left: 10px;
-      color: $active-cyan;
+      color: var(--color-cyan);
+      font-weight: bold;
+    }
+
+    .currency {
+      color: var(--color-gold);
       font-size: 0.9em;
     }
   }
 
-  /* 主体内容 */
   .game-content {
     flex: 1;
     overflow-y: auto;
-    padding: 15px;
-    background: radial-gradient(circle at center, #262626 0%, #1a1a1a 100%);
+    background: radial-gradient(circle at center, #222 0%, var(--bg-main) 100%);
+    position: relative;
 
-    .placeholder-view {
+    .placeholder-view,
+    .practice-view {
       text-align: center;
-      margin-top: 50px;
-      color: #666;
-      font-style: italic;
+      padding-top: 100px;
+      color: var(--color-sub);
+    }
+
+    /* 简单的修炼动画演示 */
+    .meditation-circle {
+      width: 100px;
+      height: 100px;
+      border: 2px solid var(--color-cyan);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: breathe 3s infinite ease-in-out;
+      box-shadow: var(--shadow-glow);
     }
   }
 
-  /* 底部 Tab 导航 */
   .game-nav {
     display: flex;
     height: 70px;
-    background: #222;
-    border-top: 1px solid $border-gold;
-    padding-bottom: env(safe-area-inset-bottom); /* 兼容刘海屏 */
+    background: var(--bg-card);
+    border-top: 1px solid var(--color-gold);
+    padding-bottom: env(safe-area-inset-bottom);
 
     .nav-item {
       flex: 1;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
 
       .nav-text {
         font-size: 1.1rem;
-        letter-spacing: 2px;
-        color: #888;
+        color: var(--color-sub);
       }
 
       &.active {
-        background: rgba(140, 115, 85, 0.1);
+        background: rgba(180, 155, 112, 0.1);
 
         .nav-text {
-          color: $active-cyan;
+          color: var(--color-cyan);
+          text-shadow: var(--shadow-glow);
           font-weight: bold;
-          text-shadow: 0 0 8px rgba(64, 224, 208, 0.5);
-        }
-
-        /* 选中的装饰小横条 */
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: 10px;
-          width: 30%;
-          height: 2px;
-          background-color: $active-cyan;
-          box-shadow: 0 0 5px $active-cyan;
         }
       }
     }
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
   }
 }
 </style>
