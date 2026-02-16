@@ -11,10 +11,7 @@
     <main class="game-content">
       <SceneView v-if="activeTab === 'adventure'" />
       <CharacterPanel v-if="activeTab === 'realm'" />
-      <div v-if="activeTab === 'practice'" class="practice-view">
-        <div class="meditation-circle"></div>
-        <p>天地灵气汇聚中...</p>
-      </div>
+      <CultivationPanel v-if="activeTab === 'practice'" />
     </main>
 
     <footer class="game-nav">
@@ -34,6 +31,7 @@
 import { ref } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
+import CultivationPanel from './components/CultivationPanel.vue';
 
 // 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
