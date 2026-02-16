@@ -10,7 +10,7 @@
 
     <main class="game-content">
       <SceneView v-if="activeTab === 'adventure'" />
-      <div v-if="activeTab === 'realm'" class="placeholder-view">境界感悟中...</div>
+      <CharacterPanel v-if="activeTab === 'realm'" />
       <div v-if="activeTab === 'practice'" class="practice-view">
         <div class="meditation-circle"></div>
         <p>天地灵气汇聚中...</p>
@@ -33,10 +33,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
+import CharacterPanel from './components/CharacterPanel.vue';
 
-// 定义 Tab 数据，第三个修改为“修炼”
+// 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
-  { id: 'realm', name: '境界' },
+  { id: 'realm', name: '修为' },
   { id: 'adventure', name: '飘邈之旅' },
   { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
 ];
