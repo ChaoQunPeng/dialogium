@@ -199,3 +199,29 @@ export interface IConversationItem {
   /** 对话内容数组 */
   contentList: string[];
 }
+
+/** * 玩家拥有的物品实例（存档数据）
+ * 对应数据库中的 PLAYER_TO_ITEMS 关联记录
+ */
+export interface IItemInstance {
+  /** 唯一实例标识，用于区分两把相同的剑 (如：uuid 或 Date.now().toString()) */
+  instanceId: string;
+
+  /** 指向系统静态配置表中的物品 ID (BASE_ITEMS_CONFIG) */
+  itemId: string;
+
+  /** 持有数量：堆叠类物品有效 */
+  count: number;
+
+  /** 是否正穿戴在身上：仅装备类有效 */
+  isEquipped: boolean;
+
+  /** 锁定状态：防止误丢弃、误出售、误作为炼丹材料 */
+  isLocked: boolean;
+
+  /** * 扩展：可以在此记录玩家个性化属性
+   * 如：自定义名称、强化等级、耐久度等
+   */
+  // customName?: string;
+  // level?: number;
+}
