@@ -118,6 +118,30 @@ export interface ICharacter {
     shopItems?: IItem[]; // 如果是商人
   };
 
+  /**
+   * 装备位映射：存储的是玩家背包中物品的 instanceId (唯一实例标识)
+   * 对应原著：修真者通常拥有多件法宝，通过灵识打上烙印(instanceId)来精准操控。
+   */
+  equipmentSlots: {
+    /** 武器：如金蝶刀、吸精针、百雷弓等。攻击敌人的核心法宝 */
+    weapon?: string;
+
+    /** 仙甲(上衣)：仙甲的主体部分，如“满天星”的核心护甲，防御全身精要 */
+    body?: string;
+
+    /** 仙甲(下装)：保护下盘的甲胄，维持身法稳健 */
+    leg?: string;
+
+    /** 仙甲(头肩)：保护识海与肩部的部件，通常附带增强灵识的效果 */
+    shoulder?: string;
+
+    /** 仙甲(腰带)：束缚元气，通常也是悬挂储物法宝(如扣上纳芥手镯)的位置 */
+    belt?: string;
+
+    /** 仙甲(鞋履)：增强瞬移速度与闪避身法，如“星蝉翼”类靴子 */
+    shoes?: string;
+  };
+
   // 位置信息（游戏内定位）
   // position?: {
   //   sceneId: string;

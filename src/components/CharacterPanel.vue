@@ -41,7 +41,7 @@
         <div v-for="n in 6" :key="n" class="equip-row">
           <span class="idx">({{ n }})</span>
           <span v-if="equips[n - 1]" class="name">{{ equips[n - 1].name }}</span>
-          <span v-else class="empty">-- 无 --</span>
+          <span v-else class="empty">-- 空置 --</span>
         </div>
       </div>
     </section>
@@ -49,16 +49,31 @@
     <div class="line-divider">--------------------------------</div>
 
     <section class="mud-section">
-      <div class="mud-sub-title">【 储物纳戒 】 ({{ inventory.length }}/50)</div>
+      <div class="mud-sub-title">【 储物纳戒 】 ({{ filteredInventory.length }}/50)</div>
+
+      <div class="mud-tabs">
+        <span
+          v-for="tab in tabs"
+          :key="tab.key"
+          :class="['tab-item', { active: activeTab === tab.key }]"
+          @click="activeTab = tab.key"
+        >
+          {{ activeTab === tab.key ? `[${tab.name}]` : tab.name }}
+        </span>
+      </div>
+
       <div class="inventory-text-list">
         <div class="list-header">序号 名称 数量</div>
         <div class="list-divider">................................</div>
-        <div v-for="(item, index) in inventory" :key="index" class="inventory-row">
+
+        <div v-for="(item, index) in filteredInventory" :key="index" class="inventory-row">
           <span class="item-idx">[{{ (index + 1).toString().padStart(2, '0') }}]</span>
           <span class="item-name">{{ item.name.padEnd(16, ' ') }}</span>
           <span class="item-count">x{{ item.count }}</span>
+          <span v-if="item.isLocked" class="item-tag">锁</span>
         </div>
-        <div v-if="inventory.length === 0" class="empty-hint">你身上空空如也。</div>
+
+        <div v-if="filteredInventory.length === 0" class="empty-hint">此分类下空空如也。</div>
         <div class="list-footer">................................</div>
       </div>
     </section>
@@ -66,34 +81,54 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue';
+import { reactive, ref, computed } from 'vue';
 
+// 角色与属性
 const character = reactive({ name: '李强', realm: '筑基初期' });
+
 const stats = reactive({
   气血: 1200,
-  灵力: 800,
+  真元力: 800,
   攻击: 150,
   防御: 85,
-  速度: 45,
-  幸运: 10,
-  暴击: '5%',
-  命中: 102,
+  速度: 0,
+  幸运: 0,
+  暴击: 0,
+  命中: 0,
 });
 const maxStats = reactive({ 气血: 2000, 灵力: 1000 });
 
 const coreStats = computed(() => ({ 气血: stats.气血, 灵力: stats.灵力 }));
 const detailStats = computed(() => {
-  const { 气血, 灵力, ...rest } = stats;
+  const { 气血, 真元力, ...rest } = stats;
   return rest;
 });
 
+// 装备展示
 const equips = reactive([{ name: '青锋剑' }, { name: '玄铁甲' }]);
 
+// 纳戒数据与分类逻辑
+const activeTab = ref('all');
+const tabs = [
+  { name: '全部', key: 'all' },
+  { name: '装备', key: 'equipment' },
+  { name: '丹药', key: 'consumable' },
+  { name: '材料', key: 'material' },
+];
+
 const inventory = reactive([
-  { name: '洗髓丹', count: 5 },
-  { name: '灵石', count: 8848 },
-  { name: '残破秘籍', count: 1 },
+  { name: '筑基丹', count: 5, category: 'consumable', isLocked: false },
+  { name: '灵石', count: 8848, category: 'material', isLocked: true },
+  { name: '金蝶刀', count: 1, category: 'equipment', isLocked: false },
+  { name: '寒冰石', count: 12, category: 'material', isLocked: false },
+  { name: '补天丹', count: 2, category: 'consumable', isLocked: false },
 ]);
+
+// 核心：分类过滤逻辑
+const filteredInventory = computed(() => {
+  if (activeTab.value === 'all') return inventory;
+  return inventory.filter((item) => item.category === activeTab.value);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -108,22 +143,22 @@ const inventory = reactive([
     margin-bottom: 15px;
   }
   .char-title {
-    color: var(--color-gold);
+    color: #d4af37;
     font-weight: bold;
     font-size: 1.1rem;
   }
   .mud-sub-title {
-    color: var(--color-gold);
+    color: #d4af37;
     margin-bottom: 8px;
     font-size: 0.9rem;
   }
   .line-divider {
-    color: #444;
+    color: #ddd;
     margin: 10px 0;
     white-space: nowrap;
   }
 
-  /* 核心状态条样式：保持原样（现代感渐变） */
+  /* 状态条 */
   .status-bars {
     .bar-item {
       margin-bottom: 12px;
@@ -134,7 +169,7 @@ const inventory = reactive([
         margin-bottom: 4px;
         color: #888;
         .val-text {
-          color: var(--color-cyan);
+          color: #00ffff;
           font-family: monospace;
         }
       }
@@ -160,35 +195,49 @@ const inventory = reactive([
     }
   }
 
-  /* 属性网格 */
-  .attr-grid-text {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    .attr-row {
-      font-size: 0.85rem;
-      .label {
-        color: #666;
-      }
-      .val {
-        color: #ddd;
-      }
-    }
-  }
-
-  /* 装备列表 */
+  /* 属性与装备 */
+  .attr-grid-text,
   .equip-list-text {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    .equip-row {
-      font-size: 0.85rem;
-      .idx {
-        color: #444;
+    font-size: 0.85rem;
+    .label {
+      color: #dddddd;
+    }
+    .val {
+      color: #ddd;
+    }
+    .idx {
+      color: #ddd;
+    }
+    .name {
+      color: #00ffff;
+    }
+    .empty {
+      color: #ddd;
+    }
+  }
+
+  /* 纳戒分类 Tab 样式 */
+  .mud-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #222;
+    padding-bottom: 5px;
+
+    .tab-item {
+      cursor: pointer;
+      color: #dddddd;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #bbb;
       }
-      .name {
-        color: var(--color-cyan);
-      }
-      .empty {
-        color: #333;
+      &.active {
+        color: #d4af37;
+        font-weight: bold;
       }
     }
   }
@@ -197,34 +246,40 @@ const inventory = reactive([
   .inventory-text-list {
     font-size: 0.85rem;
     .list-header {
-      color: #666;
+      color: #dddddd;
       white-space: pre;
     }
-    .list-divider {
-      color: #333;
+    .list-divider,
+    .list-footer {
+      color: #ddd;
       margin: 4px 0;
     }
     .inventory-row {
       display: flex;
       gap: 10px;
+      align-items: center;
       .item-idx {
-        color: #444;
+        color: #ddd;
       }
       .item-name {
         color: #bbb;
         white-space: pre;
       }
       .item-count {
-        color: var(--color-gold);
+        color: #d4af37;
+      }
+      .item-tag {
+        font-size: 0.7rem;
+        color: #820000;
+        border: 1px solid #820000;
+        padding: 0 2px;
+        line-height: 1;
       }
     }
     .empty-hint {
-      color: #444;
+      color: #ddd;
       padding: 10px 0;
-    }
-    .list-footer {
-      color: #333;
-      margin: 4px 0;
+      font-style: italic;
     }
   }
 }

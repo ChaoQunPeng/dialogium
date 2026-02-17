@@ -88,7 +88,7 @@ const openAction = (type: string) => {
     font-size: 0.95rem;
   }
   .line-divider {
-    color: #444;
+    color: #ddd;
     margin: 10px 0;
   }
 
@@ -127,7 +127,7 @@ const openAction = (type: string) => {
       padding: 10px;
       margin-bottom: 8px;
       background: rgba(180, 155, 112, 0.05);
-      border: 1px dashed #333;
+      border: 1px dashed #ddd;
       cursor: pointer;
       font-size: 0.9rem;
       color: #999;

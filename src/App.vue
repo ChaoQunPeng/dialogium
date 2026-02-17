@@ -28,10 +28,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 import CultivationPanel from './components/CultivationPanel.vue';
+import { initializePlayerData } from '@/utils/initialize';
 
 // 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
@@ -41,6 +42,10 @@ const tabs = [
 ];
 
 const activeTab = ref('adventure');
+
+onMounted(() => {
+  initializePlayerData();
+});
 </script>
 
 <style lang="scss">
@@ -51,7 +56,7 @@ const activeTab = ref('adventure');
   --color-gold: #b49b70;
   --color-cyan: #40e0d0;
   --color-text: #d4d4d4;
-  --color-sub: #666666;
+  --color-sub: #dddddd;
   --border-style: 1px solid var(--color-gold);
   --shadow-glow: 0 0 10px rgba(64, 224, 208, 0.3);
 }
