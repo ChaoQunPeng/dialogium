@@ -9,9 +9,13 @@
     </header>
 
     <main class="game-content">
-      <SceneView v-show="activeTab === 'adventure'" />
-      <CharacterPanel v-show="activeTab === 'realm'" />
-      <CultivationPanel v-show="activeTab === 'practice'" />
+      <button @click="addItem({ itemId: 'man_tian_xin_body', count: 1 })">获取物品</button>
+      <button @click="removeItem('bab96e71-a586-46fa-a35d-24236df12afe')">丢弃</button>
+      <button @click="selfItem">出售</button>
+
+      <SceneView v-if="activeTab === 'adventure'" />
+      <CharacterPanel v-if="activeTab === 'realm'" />
+      <CultivationPanel v-if="activeTab === 'practice'" />
     </main>
 
     <footer class="game-nav">
@@ -32,7 +36,9 @@ import { ref, onMounted } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 import CultivationPanel from './components/CultivationPanel.vue';
-import { initializePlayerData } from '@/utils/initialize';
+
+import { usePlayerStore } from './stores/player';
+const playerStore = usePlayerStore();
 
 // 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
@@ -43,9 +49,24 @@ const tabs = [
 
 const activeTab = ref('adventure');
 
-onMounted(() => {
-  initializePlayerData();
-});
+onMounted(() => {});
+
+const addItem = (item: { itemId: string; count: number }) => {
+  playerStore.acquireItem([
+    {
+      itemId: item.itemId,
+      count: item.count,
+    },
+  ]);
+};
+
+const removeItem = (instanceId: string) => {
+  playerStore.dropItem(instanceId);
+};
+
+const selfItem = () => {
+  console.log('出售物品');
+};
 </script>
 
 <style lang="scss">

@@ -21,15 +21,7 @@ export interface IPlayerState {
  * 物品管理自定义 Hook
  * 适配 Vue 3 的响应式系统
  */
-export function useItemManager(initialState?: Partial<IPlayerState>) {
-  // 响应式状态
-  const playerState: Ref<IPlayerState> = ref({
-    inventory: [],
-    gold: 100, // 初始启动金
-    maxSlots: 20,
-    ...initialState,
-  });
-
+export function useItemManager() {
   /**
    * 1. 获取物品
    */
@@ -102,7 +94,6 @@ export function useItemManager(initialState?: Partial<IPlayerState>) {
   };
 
   return {
-    playerState,
     acquireItem,
     dropItem,
     sellItem,

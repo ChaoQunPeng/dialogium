@@ -17,7 +17,7 @@
         <div class="char-subtitle">境界：{{ character.realm }}</div>
         <div class="char-subtitle">门派：逍遥散修</div>
       </header>
-
+      <!--
       <div class="line-divider">--------------------------------</div>
 
       <section class="status-bars">
@@ -45,7 +45,7 @@
             <span class="val">{{ val }}</span>
           </div>
         </div>
-      </section>
+      </section> -->
 
       <section class="mud-section">
         <div class="mud-sub-title">【 已穿戴法宝 】</div>
@@ -104,6 +104,8 @@ import { reactive, ref, computed, onMounted } from 'vue';
 import type { IItemInstance } from '../interface/index';
 import { items } from '../items/index';
 import ItemCodex from './ItemCodex.vue';
+import { usePlayerStore } from '../stores/player';
+const playerStore = usePlayerStore();
 
 // 面板切换状态
 const currentPanel = ref<'character' | 'codex'>('character');
@@ -125,7 +127,7 @@ const maxStats = reactive({ 气血: 2000, 真元力: 1000 });
 
 const coreStats = computed(() => ({ 气血: stats.气血, 真元力: stats.真元力 }));
 const detailStats = computed(() => {
-  const { 气血, 真元力, ...rest } = stats;
+  const { ...rest } = stats;
   return rest;
 });
 
@@ -165,7 +167,7 @@ const loadPlayerItems = () => {
 
 // 将物品实例转换为展示格式
 const inventory = computed(() => {
-  return playerItems.value.map((itemInstance: IItemInstance) => {
+  return playerStore.inventory.map((itemInstance: IItemInstance) => {
     // 根据 itemId 查找物品配置
     const itemConfig = items[itemInstance.itemId];
 
