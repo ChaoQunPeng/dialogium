@@ -99,7 +99,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
+// 假设类型定义和物品数据在指定路径下存在
+import type { IItemInstance } from '../interface/index';
+import { items } from '../items/index';
 import ItemCodex from './ItemCodex.vue';
 
 // 面板切换状态
@@ -122,7 +125,7 @@ const maxStats = reactive({ 气血: 2000, 真元力: 1000 });
 
 const coreStats = computed(() => ({ 气血: stats.气血, 真元力: stats.真元力 }));
 const detailStats = computed(() => {
-  const { 气血: _气血, 真元力: _真元力, ...rest } = stats;
+  const { 气血, 真元力, ...rest } = stats;
   return rest;
 });
 
@@ -138,18 +141,72 @@ const tabs = [
   { name: '材料', key: 'material' },
 ];
 
-const inventory = reactive([
-  { name: '筑基丹', count: 5, category: 'consumable', isLocked: false },
-  { name: '灵石', count: 8848, category: 'material', isLocked: true },
-  { name: '金蝶刀', count: 1, category: 'equipment', isLocked: false },
-  { name: '寒冰石', count: 12, category: 'material', isLocked: false },
-  { name: '补天丹', count: 2, category: 'consumable', isLocked: false },
-]);
+// 从本地存储获取物品数据
+const PMZL_PLAYER_ITEMS_KEY = 'PMZL_PLAYER_ITEMS';
+const playerItems = ref<IItemInstance[]>([]);
+
+// 加载本地存储的物品数据
+const loadPlayerItems = () => {
+  try {
+    const storedData = localStorage.getItem(PMZL_PLAYER_ITEMS_KEY);
+    if (storedData) {
+      const parsedItems = JSON.parse(storedData) as IItemInstance[];
+      playerItems.value = parsedItems;
+      console.log('成功加载玩家物品数据:', parsedItems);
+    } else {
+      console.log('未找到玩家物品数据');
+      playerItems.value = [];
+    }
+  } catch (error) {
+    console.error('加载玩家物品数据失败:', error);
+    playerItems.value = [];
+  }
+};
+
+// 将物品实例转换为展示格式
+const inventory = computed(() => {
+  return playerItems.value.map((itemInstance: IItemInstance) => {
+    // 根据 itemId 查找物品配置
+    const itemConfig = items[itemInstance.itemId];
+
+    if (!itemConfig) {
+      // 如果找不到配置，使用默认值
+      return {
+        name: `未知物品(${itemInstance.itemId})`,
+        count: itemInstance.count,
+        category: 'material' as const,
+        isLocked: itemInstance.isLocked,
+        isEquipped: itemInstance.isEquipped,
+        instanceId: itemInstance.instanceId,
+      };
+    }
+
+    return {
+      //
+      count: itemInstance.count,
+      isLocked: itemInstance.isLocked,
+      isEquipped: itemInstance.isEquipped,
+      instanceId: itemInstance.instanceId,
+      //
+      name: itemConfig.name,
+      category: itemConfig.category,
+      description: itemConfig.description,
+      level: itemConfig.level,
+    };
+  });
+});
 
 // 核心：分类过滤逻辑
 const filteredInventory = computed(() => {
-  if (activeTab.value === 'all') return inventory;
-  return inventory.filter((item) => item.category === activeTab.value);
+  if (activeTab.value === 'all') return inventory.value;
+  return inventory.value.filter(
+    (item: (typeof inventory.value)[number]) => item.category === activeTab.value,
+  );
+});
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadPlayerItems();
 });
 </script>
 

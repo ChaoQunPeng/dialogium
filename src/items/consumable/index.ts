@@ -4,7 +4,7 @@ import type { IItemConfig } from '../interface';
  * 满天星套装 - 傅山亲制，紫炎流转
  * 属性：高防御、高气血、增加灵力上限
  */
-const puTongCaoYao: IItemConfig = {
+const pu_tong_cao_yao: IItemConfig = {
   id: 'pu_tong_cao_yao',
   name: '普通红药',
   category: 'consumable',
@@ -21,7 +21,7 @@ const puTongCaoYao: IItemConfig = {
  * 满天星套装 - 傅山亲制，紫炎流转
  * 属性：高防御、高气血、增加灵力上限
  */
-const puTongLanYao: IItemConfig = {
+const pu_tong_lan_yao: IItemConfig = {
   id: 'pu_tong_lan_yao',
   name: '普通蓝药',
   category: 'consumable',
@@ -34,4 +34,4 @@ const puTongLanYao: IItemConfig = {
   },
 };
 
-export default { puTongCaoYao, puTongLanYao };
+export default { pu_tong_cao_yao, pu_tong_lan_yao };

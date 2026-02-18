@@ -1,4 +1,4 @@
 import { manTianXin } from './man_tian_xing';
-import { ziYanXin } from './zi_yan_xin';
+import { zi_yan_xin } from './zi_yan_xin';
 
-export default { ...manTianXin, ziYanXin };
+export default { ...manTianXin, zi_yan_xin };
