@@ -1,6 +1,6 @@
 import type { IItemInstance } from '@interface/index'; // 确保你之前定义的接口已导出
 
-const STORAGE_KEY = 'PMZL_PLAYER_ITEMS';
+const PMZL_PLAYER_ITEMS_KEY = 'PMZL_PLAYER_ITEMS';
 
 /**
  * 飘邈之旅：玩家数据初始化
@@ -8,7 +8,7 @@ const STORAGE_KEY = 'PMZL_PLAYER_ITEMS';
  */
 export const initializePlayerData = () => {
   // 1. 检查本地是否已经有数据，防止覆盖玩家进度
-  const existingData = localStorage.getItem(STORAGE_KEY);
+  const existingData = localStorage.getItem(PMZL_PLAYER_ITEMS_KEY);
   if (existingData) {
     console.log('检测到已有识海记录，跳过初始化。');
     return;
@@ -21,7 +21,7 @@ export const initializePlayerData = () => {
    */
   const initialItems: IItemInstance[] = [
     {
-      instanceId: `inst_origin_ziyanxin_${Date.now()}`,
+      instanceId: crypto.randomUUID(),
       itemId: 'zi_yan_xin', // 对应你静态配置表中的 ID
       count: 1,
       isEquipped: true, // 紫炎心是入体的，默认就是激活/穿戴状态
@@ -31,7 +31,7 @@ export const initializePlayerData = () => {
 
   // 3. 写入 LocalStorage
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initialItems));
+    localStorage.setItem(PMZL_PLAYER_ITEMS_KEY, JSON.stringify(initialItems));
     console.log('【天道提示】：紫炎真火入体，识海已开，修真之路开启。');
   } catch (e) {
     console.error('初始化识海失败：', e);

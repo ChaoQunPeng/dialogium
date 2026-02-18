@@ -1,87 +1,109 @@
 <template>
   <div class="realm-dashboard mud-core">
-    <header class="mud-section">
-      <div class="char-title">===[ {{ character.name }} ]===</div>
-      <div class="char-subtitle">境界：{{ character.realm }}</div>
-      <div class="char-subtitle">门派：逍遥散修</div>
-    </header>
+    <!-- 切换按钮 -->
+    <div class="panel-toggle">
+      <button :class="{ active: currentPanel === 'character' }" @click="currentPanel = 'character'">
+        角色面板
+      </button>
+      <button :class="{ active: currentPanel === 'codex' }" @click="currentPanel = 'codex'">
+        物品图鉴
+      </button>
+    </div>
 
-    <div class="line-divider">--------------------------------</div>
+    <!-- 角色面板 -->
+    <div v-show="currentPanel === 'character'">
+      <header class="mud-section">
+        <div class="char-title">===[ {{ character.name }} ]===</div>
+        <div class="char-subtitle">境界：{{ character.realm }}</div>
+        <div class="char-subtitle">门派：逍遥散修</div>
+      </header>
 
-    <section class="status-bars">
-      <div v-for="(val, key) in coreStats" :key="key" class="bar-item">
-        <div class="bar-label">
-          <span>{{ key }}</span>
-          <span class="val-text">{{ val }}/{{ maxStats[key] }}</span>
+      <div class="line-divider">--------------------------------</div>
+
+      <section class="status-bars">
+        <div v-for="(val, key) in coreStats" :key="key" class="bar-item">
+          <div class="bar-label">
+            <span>{{ key }}</span>
+            <span class="val-text">{{ val }}/{{ maxStats[key] }}</span>
+          </div>
+          <div class="bar-track">
+            <div
+              :class="['bar-fill', key === '气血' ? 'hp' : 'mp']"
+              :style="{ width: (val / maxStats[key]) * 100 + '%' }"
+            ></div>
+          </div>
         </div>
-        <div class="bar-track">
-          <div
-            :class="['bar-fill', key === '气血' ? 'hp' : 'mp']"
-            :style="{ width: (val / maxStats[key]) * 100 + '%' }"
-          ></div>
+      </section>
+
+      <div class="line-divider">--------------------------------</div>
+
+      <section class="mud-section">
+        <div class="mud-sub-title">【 个人属性 】</div>
+        <div class="attr-grid-text">
+          <div v-for="(val, key) in detailStats" :key="key" class="attr-row">
+            <span class="label">{{ key }}：</span>
+            <span class="val">{{ val }}</span>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <div class="line-divider">--------------------------------</div>
-
-    <section class="mud-section">
-      <div class="mud-sub-title">【 个人属性 】</div>
-      <div class="attr-grid-text">
-        <div v-for="(val, key) in detailStats" :key="key" class="attr-row">
-          <span class="label">{{ key }}：</span>
-          <span class="val">{{ val }}</span>
+      <section class="mud-section">
+        <div class="mud-sub-title">【 已穿戴法宝 】</div>
+        <div class="equip-list-text">
+          <div v-for="n in 6" :key="n" class="equip-row">
+            <span class="idx">({{ n }})</span>
+            <span v-if="equips[n - 1]" class="name">{{ equips[n - 1]?.name }}</span>
+            <span v-else class="empty">-- 空置 --</span>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="mud-section">
-      <div class="mud-sub-title">【 已穿戴法宝 】</div>
-      <div class="equip-list-text">
-        <div v-for="n in 6" :key="n" class="equip-row">
-          <span class="idx">({{ n }})</span>
-          <span v-if="equips[n - 1]" class="name">{{ equips[n - 1].name }}</span>
-          <span v-else class="empty">-- 空置 --</span>
-        </div>
-      </div>
-    </section>
+      <div class="line-divider">--------------------------------</div>
 
-    <div class="line-divider">--------------------------------</div>
+      <section class="mud-section">
+        <div class="mud-sub-title">【 储物纳戒 】 ({{ filteredInventory.length }}/50)</div>
 
-    <section class="mud-section">
-      <div class="mud-sub-title">【 储物纳戒 】 ({{ filteredInventory.length }}/50)</div>
-
-      <div class="mud-tabs">
-        <span
-          v-for="tab in tabs"
-          :key="tab.key"
-          :class="['tab-item', { active: activeTab === tab.key }]"
-          @click="activeTab = tab.key"
-        >
-          {{ activeTab === tab.key ? `[${tab.name}]` : tab.name }}
-        </span>
-      </div>
-
-      <div class="inventory-text-list">
-        <div class="list-header">序号 名称 数量</div>
-        <div class="list-divider">................................</div>
-
-        <div v-for="(item, index) in filteredInventory" :key="index" class="inventory-row">
-          <span class="item-idx">[{{ (index + 1).toString().padStart(2, '0') }}]</span>
-          <span class="item-name">{{ item.name.padEnd(16, ' ') }}</span>
-          <span class="item-count">x{{ item.count }}</span>
-          <span v-if="item.isLocked" class="item-tag">锁</span>
+        <div class="mud-tabs">
+          <span
+            v-for="tab in tabs"
+            :key="tab.key"
+            :class="['tab-item', { active: activeTab === tab.key }]"
+            @click="activeTab = tab.key"
+          >
+            {{ activeTab === tab.key ? `[${tab.name}]` : tab.name }}
+          </span>
         </div>
 
-        <div v-if="filteredInventory.length === 0" class="empty-hint">此分类下空空如也。</div>
-        <div class="list-footer">................................</div>
-      </div>
-    </section>
+        <div class="inventory-text-list">
+          <div class="list-header">序号 名称 数量</div>
+          <div class="list-divider">................................</div>
+
+          <div v-for="(item, index) in filteredInventory" :key="index" class="inventory-row">
+            <span class="item-idx">[{{ (index + 1).toString().padStart(2, '0') }}]</span>
+            <span class="item-name">{{ item.name.padEnd(16, ' ') }}</span>
+            <span class="item-count">x{{ item.count }}</span>
+            <span v-if="item.isLocked" class="item-tag">锁</span>
+          </div>
+
+          <div v-if="filteredInventory.length === 0" class="empty-hint">此分类下空空如也。</div>
+          <div class="list-footer">................................</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 物品图鉴面板 -->
+    <div v-show="currentPanel === 'codex'">
+      <ItemCodex />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue';
+import ItemCodex from './ItemCodex.vue';
+
+// 面板切换状态
+const currentPanel = ref<'character' | 'codex'>('character');
 
 // 角色与属性
 const character = reactive({ name: '李强', realm: '筑基初期' });
@@ -96,11 +118,11 @@ const stats = reactive({
   暴击: 0,
   命中: 0,
 });
-const maxStats = reactive({ 气血: 2000, 灵力: 1000 });
+const maxStats = reactive({ 气血: 2000, 真元力: 1000 });
 
-const coreStats = computed(() => ({ 气血: stats.气血, 灵力: stats.灵力 }));
+const coreStats = computed(() => ({ 气血: stats.气血, 真元力: stats.真元力 }));
 const detailStats = computed(() => {
-  const { 气血, 真元力, ...rest } = stats;
+  const { 气血: _气血, 真元力: _真元力, ...rest } = stats;
   return rest;
 });
 
@@ -138,6 +160,37 @@ const filteredInventory = computed(() => {
   color: #bbb;
   font-family: 'Courier New', Courier, monospace;
   line-height: 1.5;
+
+  // 面板切换按钮样式
+  .panel-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    button {
+      flex: 1;
+      padding: 8px 16px;
+      background: #222;
+      border: 1px solid #444;
+      color: #bbb;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #333;
+        border-color: #666;
+      }
+
+      &.active {
+        background: #d4af37;
+        color: #000;
+        border-color: #d4af37;
+        font-weight: bold;
+      }
+    }
+  }
 
   .mud-section {
     margin-bottom: 15px;

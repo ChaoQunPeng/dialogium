@@ -1,6 +1,8 @@
 import type { IItemConfig } from './interface';
-import { manTianXin } from './equipment/man_tian_xing';
+import equipment from './equipment/index';
+import consumable from './consumable/index';
 
 export const items: Record<string, IItemConfig> = {
-  ...manTianXin,
+  ...equipment,
+  ...consumable,
 };

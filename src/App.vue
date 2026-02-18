@@ -9,9 +9,9 @@
     </header>
 
     <main class="game-content">
-      <SceneView v-if="activeTab === 'adventure'" />
-      <CharacterPanel v-if="activeTab === 'realm'" />
-      <CultivationPanel v-if="activeTab === 'practice'" />
+      <SceneView v-show="activeTab === 'adventure'" />
+      <CharacterPanel v-show="activeTab === 'realm'" />
+      <CultivationPanel v-show="activeTab === 'practice'" />
     </main>
 
     <footer class="game-nav">
@@ -37,7 +37,7 @@ import { initializePlayerData } from '@/utils/initialize';
 // 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
   { id: 'realm', name: '修为' },
-  { id: 'adventure', name: '飘邈之旅' },
+  { id: 'adventure', name: '历练' },
   { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
 ];
 
@@ -53,6 +53,7 @@ onMounted(() => {
 :root {
   --bg-main: #121212;
   --bg-card: #1e1e1e;
+  --text-main: #dddddd;
   --color-gold: #b49b70;
   --color-cyan: #40e0d0;
   --color-text: #d4d4d4;

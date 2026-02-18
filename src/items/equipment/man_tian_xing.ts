@@ -4,7 +4,7 @@ import type { IItemConfig } from '../interface';
  * 满天星套装 - 傅山亲制，紫炎流转
  * 属性：高防御、高气血、增加灵力上限
  */
-const manTianXinItems: Record<string, IItemConfig> = {
+const manTianXin: Record<string, IItemConfig> = {
   // 1. 上衣
   man_tian_xin_body: {
     id: 'man_tian_xin_body',
@@ -87,27 +87,4 @@ const manTianXinItems: Record<string, IItemConfig> = {
   },
 };
 
-const manTianXinSet = {
-  man_tian_xin: {
-    name: '满天星套装',
-    bonuses: [
-      { count: 3, stats: { defense: 50 }, desc: '三件凑齐：防御+50' },
-      { count: 5, stats: { defense: 150 }, desc: '全套集齐：防御+150' },
-    ],
-  },
-};
-
-export { manTianXinItems };
-
-// /**
-//  * 统一合并所有物品，形成最终的静态配置表
-//  */
-// export const ITEMS_CONFIG: Record<string, IItemConfig> = {
-//   ...ZiYanXin,
-//   ...manTianXin,
-// };
-
-// /**
-//  * 辅助：如果你需要获取所有物品的列表（比如渲染图鉴）
-//  */
-// export const ALL_ITEMS_LIST = Object.values(ITEMS_CONFIG);
+export { manTianXin };
