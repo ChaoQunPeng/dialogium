@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IConversationItem, IMonster, INpc } from '@/interface';
+import type { IConversationItem } from '@/interface';
 import { onMounted, onUnmounted, provide, reactive, ref } from 'vue';
 
 // const props = defineProps<{
@@ -14,7 +14,7 @@ import { onMounted, onUnmounted, provide, reactive, ref } from 'vue';
 
 // const index = ref(0);
 // const dataList = ref<INpc[] | IMonster[] | IConversationItem[]>([]);
-const dataList = ref<Array<INpc | IMonster | IConversationItem>>([]);
+const dataList = ref<Array<IConversationItem>>([]);
 const typeWriterMaps = reactive(new Map<string, any>());
 const speaker = ref('');
 
@@ -78,7 +78,7 @@ const endCurrentFlow = () => {
   }
 };
 
-const addFlowItem = (item: INpc | IMonster) => {
+const addFlowItem = (item: any) => {
   speaker.value = item.name;
 
   if (item.__type == 'npc') {

@@ -115,7 +115,7 @@ const openAction = (type: string) => {
         color: #ddd;
       }
       .loc-level {
-        color: #555;
+        color: #ddd;
         font-size: 0.8rem;
       }
     }
@@ -149,7 +149,7 @@ const openAction = (type: string) => {
   /* 底部提示 */
   .status-footer {
     .typing-text {
-      color: #555;
+      color: #ddd;
       font-size: 0.8rem;
       font-style: italic;
     }

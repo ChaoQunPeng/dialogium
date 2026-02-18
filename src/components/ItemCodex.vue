@@ -177,7 +177,7 @@ const getItemRarityClass = (item: any) => {
     .mud-input {
       width: 100%;
       background: #000;
-      border: 1px solid #444;
+      border: 1px solid #ddd;
       color: #ccc;
       padding: 4px 4px 4px 28px;
       font-size: 0.85rem;
@@ -189,7 +189,7 @@ const getItemRarityClass = (item: any) => {
   }
   .stats-mini {
     font-size: 0.75rem;
-    color: #555;
+    color: #ddd;
     white-space: nowrap;
   }
 }
@@ -228,7 +228,7 @@ const getItemRarityClass = (item: any) => {
 
   .list-header {
     background: #151515;
-    color: #555;
+    color: #ddd;
     position: sticky;
     top: 0;
   }
@@ -246,7 +246,7 @@ const getItemRarityClass = (item: any) => {
       text-align: center;
     }
     .col-type {
-      color: #555;
+      color: #ddd;
       font-size: 0.75rem;
       text-align: right;
     }
@@ -316,7 +316,7 @@ const getItemRarityClass = (item: any) => {
         font-size: 0.85rem;
         margin-bottom: 4px;
         .label {
-          color: #555;
+          color: #ddd;
         }
         .value {
           color: #4caf50;
@@ -327,7 +327,7 @@ const getItemRarityClass = (item: any) => {
 
     .modal-extra {
       font-size: 0.75rem;
-      color: #555;
+      color: #ddd;
       line-height: 1.6;
       .set-tag {
         color: #da70d6;
@@ -342,7 +342,7 @@ const getItemRarityClass = (item: any) => {
       text-align: center;
       .mud-btn {
         background: none;
-        border: 1px solid #444;
+        border: 1px solid #ddd;
         color: #888;
         padding: 5px 20px;
         cursor: pointer;

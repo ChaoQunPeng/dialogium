@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import type { ICharacter } from '@/interface';
-import { onMounted, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { CharacterType } from '@/enums';
 import { usePlayerStore } from '@/stores/player';
 import { useBattle } from '@/hooks/useBattle';
@@ -24,11 +24,16 @@ const playerStore = usePlayerStore();
 const { player } = playerStore;
 
 const slime = reactive<ICharacter>({
-  id: 'm1',
-  name: '小史莱姆',
+  id: 'slime_001',
+  name: '史莱姆',
   type: CharacterType.Monster,
-  baseInfo: { level: 5, hp: 1000, maxHp: 1000, mp: 0, maxMp: 0 },
-  battle: { attack: 10, defense: 0 },
+  baseInfo: {
+    hp: 50,
+    maxHp: 50,
+    level: 1,
+    mp: 0,
+    maxMp: 0,
+  },
 });
 
 const battleLogs = ref<string[]>([]);

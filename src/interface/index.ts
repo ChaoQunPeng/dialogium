@@ -122,7 +122,7 @@ export interface ICharacter {
    * 装备位映射：存储的是玩家背包中物品的 instanceId (唯一实例标识)
    * 对应原著：修真者通常拥有多件法宝，通过灵识打上烙印(instanceId)来精准操控。
    */
-  equipmentSlots: {
+  equipmentSlots?: {
     /** 武器：如金蝶刀、吸精针、百雷弓等。攻击敌人的核心法宝 */
     weapon?: string;
 
