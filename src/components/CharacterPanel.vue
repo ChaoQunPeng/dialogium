@@ -61,13 +61,17 @@
 
       <section class="mud-section">
         <div class="mud-sub-title">【 已穿戴法宝 】</div>
-        <div class="equip-list-text">
-          <div v-for="n in 6" :key="n" class="equip-row">
-            <span class="idx">({{ n }})</span>
-            <span v-if="equips[n - 1]" class="name">{{ equips[n - 1]?.name }}</span>
-            <span v-else class="empty">-- 空置 --</span>
-          </div>
-        </div>
+        <ul class="equip-grid">
+          <li v-for="slot in equipmentSlots" :key="slot.key" class="equip-box">
+            <div class="slot-label">{{ slot.label }}</div>
+            <div class="slot-content">
+              <span v-if="equippedMap[slot.key]" class="name">
+                {{ equippedMap[slot.key].name }}
+              </span>
+              <span v-else class="empty">-- 待装 --</span>
+            </div>
+          </li>
+        </ul>
       </section>
 
       <div class="line-divider">--------------------------------</div>
@@ -179,27 +183,26 @@ const tabs = [
 const showDropDialog = ref(false);
 const selectedItem = ref<any>(null);
 
-// 从本地存储获取物品数据
-const PMZL_PLAYER_ITEMS_KEY = 'PMZL_PLAYER_ITEMS';
-const playerItems = ref<IItemInstance[]>([]);
+// 定义固定的五个部位及其展示名称
+const equipmentSlots = [
+  { key: 'body', label: '上衣' },
+  { key: 'shoulder', label: '头肩' },
+  { key: 'belt', label: '腰带' },
+  { key: 'leg', label: '下装' },
+  { key: 'shoes', label: '鞋子' },
+];
 
-// 加载本地存储的物品数据
-const loadPlayerItems = () => {
-  try {
-    const storedData = localStorage.getItem(PMZL_PLAYER_ITEMS_KEY);
-    if (storedData) {
-      const parsedItems = JSON.parse(storedData) as IItemInstance[];
-      playerItems.value = parsedItems;
-      console.log('成功加载玩家物品数据:', parsedItems);
-    } else {
-      console.log('未找到玩家物品数据');
-      playerItems.value = [];
+// 计算当前已穿戴的装备映射表
+const equippedMap = computed(() => {
+  const map: Record<string, any> = {};
+  // 从你已有的 inventory 计算属性中过滤出已穿戴的
+  inventory.value.forEach((item) => {
+    if (item.isEquipped && item.slot) {
+      map[item.slot] = item;
     }
-  } catch (error) {
-    console.error('加载玩家物品数据失败:', error);
-    playerItems.value = [];
-  }
-};
+  });
+  return map;
+});
 
 // 将物品实例转换为展示格式
 const inventory = computed(() => {
@@ -210,9 +213,11 @@ const inventory = computed(() => {
     if (!itemConfig) {
       // 如果找不到配置，使用默认值
       return {
-        name: `未知物品(${itemInstance.itemId})`,
+        id: crypto.randomUUID(),
+        name: '未知物品',
+        category: '',
+        //
         count: itemInstance.count,
-        category: 'material' as const,
         isLocked: itemInstance.isLocked,
         isEquipped: itemInstance.isEquipped,
         instanceId: itemInstance.instanceId,
@@ -220,16 +225,20 @@ const inventory = computed(() => {
     }
 
     return {
-      //
+      id: itemConfig.id,
+      name: itemConfig.name,
+      category: itemConfig.category,
+      description: itemConfig.description,
+      slot: itemConfig.slot,
+      level: itemConfig.level,
+      price: itemConfig.price,
+      stackable: itemConfig.stackable,
+      stats: itemConfig.stats,
+      // 用户数据
       count: itemInstance.count,
       isLocked: itemInstance.isLocked,
       isEquipped: itemInstance.isEquipped,
       instanceId: itemInstance.instanceId,
-      //
-      name: itemConfig.name,
-      category: itemConfig.category,
-      description: itemConfig.description,
-      level: itemConfig.level,
     };
   });
 });
@@ -264,9 +273,7 @@ const confirmDrop = () => {
 };
 
 // 组件挂载时加载数据
-onMounted(() => {
-  loadPlayerItems();
-});
+onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
@@ -611,5 +618,58 @@ onMounted(() => {
       }
     }
   }
+}
+
+.mud-section {
+  padding: 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+}
+
+.mud-sub-title {
+  color: #d9a300;
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.equip-grid {
+  display: flex;
+  justify-content: space-between; /* 横向平铺五个 */
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.equip-box {
+  flex: 1;
+  aspect-ratio: 1 / 1; /* 保持正方形格子感 */
+  border: 1px solid #444;
+  background: #262626;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  padding: 4px;
+  text-align: center;
+}
+
+.slot-label {
+  color: #888;
+  font-size: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #333;
+  width: 100%;
+}
+
+.name {
+  color: #a586ff; /* 稀有装备的紫色感 */
+  word-break: break-all;
+  line-height: 1.2;
+}
+
+.empty {
+  color: #444;
 }
 </style>
