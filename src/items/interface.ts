@@ -6,9 +6,17 @@ export type ItemCategory = 'equipment' | 'consumable' | 'material' | 'quest';
 
 /**
  * 装备位类型
- * weapon: 武器, body: 身体, leg: 腿部, shoulder: 肩部, belt: 腰带, shoes: 鞋子, accessory: 饰品
+ * weapon: 武器, body: 身体, leg: 腿部, shoulder: 肩部, belt: 腰带, shoes: 鞋子, accessory: 饰品, innerAlchemy: 内丹
  */
-export type SlotType = 'weapon' | 'body' | 'leg' | 'shoulder' | 'belt' | 'shoes' | 'accessory';
+export type SlotType =
+  | 'weapon'
+  | 'body'
+  | 'leg'
+  | 'shoulder'
+  | 'belt'
+  | 'shoes'
+  | 'accessory'
+  | 'innerAlchemy';
 
 /**
  * 物品数值属性接口

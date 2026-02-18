@@ -10,7 +10,7 @@ const ziYanXin: Record<string, IItemConfig> = {
     name: '紫炎心',
     category: 'equipment',
     description: '筑基法宝',
-    slot: 'shoes',
+    slot: 'innerAlchemy',
     level: 1,
     price: 0,
     stackable: false,

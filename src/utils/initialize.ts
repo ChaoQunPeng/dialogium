@@ -27,6 +27,41 @@ export const initializePlayerData = () => {
       isEquipped: true, // 紫炎心是入体的，默认就是激活/穿戴状态
       isLocked: true, // 核心至宝，锁定防止误删
     },
+    {
+      instanceId: crypto.randomUUID(),
+      itemId: 'man_tian_xin_body',
+      count: 1,
+      isEquipped: true,
+      isLocked: true,
+    },
+    {
+      instanceId: crypto.randomUUID(),
+      itemId: 'man_tian_xin_shoulder',
+      count: 1,
+      isEquipped: true,
+      isLocked: true,
+    },
+    {
+      instanceId: crypto.randomUUID(),
+      itemId: 'man_tian_xin_belt',
+      count: 1,
+      isEquipped: true,
+      isLocked: true,
+    },
+    {
+      instanceId: crypto.randomUUID(),
+      itemId: 'man_tian_xin_leg',
+      count: 1,
+      isEquipped: true,
+      isLocked: true,
+    },
+    {
+      instanceId: crypto.randomUUID(),
+      itemId: 'man_tian_xin_shoes',
+      count: 1,
+      isEquipped: true,
+      isLocked: true,
+    },
   ];
 
   // 3. 写入 LocalStorage

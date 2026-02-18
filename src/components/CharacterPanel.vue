@@ -17,8 +17,6 @@
         <div class="char-subtitle">境界：{{ player.baseInfo.cultivation?.realm }}</div>
       </header>
 
-      <div class="line-divider">--------------------------------</div>
-
       <section class="status-bars">
         <div class="bar-item">
           <div class="bar-label">
@@ -47,8 +45,6 @@
         </div>
       </section>
 
-      <div class="line-divider">--------------------------------</div>
-
       <section class="mud-section">
         <div class="mud-sub-title">【 个人属性 】</div>
         <div class="attr-grid-text">
@@ -73,8 +69,6 @@
           </li>
         </ul>
       </section>
-
-      <div class="line-divider">--------------------------------</div>
 
       <section class="mud-section">
         <div class="mud-sub-title">【 储物纳戒 】 ({{ filteredInventory.length }}/50)</div>
@@ -195,7 +189,6 @@ const equipmentSlots = [
 // 计算当前已穿戴的装备映射表
 const equippedMap = computed(() => {
   const map: Record<string, any> = {};
-  // 从你已有的 inventory 计算属性中过滤出已穿戴的
   inventory.value.forEach((item) => {
     if (item.isEquipped && item.slot) {
       map[item.slot] = item;
@@ -327,11 +320,6 @@ onMounted(() => {});
     color: #d4af37;
     margin-bottom: 8px;
     font-size: 0.9rem;
-  }
-  .line-divider {
-    color: #ddd;
-    margin: 10px 0;
-    white-space: nowrap;
   }
 
   /* 状态条 */
