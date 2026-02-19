@@ -50,13 +50,16 @@ const activeTab = ref('realm');
 :root {
   --bg-main: #121212;
   --bg-card: #1e1e1e;
-  --text-main: #dddddd;
-  --color-gold: #b49b70;
+  --text-main: #d4d4d4;
+  --text-muted: #a0a0a0; /* 新增：用于次要文字 */
+
+  --color-yellow: #d4af37;
+  --color-green: #4dbd74; /* 优化：降低了荧光感，更护眼 */
+  --color-red: #ff4d4d; /* 修正：不再叫 green 了 */
   --color-cyan: #40e0d0;
-  --color-text: #d4d4d4;
-  --color-sub: #dddddd;
-  --border-style: 1px solid var(--color-gold);
-  --shadow-glow: 0 0 10px rgba(64, 224, 208, 0.3);
+
+  --border-radius: 8px; /* 建议：增加圆角变量 */
+  --transition: all 0.3s ease;
 }
 
 * {
@@ -69,7 +72,7 @@ const activeTab = ref('realm');
 
 body {
   background-color: var(--bg-main);
-  color: var(--color-text);
+  color: var(--text-main);
 }
 
 .app-container {
