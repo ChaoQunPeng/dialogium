@@ -48,9 +48,19 @@
       <section class="mud-section">
         <div class="mud-sub-title">【 个人属性 】</div>
         <div class="attr-grid-text">
-          <div v-for="(val, key) in detailStats" :key="key" class="attr-row">
+          <!-- <div v-for="(val, key) in detailStats" :key="key" class="attr-row">
             <span class="label">{{ key }}：</span>
             <span class="val">{{ val }}</span>
+          </div> -->
+
+          <div class="attr-row">
+            <span class="label">攻击：</span>
+            <span class="val">{{ player.battle?.attack }}</span>
+          </div>
+
+          <div class="attr-row">
+            <span class="label">防御：</span>
+            <span class="val">{{ player.battle?.attack }}</span>
           </div>
         </div>
       </section>
@@ -174,8 +184,17 @@ const player = computed(() => {
   return playerStore.player;
 });
 
-// 装备展示
-const equips = reactive([]);
+const detailStats = computed(() => {
+  // 转换成对象数组
+  return Object.entries(playerStore.player.battle!).map(([key, val]) => {
+    return {
+      key,
+      val,
+    };
+  });
+});
+
+console.log(detailStats);
 
 // 纳戒数据与分类逻辑
 const activeTab = ref('all');

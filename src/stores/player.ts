@@ -13,24 +13,21 @@ export const usePlayerStore = defineStore('player', () => {
 
   // 玩家基础信息
   const localPlayer = localStorage.getItem(PLAYER_KEY);
-  const player = reactive<ICharacter>(
-    localPlayer
-      ? JSON.parse(localPlayer)
-      : {
-          id: 'player',
-          name: '李强',
-          type: CharacterType.Player,
-          baseInfo: {
-            level: 1,
-            hp: 100,
-            maxHp: 100,
-            mp: 50,
-            maxMp: 50,
-            cultivation: { realm: '凡人' },
-          },
-          battle: { attack: 10, defense: 10 },
-        },
-  );
+  const defaultPlayer = {
+    id: 'player',
+    name: '李强',
+    type: CharacterType.Player,
+    baseInfo: {
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      mp: 50,
+      maxMp: 50,
+      cultivation: { realm: '凡人' },
+    },
+    battle: { attack: 10, defense: 10 },
+  };
+  const player = reactive<ICharacter>(localPlayer ? JSON.parse(localPlayer) : defaultPlayer);
 
   // 背包物品列表
   const localInventory = localStorage.getItem(INVENTORY_KEY);
@@ -113,17 +110,17 @@ export const usePlayerStore = defineStore('player', () => {
         }
         if (itemConfig.stats.hp) {
           player.baseInfo.maxHp += itemConfig.stats.hp;
-          player.baseInfo.hp = Math.min(
-            player.baseInfo.hp + itemConfig.stats.hp,
-            player.baseInfo.maxHp,
-          );
+          // player.baseInfo.hp = Math.min(
+          //   player.baseInfo.hp + itemConfig.stats.hp,
+          //   player.baseInfo.maxHp,
+          // );
         }
         if (itemConfig.stats.mp) {
           player.baseInfo.maxMp += itemConfig.stats.mp;
-          player.baseInfo.mp = Math.min(
-            player.baseInfo.mp + itemConfig.stats.mp,
-            player.baseInfo.maxMp,
-          );
+          // player.baseInfo.mp = Math.min(
+          //   player.baseInfo.mp + itemConfig.stats.mp,
+          //   player.baseInfo.maxMp,
+          // );
         }
       }
 
