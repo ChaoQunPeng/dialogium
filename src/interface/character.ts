@@ -1,5 +1,7 @@
 import type { CharacterType } from '@/enums';
 import type { ICultivation } from './cultivation';
+import type { IConversationItem } from './conversation';
+import type { IItem } from './item';
 
 /**
  * 统一的游戏角色接口
