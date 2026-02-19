@@ -2,15 +2,22 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { initializeGame } from '@/utils/initialize';
 
+// 导入 TailwindCSS 样式
+import './assets/main.css';
+
 initializeGame();
 
 import App from './App.vue';
 import router from './router';
+import BorderContainer from './components/borderContainer.vue';
 
 const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
+
+// 全局注册组件
+app.component('BorderContainer', BorderContainer);
 
 app.mount('#app');
 

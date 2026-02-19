@@ -1,32 +1,34 @@
 <template>
   <div class="app-container">
-    <header class="game-header border-area">
-      <div class="media-box">
-        <div class="avatar"></div>
-        <div class="body">
-          <div class="character-mini-info">
-            <span class="name">{{ playerStore.player.name }}</span>
-            <span class="realm">{{ playerStore.realmData.zh }}</span>
+    <header>
+      <BorderContainer class="game-header">
+        <div class="media-box mb-24">
+          <div class="avatar"></div>
+          <div class="body">
+            <div class="character-mini-info">
+              <span class="name">{{ playerStore.player.name }}</span>
+              <span class="realm">{{ playerStore.realmData.zh }}</span>
+            </div>
+          </div>
+          <div class="currency">灵石: 999</div>
+        </div>
+
+        <div class="status-bars">
+          <div class="bar-row">
+            <span class="bar-label">气血</span>
+            <span class="bar-val">{{ player.baseInfo.hp }}</span>
+          </div>
+          <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
+            <span class="bar-label">灵力</span>
+            <span class="bar-val">{{ player.baseInfo.mp }}</span>
           </div>
         </div>
-        <div class="currency">灵石: 999</div>
-      </div>
-
-      <div class="status-bars">
-        <div class="bar-row">
-          <span class="bar-label">气血</span>
-          <span class="bar-val">{{ player.baseInfo.hp }}</span>
-        </div>
-        <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
-          <span class="bar-label">灵力</span>
-          <span class="bar-val">{{ player.baseInfo.mp }}</span>
-        </div>
-      </div>
+      </BorderContainer>
     </header>
 
     <main class="game-content">
-      <SceneView v-if="activeTab === 'adventure'" />
       <CharacterPanel v-if="activeTab === 'realm'" />
+      <SceneView v-if="activeTab === 'adventure'" />
       <CultivationPanel v-if="activeTab === 'practice'" />
     </main>
 
@@ -103,6 +105,9 @@ body {
   padding: 15px;
 
   .game-header {
+    .media-box {
+      display: flex;
+    }
   }
 
   .game-content {
@@ -113,11 +118,5 @@ body {
 
   .game-nav {
   }
-}
-
-.border-area {
-  border: 1px solid #ddd;
-  padding: 12px;
-  // border-radius: 2px;
 }
 </style>
