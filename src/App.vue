@@ -1,28 +1,31 @@
 <template>
   <div class="app-container">
     <header>
-      <BorderContainer class="game-header">
-        <div class="media-box mb-24">
-          <div class="avatar"></div>
-          <div class="body">
-            <div class="character-mini-info">
-              <span class="name">{{ playerStore.player.name }}</span>
-              <span class="realm">{{ playerStore.realmData.zh }}</span>
+      <BorderContainer class="game-header flex">
+        <div class="media-box flex">
+          <div class="avatar">
+            <img src="./assets/avatar.png" alt="" />
+          </div>
+          <div class="body ml-2">
+            <div class="flex flex-col">
+              <span class="name text-text-main">{{ playerStore.player.name }}</span>
+              <span class="realm text-cyan">{{ playerStore.realmData.zh }}</span>
             </div>
           </div>
-          <div class="currency">灵石: 999</div>
         </div>
 
-        <div class="status-bars">
+        <div class="status-bars flex-1 ml-3">
           <div class="bar-row">
-            <span class="bar-label">气血</span>
-            <span class="bar-val">{{ player.baseInfo.hp }}</span>
+            <span class="bar-label text-text-main">气血</span>
+            <span class="bar-val text-red ml-2">{{ player.baseInfo.hp }}</span>
           </div>
           <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
-            <span class="bar-label">灵力</span>
-            <span class="bar-val">{{ player.baseInfo.mp }}</span>
+            <span class="bar-label text-text-main">灵力</span>
+            <span class="bar-val text-green ml-2">{{ player.baseInfo.mp }}</span>
           </div>
         </div>
+
+        <div class="currency text-yellow self-center">灵石: 999</div>
       </BorderContainer>
     </header>
 
@@ -74,13 +77,10 @@ const activeTab = ref('realm');
   --bg-card: #1e1e1e;
   --text-main: #d4d4d4;
   --text-muted: #a0a0a0; /* 新增：用于次要文字 */
-
-  --color-yellow: #d4af37;
+  --color-yellow: #eec43f;
   --color-green: #4dbd74; /* 优化：降低了荧光感，更护眼 */
   --color-red: #ff4d4d; /* 修正：不再叫 green 了 */
   --color-cyan: #40e0d0;
-
-  --border-radius: 8px; /* 建议：增加圆角变量 */
   --transition: all 0.3s ease;
 }
 
@@ -102,11 +102,18 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 15px;
+  padding: 12px;
 
   .game-header {
     .media-box {
       display: flex;
+
+      .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        overflow: hidden;
+      }
     }
   }
 

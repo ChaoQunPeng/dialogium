@@ -1,6 +1,6 @@
 <template>
   <div class="border-container">
-    <div class="title">{{ title }}</div>
+    <div v-if="title" class="title">【{{ title }}】</div>
     <slot></slot>
   </div>
 </template>
@@ -16,9 +16,11 @@ defineProps<{
   border: 1px solid #ddd;
   padding: 12px;
   border-radius: 2px;
+  margin-bottom: 12px;
 
   .title {
     color: var(--color-yellow);
+    margin-bottom: 8px;
   }
 }
 </style>

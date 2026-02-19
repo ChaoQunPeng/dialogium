@@ -1,125 +1,63 @@
 <template>
-  <div class="realm-dashboard mud-core">
-    <!-- <div class="panel-toggle">
-      <div
-        :class="['toggle-btn', { active: currentPanel === 'character' }]"
-        @click="currentPanel = 'character'"
-      >
-        [ 角色面板 ]
+  <div>
+    <BorderContainer title="个人属性">
+      <div>攻击力: {{ player.battle?.attack }}</div>
+      <div>防御力: {{ player.battle?.attack }}</div>
+    </BorderContainer>
+
+    <BorderContainer title="穿戴装备">
+      <div class="equip-line-grid">
+        <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
+          <div class="slot-inner">
+            <span class="s-label">{{ slot.label }}:</span>
+            <span :class="['s-name', { 'is-empty': !equippedMap[slot.key] }]">
+              {{ equippedMap[slot.key] ? equippedMap[slot.key].name : '空' }}
+            </span>
+          </div>
+        </div>
       </div>
-      <div
-        :class="['toggle-btn', { active: currentPanel === 'codex' }]"
-        @click="currentPanel = 'codex'"
-      >
-        [ 物品图鉴 ]
+    </BorderContainer>
+
+    <BorderContainer :title="`储物纳戒 (${filteredInventory.length})`">
+      <div class="tab-row">
+        <div
+          v-for="tab in tabs"
+          :key="tab.key"
+          :class="['tab-link', { active: activeTab === tab.key }]"
+          @click="activeTab = tab.key"
+        >
+          {{ activeTab === tab.key ? `[${tab.name}]` : tab.name }}
+        </div>
       </div>
-    </div> -->
 
-    <div class="mud-border-container">
-      <!-- <header class="section-box">
-        <div class="title-line">
-          <span class="corner">+</span><span class="line"></span><span class="corner">+</span>
-        </div>
-        <div class="title-content">
-          <div class="char-name">{{ player.name }}</div>
-          <div class="char-realm">境界：{{ playerStore.realmData.zh }}</div>
-        </div>
-      </header> -->
-
-      <!-- <section class="section-box">
-        <div class="status-bars">
-          <div class="bar-row">
-            <span class="bar-label">气血</span>
-            <div class="bar-frame">
-              <div
-                class="bar-fill hp"
-                :style="{ width: (player.baseInfo.hp / player.baseInfo.maxHp) * 100 + '%' }"
-              ></div>
-            </div>
-            <span class="bar-val">{{ player.baseInfo.hp }}</span>
-          </div>
-          <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
-            <span class="bar-label">灵力</span>
-            <div class="bar-frame">
-              <div
-                class="bar-fill mp"
-                :style="{ width: (player.baseInfo.mp / player.baseInfo.maxMp) * 100 + '%' }"
-              ></div>
-            </div>
-            <span class="bar-val">{{ player.baseInfo.mp }}</span>
-          </div>
-        </div>
-      </section> -->
-
-      <section class="section-box no-border">
-        <div class="sub-header">| 个人属性 |</div>
-        <div class="attr-text">
-          <span>攻击力: {{ player.battle?.attack }}</span>
-          <span>防御力: {{ player.battle?.attack }}</span>
-        </div>
-      </section>
-
-      <section class="section-box">
-        <div class="sub-header">| 已穿戴法宝 |</div>
-        <div class="equip-line-grid">
-          <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
-            <div class="slot-inner">
-              <span class="s-label">{{ slot.label }}:</span>
-              <span :class="['s-name', { 'is-empty': !equippedMap[slot.key] }]">
-                {{ equippedMap[slot.key] ? equippedMap[slot.key].name : '空' }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section-box inventory-box">
-        <div class="sub-header">| 储物纳戒 ({{ filteredInventory.length }}/50) |</div>
-
-        <div class="tab-row">
-          <span
-            v-for="tab in tabs"
-            :key="tab.key"
-            :class="['tab-link', { active: activeTab === tab.key }]"
-            @click="activeTab = tab.key"
+      <div class="text-list">
+        <div class="list-head">序号. 名称 数量 指令</div>
+        <div class="dot-line">----------------------------------------</div>
+        <div v-for="(item, index) in filteredInventory" :key="index" class="list-row">
+          <span class="idx">{{ (index + 1).toString().padStart(2, '0') }}.</span>
+          <span class="name"
+            >{{ item.name }} <span v-if="item.isLocked" class="lock">[锁]</span></span
           >
-            {{ tab.name }}
-          </span>
-        </div>
-
-        <div class="text-list">
-          <div class="list-head">序号. 名称 数量 指令</div>
-          <div class="dot-line">----------------------------------------</div>
-          <div v-for="(item, index) in filteredInventory" :key="index" class="list-row">
-            <span class="idx">{{ (index + 1).toString().padStart(2, '0') }}.</span>
-            <span class="name"
-              >{{ item.name }} <span v-if="item.isLocked" class="lock">[锁]</span></span
+          <span class="cnt">x{{ item.count }}</span>
+          <div class="cmds">
+            <span
+              v-if="item.category === 'equipment'"
+              class="cmd-btn cyan"
+              @click="item.isEquipped ? handleUnequip(item) : equipItem(item.instanceId)"
             >
-            <span class="cnt">x{{ item.count }}</span>
-            <div class="cmds">
-              <span
-                v-if="item.category === 'equipment'"
-                class="cmd-btn cyan"
-                @click="item.isEquipped ? handleUnequip(item) : equipItem(item.instanceId)"
-              >
-                {{ item.isEquipped ? '卸' : '穿' }}
-              </span>
-              <span
-                v-if="!item.isEquipped && !item.isLocked"
-                class="cmd-btn red"
-                @click="showDropConfirm(item)"
-                >弃</span
-              >
-            </div>
+              {{ item.isEquipped ? '卸' : '穿' }}
+            </span>
+            <span
+              v-if="!item.isEquipped && !item.isLocked"
+              class="cmd-btn red"
+              @click="showDropConfirm(item)"
+              >弃</span
+            >
           </div>
-          <div v-if="filteredInventory.length === 0" class="empty-text">--- 纳戒空无一物 ---</div>
         </div>
-      </section>
-    </div>
-
-    <!-- <div v-show="currentPanel === 'codex'">
-      <ItemCodex />
-    </div> -->
+        <div v-if="filteredInventory.length === 0" class="empty-text">--- 纳戒空无一物 ---</div>
+      </div>
+    </BorderContainer>
 
     <div v-if="showDropDialog" class="modal-overlay" @click="closeDropDialog">
       <div class="modal-box" @click.stop>
@@ -139,21 +77,17 @@ import { ref, computed, onMounted } from 'vue';
 // 假设类型定义和物品数据在指定路径下存在
 import type { IItemInstance } from '../interface/index';
 import { items } from '../items/index';
-import ItemCodex from './ItemCodex.vue';
 import { usePlayerStore } from '../stores/player';
 const playerStore = usePlayerStore();
-
-// 面板切换状态
-const currentPanel = ref<'character' | 'codex'>('character');
 
 const player = computed(() => {
   return playerStore.player;
 });
 
 // 纳戒数据与分类逻辑
-const activeTab = ref('all');
+const activeTab = ref('equipment');
 const tabs = [
-  { name: '全部', key: 'all' },
+  // { name: '全部', key: 'all' },
   { name: '装备', key: 'equipment' },
   { name: '丹药', key: 'consumable' },
   { name: '材料', key: 'material' },
@@ -165,6 +99,7 @@ const selectedItem = ref<any>(null);
 
 // 定义固定的五个部位及其展示名称
 const equipmentSlots = [
+  { key: 'weapon', label: '武器' },
   { key: 'body', label: '上衣' },
   { key: 'shoulder', label: '头肩' },
   { key: 'belt', label: '腰带' },
@@ -277,4 +212,17 @@ const handleUnequip = (item: any) => {
 onMounted(() => {});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.tab-row {
+  display: flex;
+
+  .tab-link {
+    margin-right: 8px;
+    cursor: pointer;
+
+    &.active {
+      color: var(--color-yellow);
+    }
+  }
+}
+</style>
