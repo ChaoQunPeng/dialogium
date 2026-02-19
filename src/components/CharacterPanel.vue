@@ -58,8 +58,14 @@
       <section class="mud-section">
         <div class="mud-sub-title">【 已穿戴法宝 】</div>
         <ul class="equip-grid">
-          <li v-for="slot in equipmentSlots" :key="slot.key" class="equip-box">
-            <div class="slot-label">{{ slot.label }}</div>
+          <li
+            v-for="slot in equipmentSlots"
+            :key="slot.key"
+            class="equip-box"
+            :class="{ 'has-item': equippedMap[slot.key] }"
+            @click="handleUnequip(equippedMap[slot.key])"
+          >
+            <span class="slot-label">{{ slot.label }}</span>
             <div class="slot-content">
               <span v-if="equippedMap[slot.key]" class="name">
                 {{ equippedMap[slot.key].name }}
@@ -100,8 +106,8 @@
             >
               [丢弃]
             </span>
-            <span v-else-if="item.isEquipped" class="disabled-btn">[已装备]</span>
-            <span v-else-if="item.isLocked" class="disabled-btn">[已锁定]</span>
+            <span v-else-if="item.isEquipped == true" class="disabled-btn">[已装备]</span>
+            <span v-else-if="item.isEquipped == false" class="disabled-btn">装备</span>
           </div>
 
           <div v-if="filteredInventory.length === 0" class="empty-hint">此分类下空空如也。</div>
@@ -263,6 +269,18 @@ const confirmDrop = () => {
     playerStore.dropItem(selectedItem.value.instanceId);
     closeDropDialog();
   }
+};
+
+/**
+ * 处理脱下点击
+ * @param item 装备实例
+ */
+const handleUnequip = (item: any) => {
+  if (!item) return; // 没装备时不操作
+
+  // 可以在这里加个简单的提示，或者直接脱下
+  playerStore.unequipItem(item.instanceId);
+  console.log(`脱下了：${item.name}`);
 };
 
 // 组件挂载时加载数据

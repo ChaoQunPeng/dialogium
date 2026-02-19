@@ -65,6 +65,18 @@ export const usePlayerStore = defineStore('player', () => {
     inventory.value = [...inventory.value, ...finalItems];
   };
 
+  /**
+   * 脱下装备
+   * @param instanceId 物品的唯一实例ID
+   */
+  const unequipItem = (instanceId: string) => {
+    const item = inventory.value.find((i) => i.instanceId === instanceId);
+    if (item) {
+      item.isEquipped = false;
+      // 如果你有计算属性关联战斗力，这里修改后 UI 会自动刷新
+    }
+  };
+
   /** 丢弃物品 */
   const dropItem = (instanceId: string) => {
     inventory.value = inventory.value.filter((i) => i.instanceId !== instanceId);
@@ -74,6 +86,7 @@ export const usePlayerStore = defineStore('player', () => {
     player,
     inventory,
     acquireItem,
+    unequipItem,
     dropItem,
   };
 });
