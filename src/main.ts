@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { initializePlayerData } from '@/utils/initialize';
+import { initializeGame } from '@/utils/initialize';
 
-initializePlayerData();
+initializeGame();
 
 import App from './App.vue';
 import router from './router';
