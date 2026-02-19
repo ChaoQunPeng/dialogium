@@ -9,10 +9,6 @@
     </header>
 
     <main class="game-content">
-      <button @click="addItem({ itemId: 'man_tian_xin_body', count: 1 })">获取物品</button>
-      <button @click="removeItem('bab96e71-a586-46fa-a35d-24236df12afe')">丢弃</button>
-      <button @click="selfItem">出售</button>
-
       <SceneView v-if="activeTab === 'adventure'" />
       <CharacterPanel v-if="activeTab === 'realm'" />
       <CultivationPanel v-if="activeTab === 'practice'" />

@@ -2,6 +2,7 @@ import { reactive, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 import type { ICharacter, IItemInstance } from '@/interface';
 import { CharacterType } from '@/enums';
+import { items } from '@/items'; // 导入物品配置
 
 // 1. 定义本地存储的 Key
 const PLAYER_KEY = 'PMZL_PLAYER_DATA';
@@ -19,7 +20,14 @@ export const usePlayerStore = defineStore('player', () => {
           id: 'player',
           name: '李强',
           type: CharacterType.Player,
-          baseInfo: { level: 1, hp: 100, maxHp: 100, mp: 50, maxMp: 50 },
+          baseInfo: {
+            level: 1,
+            hp: 100,
+            maxHp: 100,
+            mp: 50,
+            maxMp: 50,
+            cultivation: { realm: '凡人' },
+          },
           battle: { attack: 10, defense: 10 },
         },
   );
@@ -51,8 +59,8 @@ export const usePlayerStore = defineStore('player', () => {
   // --- 4. 业务操作 (Actions) ---
 
   /** 获得物品 */
-  const acquireItem = (items: { itemId: string; count: number }[]) => {
-    const finalItems = items.map((e) => {
+  const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {
+    const finalItems = itemsToAdd.map((e) => {
       return {
         itemId: e.itemId,
         count: e.count,
@@ -65,15 +73,113 @@ export const usePlayerStore = defineStore('player', () => {
     inventory.value = [...inventory.value, ...finalItems];
   };
 
+  /** 穿戴装备 */
+  const equipItem = (instanceId: string): boolean => {
+    try {
+      // 查找要装备的物品
+      const itemToEquip = inventory.value.find((item) => item.instanceId === instanceId);
+      if (!itemToEquip) {
+        console.warn('未找到要装备的物品');
+        return false;
+      }
+
+      // 获取物品配置信息
+      const itemConfig = items[itemToEquip.itemId];
+      if (!itemConfig || itemConfig.category !== 'equipment' || !itemConfig.slot) {
+        console.warn('物品不是装备或没有装备位');
+        return false;
+      }
+
+      // 检查是否已经有相同部位的装备
+      const existingEquippedItem = inventory.value.find(
+        (item) => item.isEquipped && items[item.itemId]?.slot === itemConfig.slot,
+      );
+
+      // 如果有，先脱下原有装备
+      if (existingEquippedItem) {
+        unequipItem(existingEquippedItem.instanceId);
+      }
+
+      // 穿戴新装备
+      itemToEquip.isEquipped = true;
+
+      // 应用属性加成（如果有的话）
+      if (itemConfig.stats) {
+        if (itemConfig.stats.attack) {
+          player.battle!.attack += itemConfig.stats.attack;
+        }
+        if (itemConfig.stats.defense) {
+          player.battle!.defense += itemConfig.stats.defense;
+        }
+        if (itemConfig.stats.hp) {
+          player.baseInfo.maxHp += itemConfig.stats.hp;
+          player.baseInfo.hp = Math.min(
+            player.baseInfo.hp + itemConfig.stats.hp,
+            player.baseInfo.maxHp,
+          );
+        }
+        if (itemConfig.stats.mp) {
+          player.baseInfo.maxMp += itemConfig.stats.mp;
+          player.baseInfo.mp = Math.min(
+            player.baseInfo.mp + itemConfig.stats.mp,
+            player.baseInfo.maxMp,
+          );
+        }
+      }
+
+      console.log(`成功装备: ${itemConfig.name}`);
+      return true;
+    } catch (error) {
+      console.error('装备失败:', error);
+      return false;
+    }
+  };
+
   /**
    * 脱下装备
    * @param instanceId 物品的唯一实例ID
    */
-  const unequipItem = (instanceId: string) => {
-    const item = inventory.value.find((i) => i.instanceId === instanceId);
-    if (item) {
-      item.isEquipped = false;
-      // 如果你有计算属性关联战斗力，这里修改后 UI 会自动刷新
+  const unequipItem = (instanceId: string): boolean => {
+    try {
+      const itemToUnequip = inventory.value.find((item) => item.instanceId === instanceId);
+      if (!itemToUnequip || !itemToUnequip.isEquipped) {
+        console.warn('未找到要脱下的装备');
+        return false;
+      }
+
+      // 获取物品配置信息
+      const itemConfig = items[itemToUnequip.itemId];
+      if (!itemConfig) {
+        console.warn('未找到物品配置');
+        return false;
+      }
+
+      // 移除属性加成
+      if (itemConfig.stats) {
+        if (itemConfig.stats.attack) {
+          player.battle!.attack -= itemConfig.stats.attack;
+        }
+        if (itemConfig.stats.defense) {
+          player.battle!.defense -= itemConfig.stats.defense;
+        }
+        if (itemConfig.stats.hp) {
+          player.baseInfo.maxHp -= itemConfig.stats.hp;
+          player.baseInfo.hp = Math.min(player.baseInfo.hp, player.baseInfo.maxHp);
+        }
+        if (itemConfig.stats.mp) {
+          player.baseInfo.maxMp -= itemConfig.stats.mp;
+          player.baseInfo.mp = Math.min(player.baseInfo.mp, player.baseInfo.maxMp);
+        }
+      }
+
+      // 设置为未装备状态
+      itemToUnequip.isEquipped = false;
+
+      console.log(`成功脱下: ${itemConfig.name}`);
+      return true;
+    } catch (error) {
+      console.error('脱下装备失败:', error);
+      return false;
     }
   };
 
@@ -86,6 +192,7 @@ export const usePlayerStore = defineStore('player', () => {
     player,
     inventory,
     acquireItem,
+    equipItem,
     unequipItem,
     dropItem,
   };

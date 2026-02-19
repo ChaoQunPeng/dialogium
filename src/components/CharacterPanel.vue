@@ -100,14 +100,21 @@
             <span class="item-count">x{{ item.count }}</span>
             <span v-if="item.isLocked" class="item-tag">锁</span>
             <span
-              v-if="!item.isEquipped && !item.isLocked"
+              v-if="!item.isEquipped && item.category === 'equipment'"
+              class="equip-btn"
+              @click="equipItem(item.instanceId)"
+            >
+              [装备]
+            </span>
+            <span
+              v-if="!item.isEquipped && !item.isLocked && item.category !== 'equipment'"
               class="drop-btn"
               @click="showDropConfirm(item)"
             >
               [丢弃]
             </span>
-            <span v-else-if="item.isEquipped == true" class="disabled-btn">[已装备]</span>
-            <span v-else-if="item.isEquipped == false" class="disabled-btn">装备</span>
+            <span v-else-if="item.isEquipped" class="disabled-btn">[已装备]</span>
+            <span v-else-if="item.isLocked" class="disabled-btn">[已锁定]</span>
           </div>
 
           <div v-if="filteredInventory.length === 0" class="empty-hint">此分类下空空如也。</div>
@@ -249,6 +256,11 @@ const filteredInventory = computed(() => {
     (item: (typeof inventory.value)[number]) => item.category === activeTab.value,
   );
 });
+
+// 装备相关方法
+const equipItem = (instanceId: string) => {
+  playerStore.equipItem(instanceId);
+};
 
 // 丢弃物品相关方法
 const showDropConfirm = (item: any) => {
@@ -456,6 +468,22 @@ onMounted(() => {});
         border: 1px solid #820000;
         padding: 0 2px;
         line-height: 1;
+      }
+
+      // 装备按钮样式
+      .equip-btn {
+        color: #00ff00;
+        cursor: pointer;
+        font-size: 0.8rem;
+        padding: 2px 6px;
+        border: 1px solid #00ff00;
+        border-radius: 3px;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #00ff00;
+          color: #000;
+        }
       }
 
       // 丢弃按钮样式
