@@ -1,6 +1,6 @@
 <template>
   <div class="realm-dashboard mud-core">
-    <div class="panel-toggle">
+    <!-- <div class="panel-toggle">
       <div
         :class="['toggle-btn', { active: currentPanel === 'character' }]"
         @click="currentPanel = 'character'"
@@ -13,10 +13,10 @@
       >
         [ 物品图鉴 ]
       </div>
-    </div>
+    </div> -->
 
     <div v-show="currentPanel === 'character'" class="mud-border-container">
-      <header class="section-box">
+      <!-- <header class="section-box">
         <div class="title-line">
           <span class="corner">+</span><span class="line"></span><span class="corner">+</span>
         </div>
@@ -24,9 +24,9 @@
           <div class="char-name">{{ player.name }}</div>
           <div class="char-realm">境界：{{ playerStore.realmData.zh }}</div>
         </div>
-      </header>
+      </header> -->
 
-      <section class="section-box">
+      <!-- <section class="section-box">
         <div class="status-bars">
           <div class="bar-row">
             <span class="bar-label">气血</span>
@@ -49,7 +49,7 @@
             <span class="bar-val">{{ player.baseInfo.mp }}</span>
           </div>
         </div>
-      </section>
+      </section> -->
 
       <section class="section-box no-border">
         <div class="sub-header">| 个人属性 |</div>
@@ -284,8 +284,6 @@ onMounted(() => {});
   --color-red: #ff4d4d;
   --color-cyan: #40e0d0;
   --text-main: #d4d4d4;
-
-  padding: 15px;
   background-color: #121212; /* 背景保持纯净 */
   color: var(--text-main);
   font-family: 'Consolas', 'Monaco', monospace;

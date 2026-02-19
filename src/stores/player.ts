@@ -6,8 +6,6 @@ import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
 import { DaoRealmsDict } from '@/enums';
 
 export const usePlayerStore = defineStore('player', () => {
-  // --- 2. 状态初始化 (直接读本地，读不到就用默认值) ---
-
   // 玩家基础信息
   const localPlayer = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
   const player = reactive<ICharacter>(
@@ -42,8 +40,6 @@ export const usePlayerStore = defineStore('player', () => {
     const res = DaoRealmsDict[realmKey] || { zh: '凡人', en: 'Mortal', color: '#bbb' };
     return res;
   });
-
-  // --- 4. 业务操作 (Actions) ---
 
   /** 获得物品 */
   const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {

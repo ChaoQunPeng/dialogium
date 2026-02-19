@@ -1,11 +1,27 @@
 <template>
   <div class="app-container">
-    <header class="game-header">
-      <div class="character-mini-info">
-        <span class="name">{{ playerStore.player.name }}</span>
-        <span class="realm">{{ playerStore.realmData.zh }}</span>
+    <header class="game-header border-area">
+      <div class="media-box">
+        <div class="avatar"></div>
+        <div class="body">
+          <div class="character-mini-info">
+            <span class="name">{{ playerStore.player.name }}</span>
+            <span class="realm">{{ playerStore.realmData.zh }}</span>
+          </div>
+        </div>
+        <div class="currency">灵石: 999</div>
       </div>
-      <div class="currency">灵石: 8848</div>
+
+      <div class="status-bars">
+        <div class="bar-row">
+          <span class="bar-label">气血</span>
+          <span class="bar-val">{{ player.baseInfo.hp }}</span>
+        </div>
+        <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
+          <span class="bar-label">灵力</span>
+          <span class="bar-val">{{ player.baseInfo.mp }}</span>
+        </div>
+      </div>
     </header>
 
     <main class="game-content">
@@ -28,12 +44,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
+
+const player = computed(() => {
+  return playerStore.player;
+});
 
 // 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
@@ -68,6 +88,7 @@ const activeTab = ref('realm');
   box-sizing: border-box;
   //  'PingFang SC',
   font-family: 'STKaiti', serif; /* 加入楷体更有修仙感 */
+  line-height: 1.25;
 }
 
 body {
@@ -79,100 +100,24 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 500px;
-  margin: 0 auto;
-  border-left: 1px solid #333;
-  border-right: 1px solid #333;
+  padding: 15px;
 
   .game-header {
-    height: 60px;
-    padding: 0 20px;
-    background: var(--bg-card);
-    border-bottom: 2px solid var(--color-gold);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-
-    .realm {
-      margin-left: 10px;
-      color: var(--color-cyan);
-      font-weight: bold;
-    }
-
-    .currency {
-      color: var(--color-gold);
-      font-size: 0.9em;
-    }
   }
 
   .game-content {
     flex: 1;
     overflow-y: auto;
     background: radial-gradient(circle at center, #222 0%, var(--bg-main) 100%);
-    position: relative;
-
-    .placeholder-view,
-    .practice-view {
-      text-align: center;
-      padding-top: 100px;
-      color: var(--color-sub);
-    }
-
-    /* 简单的修炼动画演示 */
-    .meditation-circle {
-      width: 100px;
-      height: 100px;
-      border: 2px solid var(--color-cyan);
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      animation: breathe 3s infinite ease-in-out;
-      box-shadow: var(--shadow-glow);
-    }
   }
 
   .game-nav {
-    display: flex;
-    height: 70px;
-    background: var(--bg-card);
-    border-top: 1px solid var(--color-gold);
-    padding-bottom: env(safe-area-inset-bottom);
-
-    .nav-item {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      .nav-text {
-        font-size: 1.1rem;
-        color: var(--color-sub);
-      }
-
-      &.active {
-        background: rgba(180, 155, 112, 0.1);
-
-        .nav-text {
-          color: var(--color-cyan);
-          text-shadow: var(--shadow-glow);
-          font-weight: bold;
-        }
-      }
-    }
   }
 }
 
-@keyframes breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
+.border-area {
+  border: 1px solid #ddd;
+  padding: 12px;
+  // border-radius: 2px;
 }
 </style>
