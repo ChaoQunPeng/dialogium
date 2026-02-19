@@ -1,3 +1,5 @@
+import type { ICharacter } from './character';
+
 /**
  * 表示游戏场景的数据结构
  */

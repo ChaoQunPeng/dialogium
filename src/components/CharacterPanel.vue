@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        <div class="bar-item">
+        <div v-if="player.baseInfo.maxMp > 0" class="bar-item">
           <div class="bar-label">
             <span>灵力</span>
             <span class="val-text">{{ player.baseInfo.mp }}/{{ player.baseInfo.maxMp }}</span>
