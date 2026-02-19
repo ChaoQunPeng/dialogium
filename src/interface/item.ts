@@ -11,6 +11,8 @@ export interface IItem {
   description?: string;
   price?: number;
 
+  grade?: number;
+
   // --- 组合属性模块 (Components) ---
 
   /** 装备/数值组件：如果物品有属性加成，就填入此项 */
@@ -33,13 +35,6 @@ export interface IItem {
     effectId?: string;
     /** 使用后是否消失（消耗数量） */
     isConsumable: boolean;
-  };
-
-  /** 修仙/特殊组件：存储特定逻辑数据 */
-  meta?: {
-    realmReq?: number; // 境界要求
-    rarity?: string; // 稀有度颜色
-    isLocked?: boolean; // 是否绑定
   };
 }
 

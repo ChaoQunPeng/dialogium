@@ -21,6 +21,7 @@ defineProps<{
   .title {
     color: var(--color-yellow);
     margin-bottom: 8px;
+    margin-left: -7px;
   }
 }
 </style>

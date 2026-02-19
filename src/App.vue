@@ -35,7 +35,7 @@
       <CultivationPanel v-if="activeTab === 'practice'" />
     </main>
 
-    <footer class="game-nav">
+    <footer class="game-nav flex">
       <div
         v-for="tab in tabs"
         :key="tab.id"

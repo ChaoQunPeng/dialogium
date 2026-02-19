@@ -9,9 +9,9 @@
       <div class="equip-line-grid">
         <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
           <div class="slot-inner">
-            <span class="s-label">{{ slot.label }}:</span>
+            <span class="s-label mr-4">{{ slot.label }}:</span>
             <span :class="['s-name', { 'is-empty': !equippedMap[slot.key] }]">
-              {{ equippedMap[slot.key] ? equippedMap[slot.key].name : '空' }}
+              {{ equippedMap[slot.key] ? equippedMap[slot.key].name : '--' }}
             </span>
           </div>
         </div>
@@ -30,31 +30,58 @@
         </div>
       </div>
 
-      <div class="text-list">
-        <div class="list-head">序号. 名称 数量 指令</div>
-        <div class="dot-line">----------------------------------------</div>
-        <div v-for="(item, index) in filteredInventory" :key="index" class="list-row">
-          <span class="idx">{{ (index + 1).toString().padStart(2, '0') }}.</span>
-          <span class="name"
-            >{{ item.name }} <span v-if="item.isLocked" class="lock">[锁]</span></span
-          >
-          <span class="cnt">x{{ item.count }}</span>
-          <div class="cmds">
-            <span
-              v-if="item.category === 'equipment'"
-              class="cmd-btn cyan"
-              @click="item.isEquipped ? handleUnequip(item) : equipItem(item.instanceId)"
-            >
-              {{ item.isEquipped ? '卸' : '穿' }}
-            </span>
-            <span
-              v-if="!item.isEquipped && !item.isLocked"
-              class="cmd-btn red"
-              @click="showDropConfirm(item)"
-              >弃</span
-            >
-          </div>
-        </div>
+      <div class="inventory-table">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width: 150px">名称</th>
+              <th style="width: 60px">数量</th>
+              <!-- <th style="width: 50px">效果</th> -->
+              <!-- <th style="width: 60px">操作</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in filteredInventory" :key="index">
+              <td class="item-name">
+                <div class="text-green">
+                  【{{ item.name }}】 <span v-if="item.isLocked" class="lock">[锁]</span>
+                </div>
+                <div class="item-description">{{ item.description || '--' }}</div>
+                <span v-if="item.isEquipped" class="equipped">[已装备]</span>
+              </td>
+              <td class="item-count">x{{ item.count }}</td>
+              <!-- <td class="item-stats">
+                <div v-if="item.stats">
+                  <span v-if="item.stats.attack">攻击+{{ item.stats.attack }}</span>
+                  <span v-if="item.stats.defense">防御+{{ item.stats.defense }}</span>
+                  <span v-if="item.stats.hp">气血+{{ item.stats.hp }}</span>
+                  <span v-if="item.stats.mp">灵力+{{ item.stats.mp }}</span>
+                  <span v-if="item.stats.speed">速度+{{ item.stats.speed }}</span>
+                  <span v-if="item.stats.crit">暴击+{{ item.stats.crit }}</span>
+                </div>
+                <div v-else>--</div>
+              </td> -->
+              <!-- <td class="item-actions">
+                <div class="cmds">
+                  <span
+                    v-if="item.category === 'equipment'"
+                    class="cmd-btn cyan mb-2"
+                    @click="item.isEquipped ? handleUnequip(item) : equipItem(item.instanceId)"
+                  >
+                    {{ item.isEquipped ? '卸下' : '装备' }}
+                  </span>
+                  <span
+                    v-if="!item.isEquipped && !item.isLocked"
+                    class="cmd-btn red"
+                    @click="showDropConfirm(item)"
+                  >
+                    丢弃
+                  </span>
+                </div>
+              </td> -->
+            </tr>
+          </tbody>
+        </table>
         <div v-if="filteredInventory.length === 0" class="empty-text">--- 纳戒空无一物 ---</div>
       </div>
     </BorderContainer>
@@ -85,9 +112,9 @@ const player = computed(() => {
 });
 
 // 纳戒数据与分类逻辑
-const activeTab = ref('equipment');
+const activeTab = ref('all');
 const tabs = [
-  // { name: '全部', key: 'all' },
+  { name: '全部', key: 'all' },
   { name: '装备', key: 'equipment' },
   { name: '丹药', key: 'consumable' },
   { name: '材料', key: 'material' },
@@ -165,11 +192,6 @@ const filteredInventory = computed(() => {
   );
 });
 
-// 是否是特殊装备
-const isSpecialEquipment = (itemId: string) => {
-  return ['zi_yan_xin'].includes(itemId);
-};
-
 // 装备相关方法
 const equipItem = (instanceId: string) => {
   playerStore.equipItem(instanceId);
@@ -223,6 +245,134 @@ onMounted(() => {});
     &.active {
       color: var(--color-yellow);
     }
+  }
+}
+
+.inventory-table {
+  margin-top: 12px;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border);
+
+    th {
+      background-color: rgba(50, 50, 50, 0.7);
+      padding: 8px 4px;
+      text-align: center;
+      font-weight: bold;
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-yellow);
+    }
+
+    td {
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      vertical-align: middle;
+
+      &.item-name {
+        color: var(--color-text);
+        font-weight: 500;
+
+        .lock {
+          color: var(--color-red);
+          font-size: 0.9em;
+        }
+
+        .equipped {
+          color: var(--color-green);
+          font-size: 0.9em;
+        }
+      }
+
+      .item-description {
+        font-size: 0.9em;
+        color: var(--color-gray);
+        margin-top: 4px;
+        text-indent: 6px;
+      }
+
+      &.item-count {
+        text-align: center;
+        color: var(--color-blue);
+      }
+
+      &.item-stats {
+        font-size: 0.9em;
+        color: var(--color-cyan);
+
+        div {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          span {
+            white-space: nowrap;
+          }
+        }
+      }
+
+      &.item-level {
+        text-align: center;
+        color: var(--color-purple);
+        font-weight: 500;
+      }
+
+      &.item-actions {
+        text-align: center;
+
+        .cmds {
+          display: flex;
+          justify-content: center;
+          gap: 4px;
+          flex-direction: column;
+
+          .cmd-btn {
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+
+            &.cyan {
+              background-color: rgba(0, 200, 200, 0.2);
+              color: var(--color-cyan);
+              border: 1px solid var(--color-cyan);
+
+              &:hover {
+                background-color: rgba(0, 200, 200, 0.4);
+              }
+            }
+
+            &.red {
+              background-color: rgba(255, 80, 80, 0.2);
+              color: var(--color-red);
+              border: 1px solid var(--color-red);
+
+              &:hover {
+                background-color: rgba(255, 80, 80, 0.4);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(30, 30, 30, 0.3);
+    }
+
+    tr:hover {
+      background-color: rgba(80, 80, 80, 0.3);
+    }
+  }
+
+  .empty-text {
+    text-align: center;
+    padding: 20px;
+    color: var(--color-gray);
+    font-style: italic;
   }
 }
 </style>
