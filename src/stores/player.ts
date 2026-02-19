@@ -3,34 +3,19 @@ import { defineStore } from 'pinia';
 import type { ICharacter, IItemInstance } from '@/interface';
 import { CharacterType } from '@/enums';
 import { items } from '@/items'; // 导入物品配置
-
-// 1. 定义本地存储的 Key
-const PLAYER_KEY = 'PMZL_PLAYER_DATA';
-const INVENTORY_KEY = 'PMZL_PLAYER_ITEMS';
+import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
 
 export const usePlayerStore = defineStore('player', () => {
   // --- 2. 状态初始化 (直接读本地，读不到就用默认值) ---
 
   // 玩家基础信息
-  const localPlayer = localStorage.getItem(PLAYER_KEY);
-  const defaultPlayer = {
-    id: 'player',
-    name: '李强',
-    type: CharacterType.Player,
-    baseInfo: {
-      level: 1,
-      hp: 100,
-      maxHp: 100,
-      mp: 50,
-      maxMp: 50,
-      cultivation: { realm: '凡人' },
-    },
-    battle: { attack: 10, defense: 10 },
-  };
-  const player = reactive<ICharacter>(localPlayer ? JSON.parse(localPlayer) : defaultPlayer);
+  const localPlayer = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
+  const player = reactive<ICharacter>(
+    localPlayer ? JSON.parse(localPlayer) : DEFAULT_PLAYER_CONFIG,
+  );
 
   // 背包物品列表
-  const localInventory = localStorage.getItem(INVENTORY_KEY);
+  const localInventory = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
   const inventory = ref<IItemInstance[]>(localInventory ? JSON.parse(localInventory) : []);
 
   // --- 3. 自动持久化 (只要数据变了，就存入本地) ---
@@ -39,7 +24,7 @@ export const usePlayerStore = defineStore('player', () => {
   watch(
     player,
     (newVal) => {
-      localStorage.setItem(PLAYER_KEY, JSON.stringify(newVal));
+      localStorage.setItem(STORAGE_KEYS.PLAYER_DATA, JSON.stringify(newVal));
     },
     { deep: true },
   );
@@ -48,7 +33,7 @@ export const usePlayerStore = defineStore('player', () => {
   watch(
     inventory,
     (newVal) => {
-      localStorage.setItem(INVENTORY_KEY, JSON.stringify(newVal));
+      localStorage.setItem(STORAGE_KEYS.PLAYER_ITEMS, JSON.stringify(newVal));
     },
     { deep: true },
   );

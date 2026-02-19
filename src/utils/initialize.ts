@@ -1,9 +1,5 @@
 import type { IItemInstance, ICharacter } from '@/interface';
-import { CharacterType } from '@/enums';
-
-// 本地存储键名常量
-const PMZL_PLAYER_ITEMS_KEY = 'PMZL_PLAYER_ITEMS';
-const PMZL_PLAYER_DATA_KEY = 'PMZL_PLAYER_DATA';
+import { DEFAULT_PLAYER_CONFIG, STORAGE_KEYS } from '@/constants';
 
 /**
  * 统一初始化方法
@@ -49,7 +45,7 @@ export const initializePlayerItemsData = () => {
   }
 
   // 1. 检查本地是否已经有数据，防止覆盖玩家进度
-  const existingData = localStorage.getItem(PMZL_PLAYER_ITEMS_KEY);
+  const existingData = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
   if (existingData) {
     console.log('检测到已有识海记录，跳过初始化。');
     return JSON.parse(existingData) as IItemInstance[];
@@ -107,7 +103,7 @@ export const initializePlayerItemsData = () => {
 
   // 3. 写入 LocalStorage
   try {
-    localStorage.setItem(PMZL_PLAYER_ITEMS_KEY, JSON.stringify(initialItems));
+    localStorage.setItem(STORAGE_KEYS.PLAYER_ITEMS, JSON.stringify(initialItems));
     console.log('【天道提示】：紫炎真火入体，识海已开，修真之路开启。');
     return initialItems;
   } catch (e) {
@@ -123,48 +119,26 @@ export const initializePlayerItemsData = () => {
 export const initializeCharacterData = (): ICharacter => {
   // 环境检查
   if (typeof localStorage === 'undefined') {
-    return createDefaultCharacter();
+    return DEFAULT_PLAYER_CONFIG;
   }
 
   // 1. 检查本地存档
-  const existingData = localStorage.getItem(PMZL_PLAYER_DATA_KEY);
+  const existingData = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
   if (existingData) {
     console.log('检测到已有元神存档，载入中...');
     return JSON.parse(existingData) as ICharacter;
   }
 
   // 2. 创建新角色（初始设定：重入修真的李强）
-  const newCharacter = createDefaultCharacter();
+  const newCharacter = DEFAULT_PLAYER_CONFIG;
 
   // 3. 写入存档
   try {
-    localStorage.setItem(PMZL_PLAYER_DATA_KEY, JSON.stringify(newCharacter));
+    localStorage.setItem(STORAGE_KEYS.PLAYER_DATA, JSON.stringify(newCharacter));
     console.log('【天道提示】：元神归位，李强，欢迎来到修真界。');
     return newCharacter;
   } catch (e) {
     console.error('元神存档失败：', e);
     return newCharacter;
   }
-};
-
-/**
- * 创建默认角色数据
- */
-const createDefaultCharacter = (): ICharacter => {
-  return {
-    id: 'player_001',
-    name: '李强',
-    type: CharacterType.Player,
-    baseInfo: {
-      level: 1,
-      hp: 500,
-      maxHp: 500,
-      mp: 300,
-      maxMp: 300,
-    },
-    battle: {
-      attack: 50,
-      defense: 50,
-    },
-  };
 };
