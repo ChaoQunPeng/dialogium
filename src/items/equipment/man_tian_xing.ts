@@ -16,8 +16,9 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      defense: 200,
-      hp: 150,
+      attack: 100,
+      defense: 100,
+      hp: 100,
       mp: 100,
     },
   },
@@ -33,8 +34,10 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      defense: 80,
-      mp: 50,
+      attack: 100,
+      defense: 100,
+      hp: 100,
+      mp: 100,
     },
   },
 
@@ -49,8 +52,10 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      defense: 50,
-      mp: 150,
+      attack: 100,
+      defense: 100,
+      hp: 100,
+      mp: 100,
     },
   },
 
@@ -65,8 +70,10 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      defense: 120,
+      attack: 100,
+      defense: 100,
       hp: 100,
+      mp: 100,
     },
   },
 
@@ -81,8 +88,10 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      defense: 40,
-      speed: 30,
+      attack: 100,
+      defense: 100,
+      hp: 100,
+      mp: 100,
     },
   },
 };

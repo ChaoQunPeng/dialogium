@@ -15,6 +15,7 @@ export enum CultivationType {
   /** 修神者 */
   Divine = 'divine',
 }
+
 /**
  * 角色类型
  * player 玩家
@@ -41,12 +42,39 @@ export enum CharacterType {
 
 // 修真境界枚举
 export enum DaoRealms {
-  Liqi = 'liqi', // 炼气
-  Zhuding = 'zhuding', // 筑基
-  JinDan = 'jindan', // 金丹
-  YuanYing = 'yuanying', // 元婴
-  Huaxian = 'huaxian', // 化仙
+  XuanZhao = 'xuanzhao',
+  KaiGuang = 'kaiguang',
+  FuHe = 'fuhe',
+  XinZhao = 'xinzhao',
+  LingJi = 'lingji',
+  YuanYing = 'yuanying',
+  ChuQiao = 'chuqiao',
+  FenShen = 'fenshen',
+  HeTi = 'heti',
+  DuJie = 'dujie',
+  DaCheng = 'dacheng',
 }
+
+// 2. 接口：定义结构
+export interface IRealmDisplay {
+  zh: string;
+  en: string;
+  color: string;
+}
+
+export const DaoRealmsDict: Record<DaoRealms, IRealmDisplay> = {
+  [DaoRealms.XuanZhao]: { zh: '旋照', en: 'Xuan Zhao', color: '#90ee90' },
+  [DaoRealms.KaiGuang]: { zh: '开光', en: 'Kai Guang', color: '#87ceeb' },
+  [DaoRealms.FuHe]: { zh: '融合', en: 'Fu He', color: '#add8e6' },
+  [DaoRealms.XinZhao]: { zh: '心照', en: 'Xin Zhao', color: '#dda0dd' },
+  [DaoRealms.LingJi]: { zh: '灵寂', en: 'Ling Ji', color: '#ba55d3' },
+  [DaoRealms.YuanYing]: { zh: '元婴', en: 'Yuan Ying', color: '#ffeb3b' },
+  [DaoRealms.ChuQiao]: { zh: '出窍', en: 'Chu Qiao', color: '#ffa500' },
+  [DaoRealms.FenShen]: { zh: '分神', en: 'Fen Shen', color: '#ff4500' },
+  [DaoRealms.HeTi]: { zh: '合体', en: 'He Ti', color: '#ff0000' },
+  [DaoRealms.DuJie]: { zh: '渡劫', en: 'Du Jie', color: '#9400d3' },
+  [DaoRealms.DaCheng]: { zh: '大乘', en: 'Da Cheng', color: '#ffffff' },
+};
 
 // 修仙境枚举
 export enum ImmortalRealms {

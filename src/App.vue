@@ -2,8 +2,8 @@
   <div class="app-container">
     <header class="game-header">
       <div class="character-mini-info">
-        <span class="name">李强</span>
-        <span class="realm">筑基初期</span>
+        <span class="name">{{ playerStore.player.name }}</span>
+        <span class="realm">{{ playerStore.realmData.zh }}</span>
       </div>
       <div class="currency">灵石: 8848</div>
     </header>
@@ -28,12 +28,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import SceneView from './components/scene/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 import CultivationPanel from './components/CultivationPanel.vue';
-
-import { usePlayerStore } from './stores/player';
+import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
 
 // 定义 Tab 数据，第三个修改为"修炼"
@@ -43,26 +42,7 @@ const tabs = [
   { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
 ];
 
-const activeTab = ref('adventure');
-
-onMounted(() => {});
-
-const addItem = (item: { itemId: string; count: number }) => {
-  playerStore.acquireItem([
-    {
-      itemId: item.itemId,
-      count: item.count,
-    },
-  ]);
-};
-
-const removeItem = (instanceId: string) => {
-  playerStore.dropItem(instanceId);
-};
-
-const selfItem = () => {
-  console.log('出售物品');
-};
+const activeTab = ref('realm');
 </script>
 
 <style lang="scss">

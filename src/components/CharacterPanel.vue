@@ -14,7 +14,7 @@
     <div v-show="currentPanel === 'character'">
       <header class="mud-section">
         <div class="char-title">===[ {{ player.name }} ]===</div>
-        <div class="char-subtitle">境界：{{ player.baseInfo.cultivation?.realm }}</div>
+        <div class="char-subtitle">境界：{{ playerStore.realmData.zh }}</div>
       </header>
 
       <section class="status-bars">
@@ -48,11 +48,6 @@
       <section class="mud-section">
         <div class="mud-sub-title">【 个人属性 】</div>
         <div class="attr-grid-text">
-          <!-- <div v-for="(val, key) in detailStats" :key="key" class="attr-row">
-            <span class="label">{{ key }}：</span>
-            <span class="val">{{ val }}</span>
-          </div> -->
-
           <div class="attr-row">
             <span class="label">攻击：</span>
             <span class="val">{{ player.battle?.attack }}</span>
@@ -73,7 +68,6 @@
             :key="slot.key"
             class="equip-box"
             :class="{ 'has-item': equippedMap[slot.key] }"
-            @click="handleUnequip(equippedMap[slot.key])"
           >
             <span class="slot-label">{{ slot.label }}</span>
             <div class="slot-content">
@@ -106,25 +100,28 @@
 
           <div v-for="(item, index) in filteredInventory" :key="index" class="inventory-row">
             <span class="item-idx">[{{ (index + 1).toString().padStart(2, '0') }}]</span>
-            <span class="item-name">{{ item.name.padEnd(16, ' ') }}</span>
+            <span class="item-name">
+              <span>{{ item.name.padEnd(16, ' ') }}</span>
+              <span v-if="item.isLocked && !isSpecialEquipment(item.id)" class="item-tag">锁</span>
+            </span>
             <span class="item-count">x{{ item.count }}</span>
-            <span v-if="item.isLocked" class="item-tag">锁</span>
-            <span
-              v-if="!item.isEquipped && item.category === 'equipment'"
-              class="equip-btn"
-              @click="equipItem(item.instanceId)"
-            >
-              [装备]
-            </span>
-            <span
-              v-if="!item.isEquipped && !item.isLocked && item.category !== 'equipment'"
-              class="drop-btn"
-              @click="showDropConfirm(item)"
-            >
-              [丢弃]
-            </span>
-            <span v-else-if="item.isEquipped" class="disabled-btn">[已装备]</span>
-            <span v-else-if="item.isLocked" class="disabled-btn">[已锁定]</span>
+
+            <template v-if="!isSpecialEquipment(item.id)">
+              <template v-if="item.category === 'equipment'">
+                <span v-if="item.isEquipped" class="equip-btn" @click="handleUnequip(item)">
+                  [卸下]
+                </span>
+                <span v-else class="equip-btn" @click="equipItem(item.instanceId)"> [穿戴] </span>
+              </template>
+
+              <span
+                v-if="!item.isEquipped && !item.isLocked"
+                class="drop-btn"
+                @click="showDropConfirm(item)"
+              >
+                [丢弃]
+              </span>
+            </template>
           </div>
 
           <div v-if="filteredInventory.length === 0" class="empty-hint">此分类下空空如也。</div>
@@ -169,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 // 假设类型定义和物品数据在指定路径下存在
 import type { IItemInstance } from '../interface/index';
 import { items } from '../items/index';
@@ -183,18 +180,6 @@ const currentPanel = ref<'character' | 'codex'>('character');
 const player = computed(() => {
   return playerStore.player;
 });
-
-const detailStats = computed(() => {
-  // 转换成对象数组
-  return Object.entries(playerStore.player.battle!).map(([key, val]) => {
-    return {
-      key,
-      val,
-    };
-  });
-});
-
-console.log(detailStats);
 
 // 纳戒数据与分类逻辑
 const activeTab = ref('all');
@@ -275,6 +260,11 @@ const filteredInventory = computed(() => {
     (item: (typeof inventory.value)[number]) => item.category === activeTab.value,
   );
 });
+
+// 是否是特殊装备
+const isSpecialEquipment = (itemId: string) => {
+  return ['zi_yan_xin'].includes(itemId);
+};
 
 // 装备相关方法
 const equipItem = (instanceId: string) => {

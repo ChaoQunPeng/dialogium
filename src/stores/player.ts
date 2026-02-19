@@ -1,9 +1,9 @@
-import { reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
-import type { ICharacter, IItemInstance } from '@/interface';
-import { CharacterType } from '@/enums';
+import type { DaoRealms, ICharacter, IItemInstance } from '@/interface';
 import { items } from '@/items'; // 导入物品配置
 import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
+import { DaoRealmsDict } from '@/enums';
 
 export const usePlayerStore = defineStore('player', () => {
   // --- 2. 状态初始化 (直接读本地，读不到就用默认值) ---
@@ -14,12 +14,6 @@ export const usePlayerStore = defineStore('player', () => {
     localPlayer ? JSON.parse(localPlayer) : DEFAULT_PLAYER_CONFIG,
   );
 
-  // 背包物品列表
-  const localInventory = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
-  const inventory = ref<IItemInstance[]>(localInventory ? JSON.parse(localInventory) : []);
-
-  // --- 3. 自动持久化 (只要数据变了，就存入本地) ---
-
   // 深度监听玩家属性
   watch(
     player,
@@ -29,6 +23,10 @@ export const usePlayerStore = defineStore('player', () => {
     { deep: true },
   );
 
+  // 背包物品列表
+  const localInventory = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
+  const inventory = ref<IItemInstance[]>(localInventory ? JSON.parse(localInventory) : []);
+
   // 深度监听背包列表
   watch(
     inventory,
@@ -37,6 +35,13 @@ export const usePlayerStore = defineStore('player', () => {
     },
     { deep: true },
   );
+
+  // 获取当前境界的显示信息
+  const realmData = computed(() => {
+    const realmKey = player.baseInfo.cultivation?.realm as DaoRealms;
+    const res = DaoRealmsDict[realmKey] || { zh: '凡人', en: 'Mortal', color: '#bbb' };
+    return res;
+  });
 
   // --- 4. 业务操作 (Actions) ---
 
@@ -177,5 +182,6 @@ export const usePlayerStore = defineStore('player', () => {
     equipItem,
     unequipItem,
     dropItem,
+    realmData,
   };
 });

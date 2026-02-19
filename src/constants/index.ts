@@ -2,7 +2,7 @@
  * 玩家相关常量配置
  */
 
-import { CharacterType } from '@/enums';
+import { CharacterType, CultivationType, DaoRealms } from '@/enums';
 import type { ICharacter, IItemInstance } from '@/interface';
 
 // 本地存储键名
@@ -24,6 +24,12 @@ export const DEFAULT_PLAYER_CONFIG = {
     maxHp: 100,
     mp: 0,
     maxMp: 0,
+    cultivation: {
+      type: CultivationType.Dao,
+      level: 1,
+      currentExp: 0,
+      realm: DaoRealms.LingJi,
+    },
   },
   battle: { attack: 10, defense: 10 },
 } as ICharacter;
