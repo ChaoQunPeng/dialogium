@@ -1,49 +1,5 @@
 import type { ICharacter } from '@/interface/character';
 import type { CharacterType } from '@/enums';
-import type { IItem } from '@/interface/item';
-
-/**
- * 哥布林怪物数据
- * 低级怪物，常出现在新手区域，攻击力较弱但数量众多
- */
-
-// 哥布林的基础掉落物品
-const goblinDropItems: IItem[] = [
-  {
-    id: 'goblin_tooth',
-    name: '哥布林牙齿',
-    category: 'material',
-    count: 1,
-    description: '哥布林的尖牙，散发着淡淡的绿光，可用来制作初级毒药',
-    price: 5,
-    grade: 1,
-  },
-  {
-    id: 'goblin_hide',
-    name: '哥布林皮',
-    category: 'material',
-    count: 1,
-    description: '粗糙的绿色兽皮，韧性不错，可用于制作初级护甲',
-    price: 8,
-    grade: 1,
-  },
-  {
-    id: 'small_health_potion',
-    name: '小型回血丹',
-    category: 'consumable',
-    count: 1,
-    description: '初级疗伤丹药，能够恢复少量气血',
-    price: 15,
-    grade: 1,
-    useAction: {
-      hpRestore: 50,
-      isConsumable: true,
-    },
-  },
-];
-
-// 精英哥布林额外掉落
-const eliteGoblinDropItems: IItem[] = [];
 
 // 哥布林怪物实例
 export const goblinMonster: ICharacter = {
@@ -65,7 +21,7 @@ export const goblinMonster: ICharacter = {
   battle: {
     attack: 15,
     defense: 8,
-    dropList: goblinDropItems,
+    dropList: ['goblin_tooth', 'goblin_skin'],
     // 经验值奖励
     exp: 25,
   },
@@ -99,7 +55,7 @@ export const eliteGoblin: ICharacter = {
   battle: {
     attack: 25,
     defense: 15,
-    dropList: eliteGoblinDropItems,
+    dropList: [],
     // 经验值奖励
     exp: 50,
   },

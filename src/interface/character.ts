@@ -38,7 +38,7 @@ export interface ICharacter {
     // magicDefense?: number;
     // speed?: number;
     // critRate?: number;
-    dropList?: IItem[]; // 建议用 dropList 更语义化
+    dropList?: string[]; // 建议用 dropList 更语义化
     // 怪物被击败后给予的经验值奖励
     exp?: number;
     // dropRate?: number; // 掉落概率
