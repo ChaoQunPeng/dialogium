@@ -1,6 +1,7 @@
 // src/utils/battle.ts
 import type { ICharacter, IItem } from '@/interface';
 import { getRandomElement } from './arrayUtils';
+import { items } from '@/items';
 
 /** 单个战斗事件：承载数据与文案 */
 export interface IBattleEvent {
@@ -277,19 +278,33 @@ export function canFight(attacker: ICharacter, defender: ICharacter): FightCheck
 export function handleLootDrop(monster: ICharacter): IItem | null {
   // 检查怪物是否有掉落列表
   const dropList = monster.battle?.dropList;
-  
+
   if (!dropList || dropList.length === 0) {
     console.log(`${monster.name} 没有掉落任何物品`);
     return null;
   }
 
-  // 从掉落列表中随机选择一个物品
-  const droppedItem = getRandomElement(dropList);
-  
-  if (!droppedItem) {
+  // 从掉落列表中随机选择一个itemId
+  const droppedItemId = getRandomElement(dropList);
+
+  if (!droppedItemId) {
     console.log(`${monster.name} 的掉落列表为空`);
     return null;
   }
+
+  // 根据itemId查询对应的物品配置
+  const droppedItemConfig = items[droppedItemId];
+
+  if (!droppedItemConfig) {
+    console.log(`⚠️ 警告：找不到ID为 ${droppedItemId} 的物品配置`);
+    return null;
+  }
+
+  // 创建物品实例（添加count属性）
+  const droppedItem: IItem = {
+    ...droppedItemConfig,
+    count: 1, // 默认掉落数量为1，可以根据需要调整
+  };
 
   console.log(`🎉 你获得了 ${droppedItem.name} x${droppedItem.count}！`);
   return droppedItem;
@@ -312,7 +327,7 @@ export function handleBattleRewards(player: ICharacter, monster: ICharacter): IB
   const reward: IBattleReward = {
     expGained: 0,
     droppedItems: [],
-    levelUp: false
+    levelUp: false,
   };
 
   // 1. 获取经验奖励（从怪物的exp字段）
