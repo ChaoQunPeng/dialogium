@@ -12,7 +12,13 @@
       ref="detailModalRef"
       @equip="handleEquip"
       @unequip="handleUnequip"
-      @drop="handleDrop"
+      @drop="handleShowDropConfirm"
+    />
+
+    <!-- 引入丢弃确认弹窗组件 -->
+    <DropConfirmModal
+      ref="dropConfirmModalRef"
+      @confirm="handleDropConfirm"
     />
   </div>
 </template>
@@ -20,6 +26,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ItemDetailModal from './ItemDetailModal.vue';
+import DropConfirmModal from './DropConfirmModal.vue';
 import type { IInventoryItem } from '@/interface';
 import { usePlayerStore } from '../stores/player';
 const playerStore = usePlayerStore();
@@ -40,6 +47,8 @@ const emits = defineEmits<EquipmentItemEmits>();
 
 // 引用详情弹窗组件
 const detailModalRef = ref<InstanceType<typeof ItemDetailModal> | null>(null);
+// 引用丢弃确认弹窗组件
+const dropConfirmModalRef = ref<InstanceType<typeof DropConfirmModal> | null>(null);
 
 // 根据装备等级获取品级颜色类名
 const getRarityClass = () => {
@@ -74,10 +83,14 @@ const handleUnequip = (item: any) => {
   }
 };
 
-// 丢弃处理
-const handleDrop = (item: any) => {
+// 显示丢弃确认弹窗
+const handleShowDropConfirm = (item: any) => {
   emits('drop', item);
+  dropConfirmModalRef.value?.show(item);
+};
 
+// 确认丢弃处理
+const handleDropConfirm = (item: any) => {
   if (item.instanceId && !item.isEquipped && !item.isLocked) {
     playerStore.dropItem(item.instanceId);
   }
