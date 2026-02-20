@@ -10,22 +10,9 @@
         <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
           <div class="slot-inner">
             <span class="s-label mr-4">{{ slot.label }}:</span>
-            <EquipmentItem
-              :equipment="equippedMap[slot.key]"
-              @show-detail="handleEquipmentDetail"
-            />
+            <EquipmentItem :equipment="equippedMap[slot.key]"> </EquipmentItem>
           </div>
         </div>
-      </div>
-    </BorderContainer>
-
-    <!-- 装备收藏 -->
-    <BorderContainer title="装备收藏">
-      <div class="equipment-collection">
-        <div v-for="item in equipmentCollection" :key="item.id" class="equipment-item-wrapper">
-          <EquipmentItem :equipment="item" @show-detail="handleEquipmentDetail" />
-        </div>
-        <div v-if="equipmentCollection.length === 0" class="empty-collection">暂无收藏装备</div>
       </div>
     </BorderContainer>
 
@@ -50,12 +37,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(item, index) in filteredInventory"
-              :key="index"
-              class="item-row"
-              @click="showItemDetail(item)"
-            >
+            <tr v-for="(item, index) in filteredInventory" :key="index" class="item-row">
               <td class="item-name">
                 <div class="text-green">
                   【{{ item.name }}】 <span v-if="item.isLocked" class="lock">[锁]</span>
@@ -70,35 +52,18 @@
         <div v-if="filteredInventory.length === 0" class="empty-text">--- 纳戒空无一物 ---</div>
       </div>
     </BorderContainer>
-
-    <!-- 装备详情弹窗 -->
-    <ItemDetailModal
-      ref="itemDetailModalRef"
-      @equip="handleEquipFromModal"
-      @unequip="handleUnequipFromModal"
-      @drop="handleDropFromModal"
-    />
-
-    <!-- 丢弃确认弹窗 -->
-    <DropConfirmModal ref="dropConfirmModalRef" @confirm="confirmDrop" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import type { IItemInstance } from '../interface/index';
-import type { IItemConfig } from '../items/interface';
+import type { IItemConfig, IItemStats } from '../items/interface';
 import { items } from '../items/index';
 import EquipmentItem from './EquipmentItem.vue';
 import { usePlayerStore } from '../stores/player';
-import ItemDetailModal from './ItemDetailModal.vue';
-import DropConfirmModal from './DropConfirmModal.vue';
 
 const playerStore = usePlayerStore();
-
-// 弹窗组件引用
-const itemDetailModalRef = ref<InstanceType<typeof ItemDetailModal> | null>(null);
-const dropConfirmModalRef = ref<InstanceType<typeof DropConfirmModal> | null>(null);
 
 const player = computed(() => {
   return playerStore.player;
@@ -134,41 +99,32 @@ const equippedMap = computed(() => {
   return map;
 });
 
-// 装备收藏 - 从库存中筛选装备并转换为IItemConfig格式
-const equipmentCollection = computed(() => {
-  return inventory.value
-    .filter((item) => item.category === 'equipment')
-    .map((item) => ({
-      id: item.id,
-      name: item.name,
-      category: item.category as IItemConfig['category'],
-      description: item.description || '',
-      slot: item.slot,
-      level: item.level || 1,
-      price: item.price || 0,
-      stackable: item.stackable || false,
-      stats: item.stats,
-    }))
-    .slice(0, 12); // 限制显示数量
-});
+interface IInventoryItem {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  slot: string;
+  level: number;
+  price: number;
+  stackable: boolean;
+  stats: IItemStats;
+  // 用户数据
+  count: number;
+  isLocked: boolean;
+  isEquipped: boolean;
+  instanceId: boolean;
+}
 
 // 将物品实例转换为展示格式
-const inventory = computed(() => {
+const inventory: IInventoryItem = computed(() => {
   return playerStore.inventory.map((itemInstance: IItemInstance) => {
     // 根据 itemId 查找物品配置
     const itemConfig = items[itemInstance.itemId];
 
     if (!itemConfig) {
       // 如果找不到配置，使用默认值
-      return {
-        id: crypto.randomUUID(),
-        name: '未知物品',
-        category: 'material',
-        count: itemInstance.count,
-        isLocked: itemInstance.isLocked,
-        isEquipped: itemInstance.isEquipped,
-        instanceId: itemInstance.instanceId,
-      };
+      return;
     }
 
     return {
@@ -197,60 +153,6 @@ const filteredInventory = computed(() => {
     (item: (typeof inventory.value)[number]) => item.category === activeTab.value,
   );
 });
-
-// 装备详情处理方法
-const handleEquipmentDetail = (equipment: IItemConfig) => {
-  itemDetailModalRef.value?.show(equipment);
-};
-
-// 装备相关方法
-const equipItem = (instanceId: string) => {
-  playerStore.equipItem(instanceId);
-};
-
-// 丢弃物品相关方法
-const showDropConfirm = (item: any) => {
-  if (item.isEquipped || item.isLocked) {
-    return;
-  }
-  dropConfirmModalRef.value?.show(item);
-};
-
-const confirmDrop = (item: any) => {
-  if (item && !item.isEquipped && !item.isLocked) {
-    playerStore.dropItem(item.instanceId);
-  }
-};
-
-/**
- * 处理脱下点击
- * @param item 装备实例
- */
-const handleUnequip = (item: any) => {
-  if (!item) return; // 没装备时不操作
-
-  // 可以在这里加个简单的提示，或者直接脱下
-  playerStore.unequipItem(item.instanceId);
-  console.log(`脱下了：${item.name}`);
-};
-
-// 装备详情弹窗相关方法
-const showItemDetail = (item: any) => {
-  itemDetailModalRef.value?.show(item);
-};
-
-// 从弹窗触发的操作
-const handleEquipFromModal = (instanceId: string) => {
-  equipItem(instanceId);
-};
-
-const handleUnequipFromModal = (item: any) => {
-  handleUnequip(item);
-};
-
-const handleDropFromModal = (item: any) => {
-  showDropConfirm(item);
-};
 
 // 组件挂载时加载数据
 onMounted(() => {});
@@ -427,6 +329,28 @@ onMounted(() => {});
     text-align: center;
     color: var(--text-muted, #a0a0a0);
     padding: 20px;
+  }
+}
+
+.slot-inner {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+
+  .s-label {
+    color: var(--text-label, #a0a0a0);
+    font-size: 0.95em;
+  }
+
+  .s-name {
+    color: var(--color-green);
+    font-weight: 500;
+    font-size: 0.95em;
+
+    &.is-empty {
+      color: var(--text-muted, #666);
+      font-style: italic;
+    }
   }
 }
 

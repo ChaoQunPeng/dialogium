@@ -10,7 +10,7 @@ export interface IItem {
   icon?: string;
   description?: string;
   price?: number;
-
+  // 品质
   grade?: number;
 
   // --- 组合属性模块 (Components) ---

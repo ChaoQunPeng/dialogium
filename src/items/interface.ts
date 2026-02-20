@@ -40,7 +40,8 @@ export interface IItemConfig {
   category: ItemCategory; // 物品大类
   description: string; // 物品描述 (原著背景)
   slot?: SlotType; // 装备位 (可选，材料/丹药可无)
-  level: number; // 需求等级 / 物品品阶
+  level: number; // 需求等级
+  grade: number; // 物品品阶
   price: number; // 价值 (0 为不可交易/至宝)
   stackable: boolean; // 是否可堆叠 (丹药/材料 true, 装备 false)
   stats?: IItemStats; // 数值属性对象
