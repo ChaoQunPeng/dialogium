@@ -39,11 +39,15 @@
           <tbody>
             <tr v-for="(item, index) in filteredInventory" :key="index" class="item-row">
               <td class="item-name">
-                <div class="text-green">
-                  【{{ item.name }}】 <span v-if="item.isLocked" class="lock">[锁]</span>
+                <div>
+                  <EquipmentItem :equipment="item">
+                    <template #default="{ item }">
+                      <span>【{{ item.name }}】</span>
+                      <span v-if="item.isLocked" class="lock">[锁]</span>
+                      <div class="item-description">{{ item.description || '--' }}</div>
+                    </template>
+                  </EquipmentItem>
                 </div>
-                <div class="item-description">{{ item.description || '--' }}</div>
-                <span v-if="item.isEquipped" class="equipped">[已装备]</span>
               </td>
               <td class="item-count">x{{ item.count }}</td>
             </tr>
@@ -57,12 +61,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { IItemInstance } from '../interface/index';
-import type { IItemConfig, IItemStats } from '../items/interface';
+import type { IInventoryItem, IItemInstance } from '../interface/index';
 import { items } from '../items/index';
 import EquipmentItem from './EquipmentItem.vue';
+import ItemDetailModal from './ItemDetailModal.vue';
 import { usePlayerStore } from '../stores/player';
-
 const playerStore = usePlayerStore();
 
 const player = computed(() => {
@@ -70,9 +73,9 @@ const player = computed(() => {
 });
 
 // 纳戒数据与分类逻辑
-const activeTab = ref('all');
+const activeTab = ref('equipment');
 const tabs = [
-  { name: '全部', key: 'all' },
+  // { name: '全部', key: 'all' },
   { name: '装备', key: 'equipment' },
   { name: '丹药', key: 'consumable' },
   { name: '材料', key: 'material' },
@@ -89,8 +92,8 @@ const equipmentSlots = [
 ];
 
 // 计算当前已穿戴的装备映射表
-const equippedMap = computed(() => {
-  const map: Record<string, any> = {};
+const equippedMap = computed<Record<string, IInventoryItem>>(() => {
+  const map: Record<string, IInventoryItem> = {};
   inventory.value.forEach((item) => {
     if (item.isEquipped && item.slot) {
       map[item.slot] = item;
@@ -99,59 +102,58 @@ const equippedMap = computed(() => {
   return map;
 });
 
-interface IInventoryItem {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  slot: string;
-  level: number;
-  price: number;
-  stackable: boolean;
-  stats: IItemStats;
-  // 用户数据
-  count: number;
-  isLocked: boolean;
-  isEquipped: boolean;
-  instanceId: boolean;
-}
-
 // 将物品实例转换为展示格式
-const inventory: IInventoryItem = computed(() => {
-  return playerStore.inventory.map((itemInstance: IItemInstance) => {
-    // 根据 itemId 查找物品配置
-    const itemConfig = items[itemInstance.itemId];
+const inventory = computed<IInventoryItem[]>(() => {
+  return playerStore.inventory
+    .map((itemInstance: IItemInstance) => {
+      // 根据 itemId 查找物品配置
+      const itemConfig = items[itemInstance.itemId];
 
-    if (!itemConfig) {
-      // 如果找不到配置，使用默认值
-      return;
-    }
+      if (!itemConfig) {
+        // 如果找不到配置，使用默认值
+        return {
+          id: itemInstance.itemId,
+          name: '未知物品',
+          category: 'unknown',
+          description: '未知物品',
+          slot: 'none',
+          level: 1,
+          price: 0,
+          stackable: false,
+          stats: {},
+          count: itemInstance.count,
+          isLocked: itemInstance.isLocked,
+          isEquipped: itemInstance.isEquipped,
+          instanceId: 'unknown',
+        } as IInventoryItem;
+      }
 
-    return {
-      id: itemConfig.id,
-      name: itemConfig.name,
-      category: itemConfig.category,
-      description: itemConfig.description,
-      slot: itemConfig.slot,
-      level: itemConfig.level,
-      price: itemConfig.price,
-      stackable: itemConfig.stackable,
-      stats: itemConfig.stats,
-      // 用户数据
-      count: itemInstance.count,
-      isLocked: itemInstance.isLocked,
-      isEquipped: itemInstance.isEquipped,
-      instanceId: itemInstance.instanceId,
-    };
-  });
+      return {
+        id: itemConfig.id,
+        name: itemConfig.name,
+        category: itemConfig.category,
+        description: itemConfig.description,
+        slot: itemConfig.slot,
+        level: itemConfig.level,
+        price: itemConfig.price,
+        stackable: itemConfig.stackable,
+        stats: itemConfig.stats,
+        // 用户数据
+        count: itemInstance.count,
+        isLocked: itemInstance.isLocked,
+        isEquipped: itemInstance.isEquipped,
+        instanceId: itemInstance.instanceId,
+      };
+    })
+    .filter((item): item is IInventoryItem => item !== undefined);
 });
 
 // 核心：分类过滤逻辑
 const filteredInventory = computed(() => {
   if (activeTab.value === 'all') return inventory.value;
-  return inventory.value.filter(
-    (item: (typeof inventory.value)[number]) => item.category === activeTab.value,
-  );
+  return inventory.value
+    .filter((item) => !item.isEquipped)
+    .filter((item: (typeof inventory.value)[number]) => item.category === activeTab.value);
 });
 
 // 组件挂载时加载数据

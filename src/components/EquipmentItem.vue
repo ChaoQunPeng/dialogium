@@ -19,11 +19,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { IItemConfig } from '@/items/interface';
 import ItemDetailModal from './ItemDetailModal.vue';
+import type { IInventoryItem } from '@/interface';
+import { usePlayerStore } from '../stores/player';
+const playerStore = usePlayerStore();
 
 interface EquipmentItemProps {
-  equipment?: IItemConfig;
+  equipment?: IInventoryItem;
 }
 
 interface EquipmentItemEmits {
@@ -59,16 +61,26 @@ const showDetail = () => {
 // 装备处理
 const handleEquip = (instanceId: string) => {
   emits('equip', instanceId);
+
+  playerStore.equipItem(instanceId);
 };
 
 // 卸下处理
 const handleUnequip = (item: any) => {
   emits('unequip', item);
+
+  if (item.instanceId) {
+    playerStore.unequipItem(item.instanceId);
+  }
 };
 
 // 丢弃处理
 const handleDrop = (item: any) => {
   emits('drop', item);
+
+  if (item.instanceId && !item.isEquipped && !item.isLocked) {
+    playerStore.dropItem(item.instanceId);
+  }
 };
 </script>
 

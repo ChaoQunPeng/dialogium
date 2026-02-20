@@ -1,3 +1,5 @@
+import type { IItemStats } from '@/items/interface';
+
 /** 统一物品接口：采用组合模式 */
 export interface IItem {
   // --- 核心标识 ---
@@ -62,4 +64,22 @@ export interface IItemInstance {
    */
   // customName?: string;
   // level?: number;
+}
+
+// 定义库存物品的展示格式
+export interface IInventoryItem {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  slot: string;
+  level: number;
+  price: number;
+  stackable: boolean;
+  stats: IItemStats;
+  // 用户数据
+  count: number;
+  isLocked: boolean;
+  isEquipped: boolean;
+  instanceId: string; // 修正类型为string
 }

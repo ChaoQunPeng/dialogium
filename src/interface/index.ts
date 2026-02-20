@@ -10,7 +10,7 @@ export type {
   IDivineCultivation,
   ICultivation,
 } from './cultivation';
-export type { IItem, IItemInstance } from './item';
+export type { IItem, IItemInstance, IInventoryItem } from './item';
 export type { Scene } from './scene';
 
 // 重新导出所需的枚举类型
