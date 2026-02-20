@@ -25,12 +25,12 @@ export interface IBattleSummary {
 }
 
 /** 战斗事件描述 - MUD 沉浸版 */
-function getActionMsg(
+const getActionMsg = (
   actorName: string,
   targetName: string,
   dmg: number,
   isCounter: boolean,
-): string {
+): string => {
   const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)]!;
 
   // --- 1. 【无伤/闪避/格挡】 (dmg <= 0) ---
@@ -114,7 +114,7 @@ function getActionMsg(
   const ultimateEnds = ['这是教科书般的终结', '胜负在那一刻已经分晓', '那是凡人无法触及的境界'];
 
   return `🔥 ${pick(ultimateStarters)}！${actorName} ${pick(ultimateMoves)}，${pick(dmgDesc)}！${pick(ultimateEnds)}。`;
-}
+};
 
 /**
  * 核心战斗模拟函数
@@ -257,7 +257,7 @@ export function canFight(attacker: ICharacter, defender: ICharacter): FightCheck
   if (result.winner?.name !== attacker.name) {
     return {
       canFight: false,
-      reason: '实力悬殊！预测你会战败，请变强后再来挑战吧。',
+      reason: '实力悬殊！请变强后再来挑战吧。',
       code: 2,
     };
   }
@@ -323,6 +323,13 @@ export interface IBattleReward {
   levelUp: boolean;
 }
 
+/**
+ * 处理战斗胜利后的完整奖励流程
+ * 包括经验获取和物品掉落
+ * @param player 玩家角色
+ * @param monster 被击败的怪物
+ * @returns 战斗奖励详情
+ */
 export function handleBattleRewards(player: ICharacter, monster: ICharacter): IBattleReward {
   const reward: IBattleReward = {
     expGained: 0,

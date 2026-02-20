@@ -108,23 +108,23 @@ export function useBattle() {
     // 4. 结束战斗逻辑
     if (onFinish) {
       battleStatus.value = 'finished';
-      
+
       // 如果玩家获胜，处理奖励
       if (result.winner?.id === attacker.id) {
         const rewards = handleBattleRewards(attacker, defender);
         battleRewards.value = rewards;
-        
+
         // 将奖励信息添加到战斗日志
-        if (rewards.expGained > 0) {
-          battleLog.value.unshift(`✨ 获得 ${rewards.expGained} 点经验值`);
-        }
-        if (rewards.droppedItems.length > 0) {
-          rewards.droppedItems.forEach(item => {
-            battleLog.value.unshift(`🎉 获得 ${item.name} x${item.count}`);
-          });
-        }
+        // if (rewards.expGained > 0) {
+        //   battleLog.value.unshift(`✨ 获得 ${rewards.expGained} 点经验值`);
+        // }
+        // if (rewards.droppedItems.length > 0) {
+        //   rewards.droppedItems.forEach(item => {
+        //     battleLog.value.unshift(`🎉 获得 ${item.name} x${item.count}`);
+        //   });
+        // }
       }
-      
+
       onFinish(result);
     }
 

@@ -25,6 +25,10 @@
           </div>
         </div>
 
+        <div class="px-4 self-center">
+          经验值: {{ playerStore.player.baseInfo.cultivation?.currentExp }}
+        </div>
+
         <div class="currency text-yellow self-center">灵石: 999</div>
       </BorderContainer>
     </header>

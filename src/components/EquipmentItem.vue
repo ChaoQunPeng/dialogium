@@ -23,7 +23,6 @@ import ItemDetailModal from './ItemDetailModal.vue';
 import DropConfirmModal from './DropConfirmModal.vue';
 import type { IInventoryItem } from '@/interface';
 import { usePlayerStore } from '../stores/player';
-import type { ItemGrade } from '@/interface/item';
 const playerStore = usePlayerStore();
 
 interface EquipmentItemProps {
@@ -100,11 +99,6 @@ const handleDropConfirm = (item: any) => {
 <style lang="scss" scoped>
 .equipment-item {
   cursor: pointer;
-  transition: transform 0.1s;
-
-  &:active {
-    transform: scale(0.95);
-  }
 
   .equipment-name {
     font-weight: 500;
@@ -112,30 +106,30 @@ const handleDropConfirm = (item: any) => {
 
   // 品级颜色样式
   &.normal {
-    color: #ffffff;
+    color: #ffffff; // 普通 - 白色
   }
 
   &.advanced {
-    color: #1eff00; // 高级 - 绿色
+    color: #167be0; // 高级 - 蓝色
   }
 
   &.rare {
-    color: #0070dd; // 稀有 - 蓝色
+    color: #a633f4; // 稀有 - 紫色
   }
 
   &.artifact {
-    color: #a335ee; // 神器 - 紫色
+    color: #ee10d4; // 神器 - 紫色
   }
 
   &.epic {
-    color: #ff8000; // 史诗 - 橙色
-    text-shadow: 0 0 4px rgba(255, 128, 0, 0.4);
+    color: gold; // 史诗 - 橙色
+    // text-shadow: 0 0 4px rgba(255, 128, 0, 0.4);
   }
 
-  &.legendary {
-    color: #e6cc80; // 传说 - 暗金色
-    text-shadow: 0 0 6px rgba(230, 204, 128, 0.6);
-    font-weight: bold;
-  }
+  // &.legendary {
+  //   color: #e6cc80; // 传说 - 暗金色
+  //   text-shadow: 0 0 6px rgba(230, 204, 128, 0.6);
+  //   font-weight: bold;
+  // }
 }
 </style>
