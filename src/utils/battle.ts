@@ -1,5 +1,6 @@
 // src/utils/battle.ts
-import type { ICharacter } from '@/interface';
+import type { ICharacter, IItem } from '@/interface';
+import { getRandomElement } from './arrayUtils';
 
 /** 单个战斗事件：承载数据与文案 */
 export interface IBattleEvent {
@@ -265,4 +266,72 @@ export function canFight(attacker: ICharacter, defender: ICharacter): FightCheck
     reason: '',
     code: 0,
   };
+}
+
+/**
+ * 处理战斗结束后的物品掉落
+ * 从怪物的dropList中随机获取一个物品给玩家
+ * @param monster 被击败的怪物
+ * @returns 获得的物品，如果没有掉落则返回null
+ */
+export function handleLootDrop(monster: ICharacter): IItem | null {
+  // 检查怪物是否有掉落列表
+  const dropList = monster.battle?.dropList;
+  
+  if (!dropList || dropList.length === 0) {
+    console.log(`${monster.name} 没有掉落任何物品`);
+    return null;
+  }
+
+  // 从掉落列表中随机选择一个物品
+  const droppedItem = getRandomElement(dropList);
+  
+  if (!droppedItem) {
+    console.log(`${monster.name} 的掉落列表为空`);
+    return null;
+  }
+
+  console.log(`🎉 你获得了 ${droppedItem.name} x${droppedItem.count}！`);
+  return droppedItem;
+}
+
+/**
+ * 处理战斗胜利后的完整奖励流程
+ * 包括经验获取和物品掉落
+ * @param player 玩家角色
+ * @param monster 被击败的怪物
+ * @returns 战斗奖励详情
+ */
+export interface IBattleReward {
+  expGained: number;
+  droppedItems: IItem[];
+  levelUp: boolean;
+}
+
+export function handleBattleRewards(player: ICharacter, monster: ICharacter): IBattleReward {
+  const reward: IBattleReward = {
+    expGained: 0,
+    droppedItems: [],
+    levelUp: false
+  };
+
+  // 1. 获取经验奖励（从怪物的exp字段）
+  const expReward = monster.battle?.exp || 0;
+  if (expReward > 0 && player.baseInfo.cultivation) {
+    player.baseInfo.cultivation.currentExp += expReward;
+    reward.expGained = expReward;
+    console.log(`✨ 获得 ${expReward} 点经验值`);
+  }
+
+  // 2. 处理物品掉落
+  const droppedItem = handleLootDrop(monster);
+  if (droppedItem) {
+    reward.droppedItems.push(droppedItem);
+  }
+
+  // 3. 检查是否升级（简化版本）
+  // 这里可以根据具体的游戏规则来实现升级逻辑
+  // 暂时只是简单记录是否有升级
+
+  return reward;
 }

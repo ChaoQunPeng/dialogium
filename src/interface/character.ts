@@ -1,7 +1,7 @@
+import type { IConversationItem } from '@/interface/conversation';
+import type { IItem } from '@/interface/item';
 import type { CharacterType } from '@/enums';
 import type { ICultivation } from './cultivation';
-import type { IConversationItem } from './conversation';
-import type { IItem } from './item';
 
 /**
  * 统一的游戏角色接口
@@ -39,6 +39,8 @@ export interface ICharacter {
     // speed?: number;
     // critRate?: number;
     dropList?: IItem[]; // 建议用 dropList 更语义化
+    // 怪物被击败后给予的经验值奖励
+    exp?: number;
     // dropRate?: number; // 掉落概率
     // skills?: ISkill[]; // 技能列表
   };
@@ -61,7 +63,7 @@ export interface ICharacter {
     /** 武器：如金蝶刀、吸精针、百雷弓等。攻击敌人的核心法宝 */
     weapon?: string;
 
-    /** 仙甲(上衣)：仙甲的主体部分，如“满天星”的核心护甲，防御全身精要 */
+    /** 仙甲(上衣)：仙甲的主体部分，如"满天星"的核心护甲，防御全身精要 */
     body?: string;
 
     /** 仙甲(下装)：保护下盘的甲胄，维持身法稳健 */
@@ -73,7 +75,7 @@ export interface ICharacter {
     /** 仙甲(腰带)：束缚元气，通常也是悬挂储物法宝(如扣上纳芥手镯)的位置 */
     belt?: string;
 
-    /** 仙甲(鞋履)：增强瞬移速度与闪避身法，如“星蝉翼”类靴子 */
+    /** 仙甲(鞋履)：增强瞬移速度与闪避身法，如"星蝉翼"类靴子 */
     shoes?: string;
   };
 

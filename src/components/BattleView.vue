@@ -20,7 +20,7 @@
           <div class="unit-panel">
             <div class="u-header">
               <span class="yellow bold">{{ player.name }}</span>
-              <span class="gray">LV.{{ player.level || 1 }}</span>
+              <span class="gray">LV.{{ player.baseInfo.level || 1 }}</span>
             </div>
             <div class="hp-line">
               <div class="bar-wrap">
@@ -40,7 +40,7 @@
 
           <div class="unit-panel text-right">
             <div class="u-header">
-              <span class="gray">LV.1</span>
+              <span class="gray">LV.{{ goblin.baseInfo.level }}</span>
               <span class="red bold">{{ goblin.name }}</span>
             </div>
             <div class="hp-line">
@@ -59,10 +59,23 @@
         </div>
 
         <div class="battle-actions">
-          <template v-if="battleStatus === 'running'">
+          <template v-if="battleStatus === 'fighting'">
             <span class="blink-text">刀光剑影中...</span>
           </template>
           <template v-else-if="battleStatus === 'finished'">
+            <!-- 显示战斗奖励 -->
+            <div v-if="battleRewards" class="battle-rewards">
+              <div v-if="battleRewards.expGained > 0" class="reward-item">
+                ✨ 获得经验: {{ battleRewards.expGained }} 点
+              </div>
+              <div 
+                v-for="(item, index) in battleRewards.droppedItems" 
+                :key="index" 
+                class="reward-item"
+              >
+                🎉 获得物品: {{ item.name }} x{{ item.count }}
+              </div>
+            </div>
             <span class="cmd-btn" @click="quitBattle">[ 离开战场 ]</span>
           </template>
         </div>
@@ -78,7 +91,7 @@
             >
               <span class="log-turn">[{{ battleLogs.length - index }}]</span>
               <span
-                :class="['log-msg', { 'system-msg': log.includes('🏁') || log.includes('💀') }]"
+                :class="['log-msg', { 'system-msg': log.includes('🏁') || log.includes('💀') || log.includes('🎉') || log.includes('✨') }]"
               >
                 {{ log }}
               </span>
@@ -99,17 +112,18 @@ import { usePlayerStore } from '@/stores/player';
 import { useBattle } from '@/hooks/useBattle';
 import { canFight } from '@/utils/battle';
 import { goblinMonster } from '@/npc/monster/ge_bu_lin';
+import BorderContainer from './borderContainer.vue';
 
 // 状态管理
-const { startBattle, currentTurns, battleStatus } = useBattle();
+const { startBattle, currentTurns, battleStatus, battleRewards } = useBattle();
 const playerStore = usePlayerStore();
-const { player } = playerStore;
+const { player, acquireItem } = playerStore;
 
 const isInBattle = ref(false); // 控制是否切入战斗场景
 
 const goblin = reactive({
   ...goblinMonster,
-  baseInfo: { ...goblinMonster.baseInfo, hp: goblinMonster.baseInfo.hp },
+  baseInfo: { ...goblinMonster.baseInfo, hp: goblinMonster.baseInfo.maxHp },
 });
 
 const battleLogs = ref<string[]>([]);
@@ -126,7 +140,7 @@ const selectMonster = () => {
   isInBattle.value = true;
   battleLogs.value = [];
 
-  // 2. 延迟一点点触发战斗，增加“切入”感
+  // 2. 延迟一点点触发战斗，增加"切入"感
   setTimeout(() => {
     startBattle(player, goblin, {
       delay: 700,
@@ -138,18 +152,33 @@ const selectMonster = () => {
       onFinish: (result) => {
         player.baseInfo.hp = result.finalAttackerHp;
         goblin.baseInfo.hp = result.finalDefenderHp;
+        
+        // 如果玩家获胜，将获得的物品添加到背包
+        if (result.winner?.id === player.id && battleRewards.value) {
+          // 将掉落物品添加到玩家背包
+          const itemsToAdd = battleRewards.value.droppedItems.map(item => ({
+            itemId: item.id,
+            count: item.count
+          }));
+          
+          if (itemsToAdd.length > 0) {
+            acquireItem(itemsToAdd);
+          }
+        }
+        
         battleStatus.value = 'finished';
       },
     });
-  }, 500);
+  }, 1000);
 };
 
 // 离开战场
 const quitBattle = () => {
   isInBattle.value = false;
   battleStatus.value = 'idle';
+  battleRewards.value = null;
   // 这里可以重置怪物血量或者刷新怪物
-  goblin.baseInfo.hp = goblinMonster.baseInfo.hp;
+  goblin.baseInfo.hp = goblinMonster.baseInfo.maxHp;
 };
 </script>
 
@@ -242,6 +271,24 @@ const quitBattle = () => {
     font-size: 0.8em;
     font-family: monospace;
     min-width: 60px;
+  }
+}
+
+/* 战斗奖励样式 */
+.battle-rewards {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid var(--color-green);
+  border-radius: 4px;
+  
+  .reward-item {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 

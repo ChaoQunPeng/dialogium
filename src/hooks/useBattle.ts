@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import type { ICharacter } from '@/interface';
 import { simulateBattle, type IBattleSummary, type IBattleEvent } from '@/utils/battle';
+import { handleBattleRewards, type IBattleReward } from '@/utils/battle';
 
 /** 格式化后的日志行结构 */
 export interface ITurnRecord {
@@ -54,6 +55,7 @@ export function useBattle() {
   const progress = ref(0);
   const currentTurns = ref(0);
   const battleStatus = ref<BattleStatus>('idle'); // 初始为闲置
+  const battleRewards = ref<IBattleReward | null>(null); // 新增：战斗奖励
 
   /**
    * 开始战斗
@@ -71,6 +73,7 @@ export function useBattle() {
     battleResult.value = null;
     battleLog.value = [];
     progress.value = 0;
+    battleRewards.value = null; // 重置奖励
 
     // 2. 预计算战斗结果并转换格式
     const result = simulateBattle(attacker, defender);
@@ -105,6 +108,23 @@ export function useBattle() {
     // 4. 结束战斗逻辑
     if (onFinish) {
       battleStatus.value = 'finished';
+      
+      // 如果玩家获胜，处理奖励
+      if (result.winner?.id === attacker.id) {
+        const rewards = handleBattleRewards(attacker, defender);
+        battleRewards.value = rewards;
+        
+        // 将奖励信息添加到战斗日志
+        if (rewards.expGained > 0) {
+          battleLog.value.unshift(`✨ 获得 ${rewards.expGained} 点经验值`);
+        }
+        if (rewards.droppedItems.length > 0) {
+          rewards.droppedItems.forEach(item => {
+            battleLog.value.unshift(`🎉 获得 ${item.name} x${item.count}`);
+          });
+        }
+      }
+      
       onFinish(result);
     }
 
@@ -119,6 +139,7 @@ export function useBattle() {
     battleStatus.value = 'idle';
     battleResult.value = null;
     progress.value = 0;
+    battleRewards.value = null;
   };
 
   return {
@@ -129,5 +150,6 @@ export function useBattle() {
     currentTurns,
     reset,
     battleStatus,
+    battleRewards, // 导出战斗奖励
   };
 }

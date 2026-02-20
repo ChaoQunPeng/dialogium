@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import BattleView from './components/scene/BattleView.vue';
+import BattleView from './components/BattleView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';

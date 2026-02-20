@@ -81,6 +81,8 @@ export const goblinMonster: ICharacter = {
     attack: 15,
     defense: 8,
     dropList: goblinDropItems,
+    // 经验值奖励
+    exp: 25,
   },
 
   // 对话相关（怪物通常没有对话）
@@ -90,9 +92,6 @@ export const goblinMonster: ICharacter = {
   interact: {
     canTalk: false,
   },
-
-  // 装备槽（怪物一般没有装备）
-  equipmentSlots: {},
 };
 
 // 精英哥布林
@@ -116,6 +115,8 @@ export const eliteGoblin: ICharacter = {
     attack: 25,
     defense: 15,
     dropList: eliteGoblinDropItems,
+    // 经验值奖励
+    exp: 50,
   },
 
   // 对话相关
@@ -166,6 +167,8 @@ export const goblinChief: ICharacter = {
         },
       },
     ],
+    // 经验值奖励
+    exp: 100,
   },
 
   // 对话相关
