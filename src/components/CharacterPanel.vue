@@ -2,24 +2,30 @@
   <div>
     <BorderContainer title="个人属性">
       <div>攻击力: {{ player.battle?.attack }}</div>
-      <div>防御力: {{ player.battle?.attack }}</div>
+      <div>防御力: {{ player.battle?.defense }}</div>
     </BorderContainer>
 
     <BorderContainer title="穿戴装备">
       <div class="equip-line-grid">
-        <div
-          v-for="slot in equipmentSlots"
-          :key="slot.key"
-          class="slot-item"
-          @click="showItemDetail(equippedMap[slot.key])"
-        >
+        <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
           <div class="slot-inner">
             <span class="s-label mr-4">{{ slot.label }}:</span>
-            <span :class="['s-name', { 'is-empty': !equippedMap[slot.key] }]">
-              {{ equippedMap[slot.key] ? equippedMap[slot.key].name : '--' }}
-            </span>
+            <EquipmentItem
+              :equipment="equippedMap[slot.key]"
+              @show-detail="handleEquipmentDetail"
+            />
           </div>
         </div>
+      </div>
+    </BorderContainer>
+
+    <!-- 装备收藏 -->
+    <BorderContainer title="装备收藏">
+      <div class="equipment-collection">
+        <div v-for="item in equipmentCollection" :key="item.id" class="equipment-item-wrapper">
+          <EquipmentItem :equipment="item" @show-detail="handleEquipmentDetail" />
+        </div>
+        <div v-if="equipmentCollection.length === 0" class="empty-collection">暂无收藏装备</div>
       </div>
     </BorderContainer>
 
@@ -41,8 +47,6 @@
             <tr>
               <th style="min-width: 150px; text-align: left">名称</th>
               <th style="width: 60px">数量</th>
-              <!-- <th style="width: 50px">效果</th> -->
-              <!-- <th style="width: 60px">操作</th> -->
             </tr>
           </thead>
           <tbody>
@@ -60,35 +64,6 @@
                 <span v-if="item.isEquipped" class="equipped">[已装备]</span>
               </td>
               <td class="item-count">x{{ item.count }}</td>
-              <!-- <td class="item-stats">
-                <div v-if="item.stats">
-                  <span v-if="item.stats.attack">攻击+{{ item.stats.attack }}</span>
-                  <span v-if="item.stats.defense">防御+{{ item.stats.defense }}</span>
-                  <span v-if="item.stats.hp">气血+{{ item.stats.hp }}</span>
-                  <span v-if="item.stats.mp">灵力+{{ item.stats.mp }}</span>
-                  <span v-if="item.stats.speed">速度+{{ item.stats.speed }}</span>
-                  <span v-if="item.stats.crit">暴击+{{ item.stats.crit }}</span>
-                </div>
-                <div v-else>--</div>
-              </td> -->
-              <!-- <td class="item-actions">
-                <div class="cmds">
-                  <span
-                    v-if="item.category === 'equipment'"
-                    class="cmd-btn cyan mb-2"
-                    @click="item.isEquipped ? handleUnequip(item) : equipItem(item.instanceId)"
-                  >
-                    {{ item.isEquipped ? '卸下' : '装备' }}
-                  </span>
-                  <span
-                    v-if="!item.isEquipped && !item.isLocked"
-                    class="cmd-btn red"
-                    @click="showDropConfirm(item)"
-                  >
-                    丢弃
-                  </span>
-                </div>
-              </td> -->
             </tr>
           </tbody>
         </table>
@@ -111,9 +86,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-// 假设类型定义和物品数据在指定路径下存在
 import type { IItemInstance } from '../interface/index';
+import type { IItemConfig } from '../items/interface';
 import { items } from '../items/index';
+import EquipmentItem from './EquipmentItem.vue';
 import { usePlayerStore } from '../stores/player';
 import ItemDetailModal from './ItemDetailModal.vue';
 import DropConfirmModal from './DropConfirmModal.vue';
@@ -158,6 +134,24 @@ const equippedMap = computed(() => {
   return map;
 });
 
+// 装备收藏 - 从库存中筛选装备并转换为IItemConfig格式
+const equipmentCollection = computed(() => {
+  return inventory.value
+    .filter((item) => item.category === 'equipment')
+    .map((item) => ({
+      id: item.id,
+      name: item.name,
+      category: item.category as IItemConfig['category'],
+      description: item.description || '',
+      slot: item.slot,
+      level: item.level || 1,
+      price: item.price || 0,
+      stackable: item.stackable || false,
+      stats: item.stats,
+    }))
+    .slice(0, 12); // 限制显示数量
+});
+
 // 将物品实例转换为展示格式
 const inventory = computed(() => {
   return playerStore.inventory.map((itemInstance: IItemInstance) => {
@@ -169,8 +163,7 @@ const inventory = computed(() => {
       return {
         id: crypto.randomUUID(),
         name: '未知物品',
-        category: '',
-        //
+        category: 'material',
         count: itemInstance.count,
         isLocked: itemInstance.isLocked,
         isEquipped: itemInstance.isEquipped,
@@ -204,6 +197,11 @@ const filteredInventory = computed(() => {
     (item: (typeof inventory.value)[number]) => item.category === activeTab.value,
   );
 });
+
+// 装备详情处理方法
+const handleEquipmentDetail = (equipment: IItemConfig) => {
+  itemDetailModalRef.value?.show(equipment);
+};
 
 // 装备相关方法
 const equipItem = (instanceId: string) => {
@@ -410,6 +408,44 @@ onMounted(() => {});
     padding: 20px;
     color: var(--color-gray);
     font-style: italic;
+  }
+}
+
+.equipment-collection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 8px;
+
+  .equipment-item-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .empty-collection {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-muted, #a0a0a0);
+    padding: 20px;
+  }
+}
+
+.equipment-display-example {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(30, 30, 30, 0.6);
+  border-radius: 8px;
+
+  .section-title {
+    color: var(--text-main, #d4d4d4);
+    margin-bottom: 12px;
+    font-size: 1.1em;
+  }
+
+  .equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
   }
 }
 </style>
