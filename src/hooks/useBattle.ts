@@ -8,6 +8,8 @@ export interface ITurnRecord {
   msg: string;
   attack: IBattleEvent;
   defender: IBattleEvent | null;
+  attackerHp: number;
+  defenderHp: number;
 }
 
 /** 战斗配置选项 */
@@ -30,13 +32,15 @@ export function formatBattleEvents(events: IBattleEvent[]): ITurnRecord[] {
     // 如果没有攻击事件（理论上不会发生，但为了类型安全），跳过
     if (!attack) continue;
 
-    const counter = events[i + 1] || null;
+    const defender = events[i + 1] || null;
 
     logs.push({
       // 如果有反击则合并文字，否则只显示攻击信息
-      msg: counter ? `${attack.msg}\n${counter.msg}` : attack.msg,
+      msg: defender ? `${attack.msg}\n${defender.msg}` : attack.msg,
       attack: attack,
-      defender: counter,
+      defender: defender,
+      attackerHp: attack.attackerHp,
+      defenderHp: attack.defenderHp,
     });
   }
   return logs;
@@ -70,6 +74,7 @@ export function useBattle() {
 
     // 2. 预计算战斗结果并转换格式
     const result = simulateBattle(attacker, defender);
+    debugger;
     battleResult.value = result;
 
     // 将扁平的 events 预先处理成按回合合并的 displayLogs

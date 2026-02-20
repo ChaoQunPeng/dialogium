@@ -4,89 +4,88 @@ import type { ICharacter } from '@/interface';
 /** 单个战斗事件：承载数据与文案 */
 export interface IBattleEvent {
   type: 'attack' | 'defender' | 'system';
-  turns: number; // 当前战斗轮数
-  msg: string; // 仅作为文案展示
+  turns: number;
+  msg: string;
   attackerHp: number; // 该动作后攻击者的剩余血量
   defenderHp: number; // 该动作后防御者的剩余血量
   damage?: number; // 该动作产生的数值变动
 }
 
+/** 战斗总结报告 */
 export interface IBattleSummary {
   winner: ICharacter | null;
   loser: ICharacter | null;
   turns: number;
-  events: IBattleEvent[]; // 由 log: string[] 改为事件流
+  events: IBattleEvent[];
   finalAttackerHp: number;
   finalDefenderHp: number;
+  isDraw: boolean;
 }
 
+/**
+ * 核心战斗模拟函数
+ * @param attacker 发起攻击的一方（通常是玩家）
+ * @param defender 被攻击的一方（通常是怪物）
+ */
 export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBattleSummary {
+  // 使用局部变量计算，避免修改原始对象属性
+  let aHp = attacker.baseInfo.hp;
+  let dHp = defender.baseInfo.hp;
+
+  const aAtk = attacker.battle?.attack ?? 0;
+  const aDef = attacker.battle?.defense ?? 0;
+  const dAtk = defender.battle?.attack ?? 0;
+  const dDef = defender.battle?.defense ?? 0;
+
   const summary: IBattleSummary = {
     winner: null,
     loser: null,
     turns: 0,
     events: [],
-    finalAttackerHp: attacker.baseInfo.hp,
-    finalDefenderHp: defender.baseInfo.hp,
+    finalAttackerHp: aHp,
+    finalDefenderHp: dHp,
+    isDraw: false,
   };
 
-  const aAtk = attacker.battle?.attack || 0;
-  const aDef = attacker.battle?.defense || 0;
-  const dAtk = defender.battle?.attack || 0;
-  const dDef = defender.battle?.defense || 0;
-
-  // 这里只保留一个“绝对无法破防”的全局跳出判断，防止死循环
-  // 如果双方都无法破防，且没有其他伤害手段（如技能），则直接结束
+  // 1. 全局判定：如果双方都无法破防，直接判定平局，防止进入无效循环
   if (aAtk <= dDef && dAtk <= aDef) {
     summary.events.push({
       turns: 0,
       type: 'system',
-      msg: '【系统】双方防御均坚不可摧，陷入僵局，战斗平局。',
-      attackerHp: attacker.baseInfo.hp,
-      defenderHp: defender.baseInfo.hp,
+      msg: '【系统】双方防御均坚不可摧，陷入僵局。',
+      attackerHp: aHp,
+      defenderHp: dHp,
     });
+    summary.isDraw = true;
     return summary;
   }
 
-  let aHp = attacker.baseInfo.hp;
-  let dHp = defender.baseInfo.hp;
-
-  while (aHp > 0 && dHp > 0) {
+  // 2. 战斗循环
+  const MAX_TURNS = 100; // 安全阈值
+  while (aHp > 0 && dHp > 0 && summary.turns < MAX_TURNS) {
     summary.turns++;
 
-    // --- 1. 攻击者行动 ---
-    const aDamage = Math.max(0, aAtk - dDef); // 如果没破防，伤害就是 0
+    // --- 攻击方回合 ---
+    const aDamage = Math.max(0, aAtk - dDef);
     dHp = Math.max(0, dHp - aDamage);
 
     summary.events.push({
       turns: summary.turns,
       type: 'attack',
-      // 根据伤害值动态生成描述
       msg:
         aDamage > 0
-          ? `${attacker.name} 发起进攻，造成 ${aDamage} 点伤害`
-          : `${attacker.name} 发起进攻，但未能破开 ${defender.name} 的防御！`,
+          ? `⚔️ ${attacker.name} 发起攻击，造成 ${aDamage} 点伤害`
+          : `🛡️ ${attacker.name} 的攻击被 ${defender.name} 轻松化解`,
       attackerHp: aHp,
       defenderHp: dHp,
       damage: aDamage,
     });
 
-    if (dHp <= 0) {
-      summary.events.push({
-        turns: summary.turns,
-        type: 'defender',
-        // 根据伤害值动态生成描述
-        msg: `${defender.name} 战败`,
-        attackerHp: aHp,
-        defenderHp: dHp,
-        damage: aDamage,
-      });
+    // 重要：如果防御方已倒下，立即结束战斗，不再执行反击逻辑
+    if (dHp <= 0) break;
 
-      break;
-    }
-
-    // --- 2. 防御者反击 ---
-    const dDamage = Math.max(0, dAtk - aDef); // 如果没破防，伤害就是 0
+    // --- 防御方反击回合 ---
+    const dDamage = Math.max(0, dAtk - aDef);
     aHp = Math.max(0, aHp - dDamage);
 
     summary.events.push({
@@ -94,60 +93,90 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
       type: 'defender',
       msg:
         dDamage > 0
-          ? `${defender.name} 发起反击，造成 ${dDamage} 点伤害`
-          : `${defender.name} 试图反击，但被 ${attacker.name} 轻松化解。`,
+          ? `🔄 ${defender.name} 发起反击，造成 ${dDamage} 点伤害`
+          : `🛡️ ${defender.name} 的反击未能撼动 ${attacker.name}`,
       attackerHp: aHp,
       defenderHp: dHp,
       damage: dDamage,
     });
 
-    if (aHp <= 0) {
-      break;
-    }
+    // 如果攻击方倒下，循环也会结束
+    if (aHp <= 0) break;
   }
 
+  // 3. 结果封存与结局文案
   summary.finalAttackerHp = aHp;
   summary.finalDefenderHp = dHp;
 
-  // 判定胜负
-  if (aHp <= 0) {
-    summary.winner = defender;
-    summary.loser = attacker;
-  } else {
+  if (aHp > 0 && dHp <= 0) {
     summary.winner = attacker;
     summary.loser = defender;
+    summary.events.push({
+      turns: summary.turns,
+      type: 'system',
+      msg: `🏁 战斗结束：${attacker.name} 获得了胜利！剩余生命值：${aHp}`,
+      attackerHp: aHp,
+      defenderHp: dHp,
+    });
+  } else if (dHp > 0 && aHp <= 0) {
+    summary.winner = defender;
+    summary.loser = attacker;
+    summary.events.push({
+      turns: summary.turns,
+      type: 'system',
+      msg: `💀 战斗结束：${attacker.name} 不幸战败... 对方剩余生命值：${dHp}`,
+      attackerHp: aHp,
+      defenderHp: dHp,
+    });
+  } else {
+    summary.isDraw = true;
+    summary.events.push({
+      turns: summary.turns,
+      type: 'system',
+      msg: `⏳ 战斗结束：双方体力耗尽，最终战成平手。`,
+      attackerHp: aHp,
+      defenderHp: dHp,
+    });
   }
 
   return summary;
 }
 
+/** 战斗前置校验结果接口 */
 export interface FightCheckResult {
   canFight: boolean;
   reason: string;
+  code: number;
 }
 
+/**
+ * 在进入战斗前调用的校验函数
+ */
 export function canFight(attacker: ICharacter, defender: ICharacter): FightCheckResult {
-  // 1. 攻击方的攻击力大于防守方的防御力
-  const canAttackerWin = (attacker.battle?.attack ?? 0) > (defender.battle?.defense ?? 0);
+  const result = simulateBattle(attacker, defender);
 
-  // 2. 使用simulateBattle返回的结果中,winner的type是player
-  const battleResult = simulateBattle(attacker, defender);
-  const isWinnerPlayer = battleResult.winner?.type === 'player';
-
-  if (!canAttackerWin) {
+  // 1. 检查是否为平局
+  if (result.isDraw) {
     return {
       canFight: false,
-      reason: '你的攻击力过低，无法打倒对方！',
-    };
-  } else if (!isWinnerPlayer) {
-    return {
-      canFight: false,
-      reason: '你最终会被对方击败!',
-    };
-  } else {
-    return {
-      canFight: true,
-      reason: '',
+      reason: '你的攻击无法破防，打下去也只是浪费时间。',
+      code: 1,
     };
   }
+
+  // 2. 检查胜者是否为发起者（玩家）
+  // 注意：这里假设通过 id 或 name 识别玩家
+  if (result.winner?.name !== attacker.name) {
+    return {
+      canFight: false,
+      reason: '实力悬殊！预测你会战败，请变强后再来挑战吧。',
+      code: 2,
+    };
+  }
+
+  return {
+    canFight: true,
+    reason: '',
+    code: 0,
+  };
 }
