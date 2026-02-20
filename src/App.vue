@@ -31,7 +31,7 @@
 
     <main class="game-content">
       <CharacterPanel v-if="activeTab === 'realm'" />
-      <SceneView v-if="activeTab === 'adventure'" />
+      <BattleView v-if="activeTab === 'adventure'" />
       <CultivationPanel v-if="activeTab === 'practice'" />
     </main>
 
@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import SceneView from './components/scene/SceneView.vue';
+import BattleView from './components/scene/BattleView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';

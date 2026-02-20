@@ -1,0 +1,324 @@
+<template>
+  <div class="mud-game-wrapper">
+    <BorderContainer v-if="!isInBattle" title="当前场景：荒野林径">
+      <div class="scene-description">你环顾四周，林中迷雾缭绕，远处隐约传来阵阵低吼...</div>
+      <div class="monster-list">
+        <div class="monster-item">
+          <span class="m-info">
+            <span class="red">【怪物】</span>
+            <span class="bold">{{ goblin.name }}</span>
+            <span class="gray">(等级: 1)</span>
+          </span>
+          <span class="cmd-btn" @click="selectMonster">[ 尝试挑战 ]</span>
+        </div>
+      </div>
+    </BorderContainer>
+
+    <div v-else class="battle-scene">
+      <BorderContainer :title="`正在与 ${goblin.name} 厮杀 (回合 ${currentTurns || 1})`">
+        <div class="battle-stage-horizontal">
+          <div class="unit-panel">
+            <div class="u-header">
+              <span class="yellow bold">{{ player.name }}</span>
+              <span class="gray">LV.{{ player.level || 1 }}</span>
+            </div>
+            <div class="hp-line">
+              <div class="bar-wrap">
+                <div
+                  class="bar green-bg"
+                  :style="{ width: (player.baseInfo.hp / player.baseInfo.maxHp) * 100 + '%' }"
+                ></div>
+              </div>
+              <div class="hp-val">{{ player.baseInfo.hp }}/{{ player.baseInfo.maxHp }}</div>
+            </div>
+            <div class="u-footer">
+              攻:{{ player.battle?.attack }} 防:{{ player.battle?.defense }}
+            </div>
+          </div>
+
+          <div class="vs-divider">VS</div>
+
+          <div class="unit-panel text-right">
+            <div class="u-header">
+              <span class="gray">LV.1</span>
+              <span class="red bold">{{ goblin.name }}</span>
+            </div>
+            <div class="hp-line">
+              <div class="bar-wrap">
+                <div
+                  class="bar red-bg"
+                  :style="{ width: (goblin.baseInfo.hp / goblin.baseInfo.maxHp) * 100 + '%' }"
+                ></div>
+              </div>
+              <div class="hp-val">{{ goblin.baseInfo.hp }}/{{ goblin.baseInfo.maxHp }}</div>
+            </div>
+            <div class="u-footer">
+              攻:{{ goblin.battle?.attack }} 防:{{ goblin.battle?.defense }}
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-actions">
+          <template v-if="battleStatus === 'running'">
+            <span class="blink-text">刀光剑影中...</span>
+          </template>
+          <template v-else-if="battleStatus === 'finished'">
+            <span class="cmd-btn" @click="quitBattle">[ 离开战场 ]</span>
+          </template>
+        </div>
+      </BorderContainer>
+
+      <BorderContainer title="战斗记录">
+        <div class="log-list">
+          <TransitionGroup name="log-slide">
+            <div
+              v-for="(log, index) in battleLogs"
+              :key="battleLogs.length - index"
+              class="log-item"
+            >
+              <span class="log-turn">[{{ battleLogs.length - index }}]</span>
+              <span
+                :class="['log-msg', { 'system-msg': log.includes('🏁') || log.includes('💀') }]"
+              >
+                {{ log }}
+              </span>
+            </div>
+          </TransitionGroup>
+          <div v-if="battleLogs.length === 0" class="empty-text">
+            --- 双方凝视对方，战斗一触即发 ---
+          </div>
+        </div>
+      </BorderContainer>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref } from 'vue';
+import { usePlayerStore } from '@/stores/player';
+import { useBattle } from '@/hooks/useBattle';
+import { canFight } from '@/utils/battle';
+import { goblinMonster } from '@/npc/monster/ge_bu_lin';
+
+// 状态管理
+const { startBattle, currentTurns, battleStatus } = useBattle();
+const playerStore = usePlayerStore();
+const { player } = playerStore;
+
+const isInBattle = ref(false); // 控制是否切入战斗场景
+
+const goblin = reactive({
+  ...goblinMonster,
+  baseInfo: { ...goblinMonster.baseInfo, hp: goblinMonster.baseInfo.hp },
+});
+
+const battleLogs = ref<string[]>([]);
+
+// 选择怪物并开始战斗
+const selectMonster = () => {
+  const check = canFight(player, goblin);
+  if (!check.canFight) {
+    alert(check.reason);
+    return;
+  }
+
+  // 1. 切换场景
+  isInBattle.value = true;
+  battleLogs.value = [];
+
+  // 2. 延迟一点点触发战斗，增加“切入”感
+  setTimeout(() => {
+    startBattle(player, goblin, {
+      delay: 700,
+      onTurn: (event) => {
+        player.baseInfo.hp = event.attackerHp;
+        goblin.baseInfo.hp = event.defenderHp;
+        battleLogs.value.unshift(event.msg);
+      },
+      onFinish: (result) => {
+        player.baseInfo.hp = result.finalAttackerHp;
+        goblin.baseInfo.hp = result.finalDefenderHp;
+        battleStatus.value = 'finished';
+      },
+    });
+  }, 500);
+};
+
+// 离开战场
+const quitBattle = () => {
+  isInBattle.value = false;
+  battleStatus.value = 'idle';
+  // 这里可以重置怪物血量或者刷新怪物
+  goblin.baseInfo.hp = goblinMonster.baseInfo.hp;
+};
+</script>
+
+<style lang="scss" scoped>
+.mud-game-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 场景探索样式 */
+.scene-description {
+  color: var(--color-gray);
+  font-style: italic;
+  margin-bottom: 12px;
+  font-size: 0.95em;
+}
+
+.monster-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed #444;
+  .m-info {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+/* 水平战斗对峙区 */
+.battle-stage-horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+
+  .unit-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .u-header {
+      display: flex;
+      gap: 10px;
+      font-size: 0.95em;
+    }
+
+    .u-footer {
+      font-size: 0.8em;
+      color: var(--color-gray);
+    }
+
+    &.text-right {
+      align-items: flex-end;
+      .hp-line {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+
+  .vs-divider {
+    padding: 0 20px;
+    color: var(--color-red);
+    font-weight: bold;
+    font-style: italic;
+    font-size: 1.2em;
+    opacity: 0.6;
+  }
+}
+
+/* 血条样式 */
+.hp-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  .bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: #111;
+    border: 1px solid #333;
+    .bar {
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+  }
+  .hp-val {
+    font-size: 0.8em;
+    font-family: monospace;
+    min-width: 60px;
+  }
+}
+
+/* 状态颜色 */
+.green-bg {
+  background-color: var(--color-green);
+}
+.red-bg {
+  background-color: var(--color-red);
+}
+.yellow {
+  color: var(--color-yellow);
+}
+.red {
+  color: var(--color-red);
+}
+.gray {
+  color: var(--color-gray);
+}
+.bold {
+  font-weight: bold;
+}
+
+/* 交互 */
+.battle-actions {
+  text-align: center;
+  padding: 10px 0;
+  .blink-text {
+    color: var(--color-yellow);
+    animation: blink 1s infinite;
+  }
+}
+
+.cmd-btn {
+  color: var(--color-cyan);
+  cursor: pointer;
+  &:hover {
+    color: var(--color-yellow);
+    text-decoration: underline;
+  }
+}
+
+/* 日志列表动画 */
+.log-list {
+  max-height: 260px;
+  overflow-y: auto;
+  .log-item {
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    display: flex;
+    gap: 10px;
+    .log-turn {
+      color: var(--color-gray);
+      min-width: 30px;
+    }
+    .system-msg {
+      color: var(--color-yellow);
+      font-weight: bold;
+    }
+  }
+}
+
+.log-slide-enter-active {
+  transition: all 0.3s ease;
+}
+.log-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+</style>
