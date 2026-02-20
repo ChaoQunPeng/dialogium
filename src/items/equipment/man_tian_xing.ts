@@ -15,6 +15,7 @@ export const manTianXin: Record<string, IItem> = {
     level: 1,
     price: 0,
     stackable: false,
+    grade: 'Legendary',
     stats: {
       attack: 100,
       defense: 100,

@@ -121,6 +121,7 @@ const inventory = computed<IInventoryItem[]>(() => {
           price: 0,
           stackable: false,
           stats: {},
+          grade: 'Normal',
           count: itemInstance.count,
           isLocked: itemInstance.isLocked,
           isEquipped: itemInstance.isEquipped,
@@ -138,6 +139,7 @@ const inventory = computed<IInventoryItem[]>(() => {
         price: itemConfig.price,
         stackable: itemConfig.stackable,
         stats: itemConfig.stats,
+        grade: itemConfig.grade,
         // 用户数据
         count: itemInstance.count,
         isLocked: itemInstance.isLocked,
@@ -169,17 +171,17 @@ const inventory = computed<IInventoryItem[]>(() => {
 // 核心：分类过滤逻辑 - 优化堆叠物品展示
 const filteredInventory = computed(() => {
   let itemsToFilter = inventory.value;
-  
+
   // 如果不是显示全部，则先按分类过滤
   if (activeTab.value !== 'all') {
     itemsToFilter = itemsToFilter
       .filter((item) => !item.isEquipped)
       .filter((item: (typeof inventory.value)[number]) => item.category === activeTab.value);
   }
-  
+
   // 合并可堆叠的相同物品
   const mergedItems: Record<string, (typeof inventory.value)[number]> = {};
-  
+
   itemsToFilter.forEach((item) => {
     // 对于可堆叠物品，按itemId合并
     if (item.stackable) {
@@ -197,7 +199,7 @@ const filteredInventory = computed(() => {
       mergedItems[key] = { ...item };
     }
   });
-  
+
   // 转换为数组并排序
   return Object.values(mergedItems).sort((a, b) => {
     // 装备的排在前面

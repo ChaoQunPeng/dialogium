@@ -18,6 +18,8 @@ export type SlotType =
  */
 export type ItemCategory = 'equipment' | 'consumable' | 'material' | 'quest';
 
+export type ItemGrade = 'Normal' | 'Advanced' | 'Rare' | 'Artifact' | 'Epic' | 'Legendary';
+
 /** 统一物品接口：采用组合模式 */
 export interface IItem {
   // --- 核心标识 ---
@@ -30,7 +32,7 @@ export interface IItem {
   icon?: string;
   description?: string;
   price?: number;
-  grade?: number; // 品质
+  grade?: ItemGrade; // 品质
 
   // --- 物品配置属性 (从原来的IItemConfig迁移) ---
   slot?: SlotType; // 装备位 (可选，材料/丹药可无)
@@ -100,6 +102,7 @@ export interface IInventoryItem {
   level: number;
   price: number;
   stackable: boolean;
+  grade: ItemGrade;
   // stats: IItemStats;
   // 用户数据
   count: number;

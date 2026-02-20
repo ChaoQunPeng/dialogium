@@ -1,13 +1,11 @@
 <template>
   <div v-if="equipment">
-    <!-- 装备展示项 -->
     <div class="equipment-item" :class="getRarityClass()" @click="showDetail">
       <span class="equipment-name">
         <slot :item="equipment">{{ equipment.name }}</slot>
       </span>
     </div>
 
-    <!-- 引入装备详情弹窗组件 -->
     <ItemDetailModal
       ref="detailModalRef"
       @equip="handleEquip"
@@ -15,7 +13,6 @@
       @drop="handleShowDropConfirm"
     />
 
-    <!-- 引入丢弃确认弹窗组件 -->
     <DropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
   </div>
 </template>
@@ -26,6 +23,7 @@ import ItemDetailModal from './ItemDetailModal.vue';
 import DropConfirmModal from './DropConfirmModal.vue';
 import type { IInventoryItem } from '@/interface';
 import { usePlayerStore } from '../stores/player';
+import type { ItemGrade } from '@/interface/item';
 const playerStore = usePlayerStore();
 
 interface EquipmentItemProps {
@@ -47,16 +45,21 @@ const detailModalRef = ref<InstanceType<typeof ItemDetailModal> | null>(null);
 // 引用丢弃确认弹窗组件
 const dropConfirmModalRef = ref<InstanceType<typeof DropConfirmModal> | null>(null);
 
+// /** 品级配置信息（用于 UI 渲染） */
+// const GRADE_CONFIG: Record<ItemGrade, { label: string; color: string; level: number }> = {
+//   Normal: { label: '普通', color: '#ffffff', level: 1 },
+//   Advanced: { label: '高级', color: '#1eff00', level: 2 },
+//   Rare: { label: '稀有', color: '#0070dd', level: 3 },
+//   Artifact: { label: '神器', color: '#a335ee', level: 4 },
+//   Epic: { label: '史诗', color: '#ff8000', level: 5 },
+//   Legendary: { label: '传说', color: '#e6cc80', level: 6 },
+// };
+
 // 根据装备等级获取品级颜色类名
 const getRarityClass = () => {
-  const level = props.equipment?.level ?? 10;
-
-  // 品级划分（可以根据需要调整）
-  if (level >= 10) return 'legendary'; // 传说级 - 金色
-  if (level >= 7) return 'epic'; // 史诗级 - 紫色
-  if (level >= 5) return 'rare'; // 稀有级 - 蓝色
-  if (level >= 3) return 'uncommon'; // 精良级 - 绿色
-  return 'common'; // 普通级 - 白色
+  // 直接将 grade 字符串转为小写作为 CSS 类名，保持逻辑一致性
+  const grade = props.equipment?.grade;
+  return grade ? grade.toLowerCase() : 'normal';
 };
 
 // 显示详情 - 调用子组件的show方法
@@ -96,28 +99,43 @@ const handleDropConfirm = (item: any) => {
 
 <style lang="scss" scoped>
 .equipment-item {
+  cursor: pointer;
+  transition: transform 0.1s;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
   .equipment-name {
     font-weight: 500;
   }
-  // 品级颜色样式（与之前保持一致）
-  &.common {
-    color: var(--text-main, #d4d4d4);
+
+  // 品级颜色样式
+  &.normal {
+    color: #ffffff;
   }
 
-  &.uncommon {
-    color: var(--color-green, #4dbd74);
+  &.advanced {
+    color: #1eff00; // 高级 - 绿色
   }
 
   &.rare {
-    color: #4d94ff;
+    color: #0070dd; // 稀有 - 蓝色
+  }
+
+  &.artifact {
+    color: #a335ee; // 神器 - 紫色
   }
 
   &.epic {
-    color: #cc66ff;
+    color: #ff8000; // 史诗 - 橙色
+    text-shadow: 0 0 4px rgba(255, 128, 0, 0.4);
   }
 
   &.legendary {
-    color: var(--color-yellow, #eec43f);
+    color: #e6cc80; // 传说 - 暗金色
+    text-shadow: 0 0 6px rgba(230, 204, 128, 0.6);
+    font-weight: bold;
   }
 }
 </style>

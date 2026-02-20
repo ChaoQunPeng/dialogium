@@ -32,7 +32,7 @@
     <main class="game-content">
       <CharacterPanel v-if="activeTab === 'realm'" />
       <BattleView v-if="activeTab === 'adventure'" />
-      <CultivationPanel v-if="activeTab === 'practice'" />
+      <!-- <CultivationPanel v-if="activeTab === 'practice'" /> -->
     </main>
 
     <footer class="game-nav flex">
@@ -64,7 +64,7 @@ const player = computed(() => {
 const tabs = [
   { id: 'realm', name: '修为' },
   { id: 'adventure', name: '历练' },
-  { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
+  // { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
 ];
 
 const activeTab = ref('realm');
