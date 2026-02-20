@@ -1,66 +1,102 @@
 <template>
-  <div>
-    <div>
-      <button @click="fight">战斗</button>
-      <div>回合数: {{ currentTurns ? currentTurns : 1 }}</div>
-      <!-- <div v-if="battleStatus === 'finished'">战斗结束!</div> -->
-      <div>玩家:{{ player.baseInfo.hp }}/{{ player.baseInfo.maxHp }}</div>
-      <div>
-        怪物: {{ goblin.baseInfo.hp }}/{{ goblin.baseInfo.maxHp }}
+  <div class="mud-battle">
+    <BorderContainer :title="`战斗：对峙中 (回合 ${currentTurns || 1})`">
+      <div class="battle-stage">
+        <div class="unit">
+          <div class="unit-info">
+            <span class="u-name yellow">{{ player.name }}</span>
+            <span class="u-stats"
+              >[攻:{{ player.battle?.attack }} 防:{{ player.battle?.defense }}]</span
+            >
+          </div>
+          <div class="hp-line">
+            <span class="label">气血:</span>
+            <div class="bar-wrap">
+              <div
+                class="bar green-bg"
+                :style="{ width: (player.baseInfo.hp / player.baseInfo.maxHp) * 100 + '%' }"
+              ></div>
+            </div>
+            <span class="val">{{ player.baseInfo.hp }}/{{ player.baseInfo.maxHp }}</span>
+          </div>
+        </div>
 
-        {{ goblin.battle?.attack }}/{{ goblin.battle?.defense }}
+        <div class="vs-text">=== 厮杀 ===</div>
+
+        <div class="unit">
+          <div class="unit-info">
+            <span class="u-name red">{{ goblin.name }}</span>
+            <span class="u-stats"
+              >[攻:{{ goblin.battle?.attack }} 防:{{ goblin.battle?.defense }}]</span
+            >
+          </div>
+          <div class="hp-line">
+            <span class="label">气血:</span>
+            <div class="bar-wrap">
+              <div
+                class="bar red-bg"
+                :style="{ width: (goblin.baseInfo.hp / goblin.baseInfo.maxHp) * 100 + '%' }"
+              ></div>
+            </div>
+            <span class="val">{{ goblin.baseInfo.hp }}/{{ goblin.baseInfo.maxHp }}</span>
+          </div>
+        </div>
       </div>
-      <div v-for="(log, index) in battleLogs" :key="index">{{ log }}</div>
-    </div>
+
+      <div class="actions">
+        <span v-if="battleStatus !== 'running'" class="cmd-btn" @click="fight">[ 发起进攻 ]</span>
+        <span v-else class="cmd-text gray">正在激战中...</span>
+      </div>
+    </BorderContainer>
+
+    <BorderContainer title="战斗过程">
+      <div class="log-list">
+        <div v-for="(log, index) in battleLogs" :key="index" class="log-item">
+          <span class="log-turn">[{{ battleLogs.length - index }}]</span>
+          <span :class="['log-msg', { 'system-msg': log.includes('🏁') || log.includes('💀') }]">
+            {{ log }}
+          </span>
+        </div>
+        <div v-if="battleLogs.length === 0" class="empty-text">--- 战斗还未开始 ---</div>
+      </div>
+    </BorderContainer>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ICharacter } from '@/interface';
 import { reactive, ref } from 'vue';
 import { usePlayerStore } from '@/stores/player';
 import { useBattle } from '@/hooks/useBattle';
 import { canFight } from '@/utils/battle';
-import { goblinMonster } from '@/npc/monster/ge_bu_lin'; // 导入哥布林怪物
+import { goblinMonster } from '@/npc/monster/ge_bu_lin';
 
 const { startBattle, currentTurns, battleStatus } = useBattle();
 const playerStore = usePlayerStore();
 const { player } = playerStore;
 
-// 使用哥布林怪物替代原来的史莱姆
-const goblin = reactive<ICharacter>({
-  ...goblinMonster, // 从ge_bu_lin.ts导入的哥布林数据
-  baseInfo: {
-    ...goblinMonster.baseInfo,
-    hp: goblinMonster.baseInfo.hp, // 保持初始血量
-  },
+const goblin = reactive({
+  ...goblinMonster,
+  baseInfo: { ...goblinMonster.baseInfo, hp: goblinMonster.baseInfo.hp },
 });
 
 const battleLogs = ref<string[]>([]);
 
 const fight = () => {
-  const fightCheckResult = canFight(player, goblin);
-  if (!fightCheckResult.canFight && fightCheckResult.code == 1) {
-    alert(fightCheckResult.reason);
-    return;
-  }
+  const check = canFight(player, goblin);
+  // if (!check.canFight) {
+  //   alert(check.reason);
+  //   return;
+  // }
 
-  // 清空旧日志
   battleLogs.value = [];
-
   startBattle(player, goblin, {
-    delay: 500, // 建议稍微加快一点，1000ms体感较慢
+    delay: 600,
     onTurn: (event) => {
-      // 这里的 event 就是我们定义的 IBattleEvent
-      // 无论谁在攻击，event 都会实时返回双方剩下的血量
-      player.baseInfo.hp = event.attack.attackerHp;
+      player.baseInfo.hp = event.attackerHp;
       goblin.baseInfo.hp = event.defenderHp;
-      // 将新日志插入到最前面
       battleLogs.value.unshift(event.msg);
     },
     onFinish: (result) => {
-      console.log('战斗最终结算:', result);
-      // 最终确认一次血量，确保同步
       player.baseInfo.hp = result.finalAttackerHp;
       goblin.baseInfo.hp = result.finalDefenderHp;
       battleStatus.value = 'finished';
@@ -69,8 +105,121 @@ const fight = () => {
 };
 </script>
 
-<style>
-.item {
-  color: #d4d4d4;
+<style lang="scss" scoped>
+.mud-battle {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.battle-stage {
+  padding: 8px 0;
+  .vs-text {
+    text-align: center;
+    color: var(--color-gray);
+    margin: 8px 0;
+    font-size: 0.9em;
+  }
+}
+
+.unit {
+  .unit-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    .u-name {
+      font-weight: bold;
+    }
+    .u-stats {
+      font-size: 0.85em;
+      color: var(--color-gray);
+    }
+  }
+}
+
+/* MUD 风格血条 */
+.hp-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  .label {
+    color: var(--color-gray);
+  }
+  .bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: #222;
+    border: 1px solid #444;
+    .bar {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+  }
+  .val {
+    width: 80px;
+    text-align: right;
+    font-family: monospace;
+  }
+}
+
+.green-bg {
+  background-color: var(--color-green);
+}
+.red-bg {
+  background-color: var(--color-red);
+}
+.yellow {
+  color: var(--color-yellow);
+}
+.red {
+  color: var(--color-red);
+}
+.gray {
+  color: var(--color-gray);
+}
+
+/* 操作区 */
+.actions {
+  margin-top: 12px;
+  text-align: center;
+  .cmd-btn {
+    color: var(--color-cyan);
+    cursor: pointer;
+    &:hover {
+      color: var(--color-yellow);
+    }
+  }
+}
+
+/* 日志区 */
+.log-list {
+  max-height: 300px;
+  overflow-y: auto;
+  .log-item {
+    margin-bottom: 6px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+    .log-turn {
+      color: var(--color-gray);
+      font-family: monospace;
+    }
+    .log-msg {
+      color: var(--color-text);
+    }
+    .system-msg {
+      color: var(--color-yellow);
+      border-bottom: 1px dashed var(--color-yellow);
+    }
+  }
+}
+
+.empty-text {
+  text-align: center;
+  padding: 10px;
+  color: var(--color-gray);
+  font-style: italic;
 }
 </style>

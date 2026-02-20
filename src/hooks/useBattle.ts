@@ -74,7 +74,6 @@ export function useBattle() {
 
     // 2. 预计算战斗结果并转换格式
     const result = simulateBattle(attacker, defender);
-    debugger;
     battleResult.value = result;
 
     // 将扁平的 events 预先处理成按回合合并的 displayLogs

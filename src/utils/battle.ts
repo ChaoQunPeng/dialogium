@@ -22,6 +22,98 @@ export interface IBattleSummary {
   isDraw: boolean;
 }
 
+/** 战斗事件描述 - MUD 沉浸版 */
+function getActionMsg(
+  actorName: string,
+  targetName: string,
+  dmg: number,
+  isCounter: boolean,
+): string {
+  const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)]!;
+
+  // --- 1. 【无伤/闪避/格挡】 (dmg <= 0) ---
+  if (dmg <= 0) {
+    const dodgeMoves = [
+      '侧身一闪',
+      '后撤半步',
+      '压低重心',
+      '化作残影',
+      '轻盈跃起',
+      '负手而立',
+      '预判走位',
+      '面无表情地偏头',
+      '信步闲庭',
+      '犹如惊鸿掠影',
+    ];
+    const dodgeResults = [
+      '让这一招落了空',
+      '毫发无伤地躲过',
+      '使得大气被击碎但人已远去',
+      '让攻击擦着鼻尖划过',
+      '彻底瓦解了对方的攻势',
+      '让这势大力沉的一击打在了棉花上',
+    ];
+    return `${targetName} ${pick(dodgeMoves)}，${pick(dodgeResults)}。${actorName} 这一招未能损其分毫。`;
+  }
+
+  // --- 2. 【轻微伤害】 (0 < dmg < 20) ---
+  if (dmg < 20) {
+    const normalActions = isCounter
+      ? ['顺势反踢', '借力抽击', '反手横切', '撤步弹指', '膝击腹部', '肘击胸口']
+      : ['挥剑斜劈', '踏步直刺', '勾拳重击', '凌空抽射', '短刀突袭', '掌心横击'];
+
+    const bodyParts = ['肩部', '小腿', '侧腰', '手臂', '胸膛', '面门'];
+
+    const minorEffects = [
+      `留下一道红印，带走 ${dmg} 点气血`,
+      `使其身形微晃，造成 ${dmg} 点伤害`,
+      `割破了布甲，侵入 ${dmg} 点劲力`,
+      `溅起几点血星，损耗 ${dmg} 点体力`,
+      `留下浅浅血痕，造成 ${dmg} 点轻伤`,
+      `震得对方虎口发麻，带去 ${dmg} 点创伤`,
+    ];
+
+    return `${actorName} 对准 ${targetName} 的${pick(bodyParts)}${pick(normalActions)}，${pick(minorEffects)}。`;
+  }
+
+  // --- 3. 【沉重伤害】 (20 <= dmg < 60) ---
+  if (dmg < 60) {
+    const heavyPrefix = isCounter
+      ? ['抓准那瞬息的破绽', '利用对方的重心不稳', '在防御的间隙中']
+      : ['凝聚全身的气劲', '发出震天的怒吼', '燃烧斗志'];
+
+    const heavyActions = [
+      '发动了狂暴猛攻',
+      '使出贯穿性重击',
+      '挥出势如破竹的一刀',
+      '打出音爆般的一拳',
+      '将武器狠狠砸下',
+    ];
+
+    const heavyImpacts = [
+      `令其吐出一口鲜血，狂掠 ${dmg} 点气血`,
+      `迫使对方连退五步，造成 ${dmg} 点沉重伤害`,
+      `发出痛苦的闷哼，强行剥离 ${dmg} 点生命`,
+      `震碎了护甲，倾泻 ${dmg} 点内劲`,
+      `令其半跪在地上喘息，带走高达 ${dmg} 点气血`,
+    ];
+
+    return `${actorName} ${pick(heavyPrefix)}${pick(heavyActions)}！${targetName} ${pick(heavyImpacts)}！`;
+  }
+
+  // --- 4. 【毁灭/处决伤害】 (dmg >= 60) ---
+  const ultimateStarters = ['四周空气凝固了', '天空中隐约传来雷鸣', '杀气化作实质的领域'];
+  const ultimateMoves = ['使出了禁忌的奥义', '化身杀戮的死神', '斩出了撕裂空间的一击'];
+  const dmgDesc = [
+    `瞬间将其贯穿，恐怖的 ${dmg} 点伤害爆发开来`,
+    `直接将其轰飞，生命力瞬间蒸发 ${dmg} 点`,
+    `这是致命的一击，强行抹去 ${dmg} 点气血`,
+  ];
+  const ultimateEnds = ['这是教科书般的终结', '胜负在那一刻已经分晓', '那是凡人无法触及的境界'];
+
+  return `🔥 ${pick(ultimateStarters)}！${actorName} ${pick(ultimateMoves)}，${pick(dmgDesc)}！${pick(ultimateEnds)}。`;
+}
+
 /**
  * 核心战斗模拟函数
  * @param attacker 发起攻击的一方（通常是玩家）
@@ -72,10 +164,7 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
     summary.events.push({
       turns: summary.turns,
       type: 'attack',
-      msg:
-        aDamage > 0
-          ? `⚔️ ${attacker.name} 发起攻击，造成 ${aDamage} 点伤害`
-          : `🛡️ ${attacker.name} 的攻击被 ${defender.name} 轻松化解`,
+      msg: getActionMsg(attacker.name, defender.name, aDamage, false),
       attackerHp: aHp,
       defenderHp: dHp,
       damage: aDamage,
@@ -91,10 +180,7 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
     summary.events.push({
       turns: summary.turns,
       type: 'defender',
-      msg:
-        dDamage > 0
-          ? `🔄 ${defender.name} 发起反击，造成 ${dDamage} 点伤害`
-          : `🛡️ ${defender.name} 的反击未能撼动 ${attacker.name}`,
+      msg: getActionMsg(defender.name, attacker.name, dDamage, true),
       attackerHp: aHp,
       defenderHp: dHp,
       damage: dDamage,
