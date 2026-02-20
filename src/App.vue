@@ -124,6 +124,18 @@ body {
   }
 
   .game-nav {
+    gap: 12px;
+    padding-top: 12px;
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      height: 45px;
+      flex: 1;
+    }
   }
 }
 </style>

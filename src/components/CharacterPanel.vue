@@ -39,7 +39,7 @@
         <table>
           <thead>
             <tr>
-              <th style="min-width: 150px">名称</th>
+              <th style="min-width: 150px; text-align: left">名称</th>
               <th style="width: 60px">数量</th>
               <!-- <th style="width: 50px">效果</th> -->
               <!-- <th style="width: 60px">操作</th> -->
