@@ -1,9 +1,9 @@
-import type { IItemConfig } from '../interface';
+import type { IItem } from '@/interface';
 
 /**
  * 五色焰罗罩 - 防护法宝，属性：全方位防护、能量屏障、隐身功能
  */
-const wuSeYanLuoZhao: Record<string, IItemConfig> = {
+const wuSeYanLuoZhao: Record<string, IItem> = {
   // 主防护装备
   wu_se_yan_luo_zhao_shield: {
     id: 'wu_se_yan_luo_zhao_shield',

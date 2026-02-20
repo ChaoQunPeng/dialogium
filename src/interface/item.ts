@@ -1,31 +1,55 @@
-import type { IItemStats } from '@/items/interface';
+/**
+ * 装备位类型
+ * weapon: 武器, body: 身体, leg: 腿部, shoulder: 肩部, belt: 腰带, shoes: 鞋子, accessory: 饰品, innerAlchemy: 内丹
+ */
+export type SlotType =
+  | 'weapon'
+  | 'body'
+  | 'leg'
+  | 'shoulder'
+  | 'belt'
+  | 'shoes'
+  | 'accessory'
+  | 'innerAlchemy';
+
+/**
+ * 物品分类类型
+ * equipment: 装备, consumable: 消耗品/丹药, material: 材料, quest: 任务道具
+ */
+export type ItemCategory = 'equipment' | 'consumable' | 'material' | 'quest';
 
 /** 统一物品接口：采用组合模式 */
 export interface IItem {
   // --- 核心标识 ---
   id: string;
   name: string;
-  category: 'equipment' | 'consumable' | 'material' | 'quest';
-  count: number;
+  category: ItemCategory;
+  count?: number;
 
   // --- 表现层 (UI用) ---
   icon?: string;
   description?: string;
   price?: number;
-  // 品质
-  grade?: number;
+  grade?: number; // 品质
+
+  // --- 物品配置属性 (从原来的IItemConfig迁移) ---
+  slot?: SlotType; // 装备位 (可选，材料/丹药可无)
+  level?: number; // 需求等级 / 物品品阶
+  stackable?: boolean; // 是否可堆叠 (丹药/材料 true, 装备 false)
+  setTag?: string; // 套装标识 (同套装的装备共享此标签)
 
   // --- 组合属性模块 (Components) ---
-
   /** 装备/数值组件：如果物品有属性加成，就填入此项 */
   stats?: {
     level?: number;
     attack?: number;
     defense?: number;
-    hpMax?: number;
-    mpMax?: number;
+    hp?: number; // 气血加成
+    mp?: number; // 灵力加成
     /** 装备位：头部、身体、武器等 */
-    slot?: 'head' | 'body' | 'weapon' | 'accessory';
+    slot?: SlotType;
+    speed?: number; // 速度 / 身法
+    crit?: number; // 暴击
   };
 
   /** 消耗组件：如果物品可以被使用（吃药、开礼包） */
@@ -40,7 +64,7 @@ export interface IItem {
   };
 }
 
-/** * 玩家拥有的物品实例（存档数据）
+/** * 玩家拥有的物品实例,即背包（存档数据）
  * 对应数据库中的 PLAYER_TO_ITEMS 关联记录
  */
 export interface IItemInstance {
@@ -76,7 +100,7 @@ export interface IInventoryItem {
   level: number;
   price: number;
   stackable: boolean;
-  stats: IItemStats;
+  // stats: IItemStats;
   // 用户数据
   count: number;
   isLocked: boolean;

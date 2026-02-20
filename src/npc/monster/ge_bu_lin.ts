@@ -43,22 +43,7 @@ const goblinDropItems: IItem[] = [
 ];
 
 // 精英哥布林额外掉落
-const eliteGoblinDropItems: IItem[] = [
-  ...goblinDropItems,
-  {
-    id: 'goblin_ear_ring',
-    name: '哥布林耳环',
-    category: 'equipment',
-    count: 1,
-    description: '哥布林首领佩戴的耳环，镶嵌着微弱的灵石',
-    price: 50,
-    grade: 2,
-    stats: {
-      attack: 10,
-      defense: 5,
-    },
-  },
-];
+const eliteGoblinDropItems: IItem[] = [];
 
 // 哥布林怪物实例
 export const goblinMonster: ICharacter = {
@@ -151,22 +136,7 @@ export const goblinChief: ICharacter = {
   battle: {
     attack: 40,
     defense: 25,
-    dropList: [
-      ...eliteGoblinDropItems,
-      {
-        id: 'chief_axe',
-        name: '首领战斧',
-        category: 'equipment',
-        count: 1,
-        description: '哥布林首领的巨型战斧，斧刃闪烁着寒光',
-        price: 200,
-        grade: 3,
-        stats: {
-          attack: 50,
-          defense: 10,
-        },
-      },
-    ],
+    dropList: [],
     // 经验值奖励
     exp: 100,
   },

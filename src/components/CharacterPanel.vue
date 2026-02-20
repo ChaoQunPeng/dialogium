@@ -10,7 +10,7 @@
         <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
           <div class="slot-inner">
             <span class="s-label mr-4">{{ slot.label }}:</span>
-            <EquipmentItem :equipment="equippedMap[slot.key]"> </EquipmentItem>
+            <EquipmentItem :equipment="equippedMap[slot.key]!"> </EquipmentItem>
           </div>
         </div>
       </div>
@@ -60,11 +60,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import type { IInventoryItem, IItemInstance } from '../interface/index';
+import { computed, onMounted, ref } from 'vue';
+import type { IItemInstance } from '../interface/index';
+import type { IInventoryItem } from '../interface/item';
 import { items } from '../items/index';
 import EquipmentItem from './EquipmentItem.vue';
-import ItemDetailModal from './ItemDetailModal.vue';
 import { usePlayerStore } from '../stores/player';
 const playerStore = usePlayerStore();
 
@@ -147,6 +147,24 @@ const inventory = computed<IInventoryItem[]>(() => {
     })
     .filter((item): item is IInventoryItem => item !== undefined);
 });
+
+// // 装备收藏 - 从库存中筛选装备并转换为IItem格式
+// const equipmentCollection = computed(() => {
+//   return inventory.value
+//     .filter((item) => item.category === 'equipment')
+//     .map((item) => ({
+//       id: item.id,
+//       name: item.name,
+//       category: item.category as IItem['category'],
+//       description: item.description || '',
+//       slot: item.slot,
+//       level: item.level || 1,
+//       price: item.price || 0,
+//       stackable: item.stackable || false,
+//       stats: item.stats,
+//     }))
+//     .slice(0, 12); // 限制显示数量
+// });
 
 // 核心：分类过滤逻辑
 const filteredInventory = computed(() => {

@@ -1,9 +1,9 @@
-import type { IItemConfig } from '../interface';
+import type { IItem } from '@/interface';
 
 /**
  * 寒碧剑 - 傅山成名兵刃，属性：冰寒属性、减速效果、范围冻结
  */
-const hanBiJian: Record<string, IItemConfig> = {
+const hanBiJian: Record<string, IItem> = {
   // 主武器
   han_bi_jian_weapon: {
     id: 'han_bi_jian_weapon',

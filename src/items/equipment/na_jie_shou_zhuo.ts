@@ -1,9 +1,9 @@
-import type { IItemConfig } from '../interface';
+import type { IItem } from '@/interface';
 
 /**
  * 纳芥手镯 - 高级储物法宝，属性：超大容量、空间压缩、物品分类
  */
-const naJieShouZhuo: Record<string, IItemConfig> = {
+const naJieShouZhuo: Record<string, IItem> = {
   // 主装备
   na_jie_shou_zhuo_belt: {
     id: 'na_jie_shou_zhuo_belt',

@@ -16,10 +16,7 @@
     />
 
     <!-- 引入丢弃确认弹窗组件 -->
-    <DropConfirmModal
-      ref="dropConfirmModalRef"
-      @confirm="handleDropConfirm"
-    />
+    <DropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
   </div>
 </template>
 

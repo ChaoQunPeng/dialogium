@@ -1,40 +1,37 @@
-import type { IItemConfig } from '../interface';
+import type { IItem } from '@/interface';
 
 /**
- * 金蝶刀 - 傅山成名兵刃，封缘星制器大师夜暗魂制造
- * 属性：极速攻击、群体伤害、破防能力
+ * 金蝶刀 - 傅山成名兵刃，属性：锋利无比、破甲特效、连击能力
  */
-const jinDieDao: Record<string, IItemConfig> = {
+const jinDieDao: Record<string, IItem> = {
   // 主武器
   jin_die_dao_weapon: {
     id: 'jin_die_dao_weapon',
     name: '金蝶刀',
     category: 'equipment',
-    description: '傅山的成名兵刃，由封缘星制器大师夜暗魂制造。刀身如金蝶翩翩起舞，可分化万千攻击敌人。',
+    description: '傅山的成名兵刃，刀身薄如蝉翼，锋利无比，能轻易切开坚硬的岩石。',
     slot: 'weapon',
     level: 1,
     price: 0,
     stackable: false,
     stats: {
       attack: 300,
-      speed: 50,
-      crit: 20,
+      speed: 40,
     },
   },
 
-  // 刀鞘配件
+  // 刀鞘
   jin_die_dao_sheath: {
     id: 'jin_die_dao_sheath',
     name: '金蝶刀鞘',
     category: 'equipment',
-    description: '金蝶刀的专属刀鞘，蕴含特殊阵法，可增强刀刃的锋锐度。',
+    description: '特制的刀鞘，能够完美收纳金蝶刀，同时保护刀身不受损伤。',
     slot: 'accessory',
     level: 1,
     price: 0,
     stackable: false,
     stats: {
-      attack: 50,
-      defense: 30,
+      defense: 60,
     },
   },
 };

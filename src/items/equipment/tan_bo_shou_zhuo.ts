@@ -1,9 +1,9 @@
-import type { IItemConfig } from '../interface';
+import type { IItem } from '@/interface';
 
 /**
  * 潭博手镯 - 同类储物镯子中最好的，属性：极致容量、多重空间、自动整理
  */
-const tanBoShouZhuo: Record<string, IItemConfig> = {
+const tanBoShouZhuo: Record<string, IItem> = {
   // 主装备
   tan_bo_shou_zhuo_belt: {
     id: 'tan_bo_shou_zhuo_belt',

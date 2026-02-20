@@ -68,9 +68,9 @@
               <div v-if="battleRewards.expGained > 0" class="reward-item">
                 ✨ 获得经验: {{ battleRewards.expGained }} 点
               </div>
-              <div 
-                v-for="(item, index) in battleRewards.droppedItems" 
-                :key="index" 
+              <div
+                v-for="(item, index) in battleRewards.droppedItems"
+                :key="index"
                 class="reward-item"
               >
                 🎉 获得物品: {{ item.name }} x{{ item.count }}
@@ -91,7 +91,16 @@
             >
               <span class="log-turn">[{{ battleLogs.length - index }}]</span>
               <span
-                :class="['log-msg', { 'system-msg': log.includes('🏁') || log.includes('💀') || log.includes('🎉') || log.includes('✨') }]"
+                :class="[
+                  'log-msg',
+                  {
+                    'system-msg':
+                      log.includes('🏁') ||
+                      log.includes('💀') ||
+                      log.includes('🎉') ||
+                      log.includes('✨'),
+                  },
+                ]"
               >
                 {{ log }}
               </span>
@@ -152,20 +161,20 @@ const selectMonster = () => {
       onFinish: (result) => {
         player.baseInfo.hp = result.finalAttackerHp;
         goblin.baseInfo.hp = result.finalDefenderHp;
-        
+
         // 如果玩家获胜，将获得的物品添加到背包
         if (result.winner?.id === player.id && battleRewards.value) {
           // 将掉落物品添加到玩家背包
-          const itemsToAdd = battleRewards.value.droppedItems.map(item => ({
+          const itemsToAdd = battleRewards.value.droppedItems.map((item) => ({
             itemId: item.id,
-            count: item.count
+            count: item.count!,
           }));
-          
+
           if (itemsToAdd.length > 0) {
             acquireItem(itemsToAdd);
           }
         }
-        
+
         battleStatus.value = 'finished';
       },
     });
@@ -281,11 +290,11 @@ const quitBattle = () => {
   background: rgba(0, 255, 0, 0.1);
   border: 1px solid var(--color-green);
   border-radius: 4px;
-  
+
   .reward-item {
     margin-bottom: 5px;
     font-size: 0.9em;
-    
+
     &:last-child {
       margin-bottom: 0;
     }

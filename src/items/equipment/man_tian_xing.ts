@@ -1,10 +1,10 @@
-import type { IItemConfig } from '../interface';
+import type { IItem } from '@/interface';
 
 /**
  * 满天星套装 - 傅山亲制，紫炎流转
  * 属性：高防御、高气血、增加灵力上限
  */
-const manTianXin: Record<string, IItemConfig> = {
+export const manTianXin: Record<string, IItem> = {
   // 1. 上衣
   man_tian_xin_body: {
     id: 'man_tian_xin_body',
@@ -16,9 +16,8 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      attack: 100,
-      defense: 100,
-      hp: 100,
+      defense: 200,
+      hp: 150,
       mp: 100,
     },
   },
@@ -34,10 +33,8 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      attack: 100,
-      defense: 100,
-      hp: 100,
-      mp: 100,
+      defense: 80,
+      mp: 50,
     },
   },
 
@@ -52,10 +49,8 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      attack: 100,
-      defense: 100,
-      hp: 100,
-      mp: 100,
+      defense: 50,
+      mp: 150,
     },
   },
 
@@ -70,10 +65,8 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      attack: 100,
-      defense: 100,
+      defense: 120,
       hp: 100,
-      mp: 100,
     },
   },
 
@@ -88,12 +81,31 @@ const manTianXin: Record<string, IItemConfig> = {
     price: 0,
     stackable: false,
     stats: {
-      attack: 100,
-      defense: 100,
-      hp: 100,
-      mp: 100,
+      defense: 40,
+      speed: 30,
     },
   },
 };
 
-export { manTianXin };
+// const manTianXinSet = {
+//   man_tian_xin: {
+//     name: '满天星套装',
+//     bonuses: [
+//       { count: 3, stats: { defense: 50 }, desc: '三件凑齐：防御+50' },
+//       { count: 5, stats: { defense: 150 }, desc: '全套集齐：防御+150' },
+//     ],
+//   },
+// };
+
+// /**
+//  * 统一合并所有物品，形成最终的静态配置表
+//  */
+// export const ITEMS_CONFIG: Record<string, IItem> = {
+//   ...ZiYanXin,
+//   ...manTianXin,
+// };
+
+// /**
+//  * 辅助：如果你需要获取所有物品的列表（比如渲染图鉴）
+//  */
+// export const ALL_ITEMS_LIST = Object.values(ITEMS_CONFIG);
