@@ -166,12 +166,46 @@ const inventory = computed<IInventoryItem[]>(() => {
 //     .slice(0, 12); // 限制显示数量
 // });
 
-// 核心：分类过滤逻辑
+// 核心：分类过滤逻辑 - 优化堆叠物品展示
 const filteredInventory = computed(() => {
-  if (activeTab.value === 'all') return inventory.value;
-  return inventory.value
-    .filter((item) => !item.isEquipped)
-    .filter((item: (typeof inventory.value)[number]) => item.category === activeTab.value);
+  let itemsToFilter = inventory.value;
+  
+  // 如果不是显示全部，则先按分类过滤
+  if (activeTab.value !== 'all') {
+    itemsToFilter = itemsToFilter
+      .filter((item) => !item.isEquipped)
+      .filter((item: (typeof inventory.value)[number]) => item.category === activeTab.value);
+  }
+  
+  // 合并可堆叠的相同物品
+  const mergedItems: Record<string, (typeof inventory.value)[number]> = {};
+  
+  itemsToFilter.forEach((item) => {
+    // 对于可堆叠物品，按itemId合并
+    if (item.stackable) {
+      const key = `${item.id}-${item.isEquipped ? 'equipped' : 'unequipped'}`;
+      if (mergedItems[key]) {
+        // 合并数量
+        mergedItems[key].count += item.count;
+      } else {
+        // 创建新的合并项
+        mergedItems[key] = { ...item };
+      }
+    } else {
+      // 不可堆叠物品直接添加
+      const key = `${item.instanceId}-${item.isEquipped ? 'equipped' : 'unequipped'}`;
+      mergedItems[key] = { ...item };
+    }
+  });
+  
+  // 转换为数组并排序
+  return Object.values(mergedItems).sort((a, b) => {
+    // 装备的排在前面
+    if (a.isEquipped && !b.isEquipped) return -1;
+    if (!a.isEquipped && b.isEquipped) return 1;
+    // 然后按名称排序
+    return a.name.localeCompare(b.name);
+  });
 });
 
 // 组件挂载时加载数据
