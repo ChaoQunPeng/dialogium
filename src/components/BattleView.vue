@@ -6,16 +6,19 @@
         <div class="monster-item">
           <span class="m-info">
             <span class="red">【怪物】</span>
-            <span class="bold">{{ goblin.name }}</span>
-            <span class="gray">(等级: 1)</span>
+            <span class="bold">{{ monster.name }}</span>
+            <span class="gray">(等级: {{ monster.baseInfo.level }})</span>
           </span>
           <span class="cmd-btn" @click="selectMonster">[ 尝试挑战 ]</span>
         </div>
       </div>
+      <div class="battle-controls" v-if="showCloseButton">
+        <button class="close-button" @click="$emit('close')">关闭战斗</button>
+      </div>
     </BorderContainer>
 
     <div v-else class="battle-scene">
-      <BorderContainer :title="`正在与 ${goblin.name} 厮杀 (回合 ${currentTurns || 1})`">
+      <BorderContainer :title="`正在与 ${monster.name} 厮杀 (回合 ${currentTurns || 1})`">
         <div class="battle-stage-horizontal">
           <div class="unit-panel">
             <div class="u-header">
@@ -40,20 +43,20 @@
 
           <div class="unit-panel text-right">
             <div class="u-header">
-              <span class="gray">LV.{{ goblin.baseInfo.level }}</span>
-              <span class="red bold">{{ goblin.name }}</span>
+              <span class="gray">LV.{{ monster.baseInfo.level }}</span>
+              <span class="red bold">{{ monster.name }}</span>
             </div>
             <div class="hp-line">
               <div class="bar-wrap">
                 <div
                   class="bar red-bg"
-                  :style="{ width: (goblin.baseInfo.hp / goblin.baseInfo.maxHp) * 100 + '%' }"
+                  :style="{ width: (monster.baseInfo.hp / monster.baseInfo.maxHp) * 100 + '%' }"
                 ></div>
               </div>
-              <div class="hp-val">{{ goblin.baseInfo.hp }}/{{ goblin.baseInfo.maxHp }}</div>
+              <div class="hp-val">{{ monster.baseInfo.hp }}/{{ monster.baseInfo.maxHp }}</div>
             </div>
             <div class="u-footer">
-              攻:{{ goblin.battle?.attack }} 防:{{ goblin.battle?.defense }}
+              攻:{{ monster.battle?.attack }} 防:{{ monster.battle?.defense }}
             </div>
           </div>
         </div>
@@ -119,30 +122,51 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { usePlayerStore } from '@/stores/player';
 import { useBattle } from '@/hooks/useBattle';
 import { canFight } from '@/utils/battle';
-import { goblinMonster } from '@/npc/monster/ge_bu_lin';
+import type { ICharacter } from '@/interface/character';
 import BorderContainer from './borderContainer.vue';
+
+// 定义props
+const props = defineProps<{
+  player: ICharacter;
+  monster: ICharacter;
+  showCloseButton?: boolean;
+}>();
+
+// 定义emits
+const emit = defineEmits<{
+  (e: 'battleEnd', result: any): void;
+  (e: 'close'): void;
+}>();
 
 // 状态管理
 const { startBattle, currentTurns, battleStatus, battleRewards } = useBattle();
 const playerStore = usePlayerStore();
-const { player, acquireItem } = playerStore;
+const { acquireItem } = playerStore;
 
-const isInBattle = ref(false); // 控制是否切入战斗场景
+const isInBattle = ref(false);
+const battleLogs = ref<string[]>([]);
 
-const goblin = reactive({
-  ...goblinMonster,
-  baseInfo: { ...goblinMonster.baseInfo, hp: goblinMonster.baseInfo.maxHp },
+// 创建怪物的响应式副本
+const monster = reactive({
+  ...props.monster,
+  baseInfo: { ...props.monster.baseInfo, hp: props.monster.baseInfo.maxHp },
 });
 
-const battleLogs = ref<string[]>([]);
+// 监听props变化，重置怪物血量
+watch(() => props.monster, (newMonster) => {
+  Object.assign(monster, {
+    ...newMonster,
+    baseInfo: { ...newMonster.baseInfo, hp: newMonster.baseInfo.maxHp }
+  });
+}, { deep: true });
 
 // 选择怪物并开始战斗
 const selectMonster = () => {
-  const check = canFight(player, goblin);
+  const check = canFight(props.player, monster);
   if (!check.canFight) {
     alert(check.reason);
     return;
@@ -154,19 +178,19 @@ const selectMonster = () => {
 
   // 2. 延迟一点点触发战斗，增加"切入"感
   setTimeout(() => {
-    startBattle(player, goblin, {
+    startBattle(props.player, monster, {
       delay: 700,
       onTurn: (event) => {
-        player.baseInfo.hp = event.attackerHp;
-        goblin.baseInfo.hp = event.defenderHp;
+        props.player.baseInfo.hp = event.attackerHp;
+        monster.baseInfo.hp = event.defenderHp;
         battleLogs.value.unshift(event.msg);
       },
       onFinish: (result) => {
-        player.baseInfo.hp = result.finalAttackerHp;
-        goblin.baseInfo.hp = result.finalDefenderHp;
+        props.player.baseInfo.hp = result.finalAttackerHp;
+        monster.baseInfo.hp = result.finalDefenderHp;
 
         // 如果玩家获胜，将获得的物品添加到背包
-        if (result.winner?.id === player.id && battleRewards.value) {
+        if (result.winner?.id === props.player.id && battleRewards.value) {
           // 将掉落物品添加到玩家背包
           const itemsToAdd = battleRewards.value.droppedItems.map((item) => ({
             itemId: item.id,
@@ -179,6 +203,8 @@ const selectMonster = () => {
         }
 
         battleStatus.value = 'finished';
+        // 发射战斗结束事件
+        emit('battleEnd', result);
       },
     });
   }, 1000);
@@ -189,8 +215,10 @@ const quitBattle = () => {
   isInBattle.value = false;
   battleStatus.value = 'idle';
   battleRewards.value = null;
-  // 这里可以重置怪物血量或者刷新怪物
-  goblin.baseInfo.hp = goblinMonster.baseInfo.maxHp;
+  // 重置怪物血量
+  monster.baseInfo.hp = props.monster.baseInfo.maxHp;
+  // 发射关闭事件
+  emit('close');
 };
 
 // 再次挑战
@@ -202,24 +230,24 @@ const rematchBattle = () => {
   battleLogs.value = [];
   
   // 重置双方血量
-  player.baseInfo.hp = player.baseInfo.maxHp;
-  goblin.baseInfo.hp = goblinMonster.baseInfo.maxHp;
+  props.player.baseInfo.hp = props.player.baseInfo.maxHp;
+  monster.baseInfo.hp = props.monster.baseInfo.maxHp;
   
   // 延迟一点时间后重新开始战斗
   setTimeout(() => {
-    startBattle(player, goblin, {
+    startBattle(props.player, monster, {
       delay: 700,
       onTurn: (event) => {
-        player.baseInfo.hp = event.attackerHp;
-        goblin.baseInfo.hp = event.defenderHp;
+        props.player.baseInfo.hp = event.attackerHp;
+        monster.baseInfo.hp = event.defenderHp;
         battleLogs.value.unshift(event.msg);
       },
       onFinish: (result) => {
-        player.baseInfo.hp = result.finalAttackerHp;
-        goblin.baseInfo.hp = result.finalDefenderHp;
+        props.player.baseInfo.hp = result.finalAttackerHp;
+        monster.baseInfo.hp = result.finalDefenderHp;
 
         // 如果玩家获胜，将获得的物品添加到背包
-        if (result.winner?.id === player.id && battleRewards.value) {
+        if (result.winner?.id === props.player.id && battleRewards.value) {
           // 将掉落物品添加到玩家背包
           const itemsToAdd = battleRewards.value.droppedItems.map((item) => ({
             itemId: item.id,
@@ -232,6 +260,8 @@ const rematchBattle = () => {
         }
 
         battleStatus.value = 'finished';
+        // 发射战斗结束事件
+        emit('battleEnd', result);
       },
     });
   }, 500);
@@ -243,6 +273,8 @@ const rematchBattle = () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-width: 800px;
+  width: 100%;
 }
 
 /* 场景探索样式 */
@@ -262,6 +294,27 @@ const rematchBattle = () => {
   .m-info {
     display: flex;
     gap: 8px;
+  }
+}
+
+.battle-controls {
+  margin-top: 16px;
+  text-align: center;
+  
+  .close-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #666;
+    color: var(--color-gray);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--color-cyan);
+      color: var(--color-cyan);
+    }
   }
 }
 

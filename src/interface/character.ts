@@ -1,7 +1,7 @@
 import type { IConversationItem } from '@/interface/conversation';
 import type { IItem } from '@/interface/item';
 import type { CharacterType, CultivationType } from '@/enums';
-import type { ICultivation } from './cultivation';
+// import type { ICultivation } from './cultivation';
 
 /**
  * 统一的游戏角色接口
@@ -15,7 +15,7 @@ export interface ICharacter {
   // 基础信息（所有角色都有）
   baseInfo: {
     level: number;
-    
+
     // 生命值
     hp: number; // 当前生命值
     maxHp: number; // 最大生命值

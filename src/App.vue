@@ -25,9 +25,7 @@
           </div>
         </div>
 
-        <div class="px-4 self-center">
-          经验值: {{ playerStore.player.baseInfo.cultivation?.currentExp }}
-        </div>
+        <div class="px-4 self-center">等级: {{ playerStore.player.baseInfo.level }}</div>
 
         <div class="currency text-yellow self-center">灵石: 999</div>
       </BorderContainer>
@@ -35,7 +33,7 @@
 
     <main class="game-content">
       <CharacterPanel v-if="activeTab === 'realm'" />
-      <BattleView v-if="activeTab === 'adventure'" />
+      <SceneView v-if="activeTab === 'adventure'" />
       <!-- <CultivationPanel v-if="activeTab === 'practice'" /> -->
     </main>
 
@@ -54,9 +52,9 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import BattleView from './components/BattleView.vue';
+import SceneView from './components/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
-import CultivationPanel from './components/CultivationPanel.vue';
+// import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
 
