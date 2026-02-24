@@ -183,17 +183,21 @@ const challengeMonster = (monster: ICharacter) => {
   isInBattle.value = true;
 };
 
-// 战斗结束回调
+// 战斗结束回调（不再自动退出战斗）
 const onBattleEnd = (result: any) => {
   // 处理战斗结果，比如获得经验、物品等
   console.log('战斗结束:', result);
-  exitBattle();
+  // 注意：这里不再调用exitBattle()，让用户手动选择是否继续
 };
 
-// 退出战斗
+// 退出战斗（只有用户点击"离开战场"时才调用）
 const exitBattle = () => {
   isInBattle.value = false;
   selectedMonster.value = null;
+  // 如果当前在场景中，保持场景状态；否则返回场景列表
+  if (!currentScene.value) {
+    currentScene.value = null;
+  }
 };
 
 // 检查是否可以挑战怪物

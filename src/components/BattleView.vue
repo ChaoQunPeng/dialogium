@@ -203,7 +203,7 @@ const selectMonster = () => {
         }
 
         battleStatus.value = 'finished';
-        // 发射战斗结束事件
+        // 发射战斗结束事件，但不自动退出战斗场景
         emit('battleEnd', result);
       },
     });
