@@ -32,8 +32,8 @@
     </header>
 
     <main class="game-content">
-      <CharacterPanel v-if="activeTab === 'realm'" />
-      <SceneView v-if="activeTab === 'adventure'" />
+      <CharacterPanel v-show="activeTab === 'realm'" />
+      <SceneView v-show="activeTab === 'adventure'" />
       <!-- <CultivationPanel v-if="activeTab === 'practice'" /> -->
     </main>
 
