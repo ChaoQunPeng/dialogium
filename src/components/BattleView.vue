@@ -76,7 +76,10 @@
                 🎉 获得物品: {{ item.name }} x{{ item.count }}
               </div>
             </div>
-            <span class="cmd-btn" @click="quitBattle">[ 离开战场 ]</span>
+            <div class="battle-actions-finished">
+              <span class="cmd-btn" @click="rematchBattle">[ 再次挑战 ]</span>
+              <span class="cmd-btn" @click="quitBattle">[ 离开战场 ]</span>
+            </div>
           </template>
         </div>
       </BorderContainer>
@@ -188,6 +191,50 @@ const quitBattle = () => {
   battleRewards.value = null;
   // 这里可以重置怪物血量或者刷新怪物
   goblin.baseInfo.hp = goblinMonster.baseInfo.maxHp;
+};
+
+// 再次挑战
+const rematchBattle = () => {
+  // 重置战斗状态
+  battleStatus.value = 'idle';
+  battleRewards.value = null;
+  currentTurns.value = 0;
+  battleLogs.value = [];
+  
+  // 重置双方血量
+  player.baseInfo.hp = player.baseInfo.maxHp;
+  goblin.baseInfo.hp = goblinMonster.baseInfo.maxHp;
+  
+  // 延迟一点时间后重新开始战斗
+  setTimeout(() => {
+    startBattle(player, goblin, {
+      delay: 700,
+      onTurn: (event) => {
+        player.baseInfo.hp = event.attackerHp;
+        goblin.baseInfo.hp = event.defenderHp;
+        battleLogs.value.unshift(event.msg);
+      },
+      onFinish: (result) => {
+        player.baseInfo.hp = result.finalAttackerHp;
+        goblin.baseInfo.hp = result.finalDefenderHp;
+
+        // 如果玩家获胜，将获得的物品添加到背包
+        if (result.winner?.id === player.id && battleRewards.value) {
+          // 将掉落物品添加到玩家背包
+          const itemsToAdd = battleRewards.value.droppedItems.map((item) => ({
+            itemId: item.id,
+            count: item.count!,
+          }));
+
+          if (itemsToAdd.length > 0) {
+            acquireItem(itemsToAdd);
+          }
+        }
+
+        battleStatus.value = 'finished';
+      },
+    });
+  }, 500);
 };
 </script>
 
@@ -328,6 +375,27 @@ const quitBattle = () => {
   .blink-text {
     color: var(--color-yellow);
     animation: blink 1s infinite;
+  }
+}
+
+/* 战斗结束按钮组 */
+.battle-actions-finished {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 15px 0;
+  
+  .cmd-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--color-cyan);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 255, 255, 0.1);
+      border-color: var(--color-yellow);
+      color: var(--color-yellow);
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 import type { IConversationItem } from '@/interface/conversation';
 import type { IItem } from '@/interface/item';
-import type { CharacterType } from '@/enums';
+import type { CharacterType, CultivationType } from '@/enums';
 import type { ICultivation } from './cultivation';
 
 /**
@@ -15,6 +15,7 @@ export interface ICharacter {
   // 基础信息（所有角色都有）
   baseInfo: {
     level: number;
+    
     // 生命值
     hp: number; // 当前生命值
     maxHp: number; // 最大生命值
@@ -27,7 +28,7 @@ export interface ICharacter {
     // exp: number; // 当前经验值
     // expToNextLevel?: number; // 下一级所需经验
 
-    cultivation?: ICultivation;
+    cultivation?: CultivationType;
   };
 
   // 战斗相关（可选）
