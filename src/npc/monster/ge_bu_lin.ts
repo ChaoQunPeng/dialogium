@@ -1,17 +1,17 @@
 import type { ICharacter } from '@/interface/character';
 import type { CharacterType } from '@/enums';
 
-// 哥布林怪物实例
+// 黑狱兵怪物实例
 export const goblinMonster: ICharacter = {
   // 核心标识
   id: 'monster_goblin_001',
-  name: '哥布林',
+  name: '黑狱兵',
   type: 'monster' as CharacterType,
 
   // 基础信息
   baseInfo: {
     level: 3,
-    hp: 80,
+    hp: 8000,
     maxHp: 80,
     mp: 20,
     maxMp: 20,
@@ -35,18 +35,18 @@ export const goblinMonster: ICharacter = {
   },
 };
 
-// 精英哥布林
+// 精英黑狱兵
 export const eliteGoblin: ICharacter = {
   // 核心标识
   id: 'monster_goblin_elite_001',
-  name: '精英哥布林',
+  name: '精英黑狱兵',
   type: 'monster' as CharacterType,
 
   // 基础信息
   baseInfo: {
     level: 5,
-    hp: 150,
-    maxHp: 150,
+    hp: 1500,
+    maxHp: 1500,
     mp: 40,
     maxMp: 40,
   },
@@ -72,11 +72,11 @@ export const eliteGoblin: ICharacter = {
   equipmentSlots: {},
 };
 
-// 哥布林首领
+// 黑狱兵首领
 export const goblinChief: ICharacter = {
   // 核心标识
   id: 'monster_goblin_chief_001',
-  name: '哥布林首领',
+  name: '黑狱兵首领',
   type: 'boss' as CharacterType,
 
   // 基础信息

@@ -47,7 +47,7 @@ export const usePlayerStore = defineStore('player', () => {
       return {
         itemId: e.itemId,
         count: e.count,
-        instanceId: crypto.randomUUID(),
+        instanceId: crypto.randomUUID().replace('-', ''),
         isEquipped: false,
         isLocked: false,
       };

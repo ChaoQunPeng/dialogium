@@ -3,12 +3,7 @@
     <!-- 场景列表视图 -->
     <BorderContainer title="探索场景" v-if="!currentScene && !isInBattle">
       <div class="scenes-list">
-        <div
-          v-for="scene in scenes"
-          :key="scene.id"
-          class="scene-item"
-          @click="enterScene(scene)"
-        >
+        <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
           <div class="scene-header">
             <h3 class="scene-name">{{ scene.name }}</h3>
             <div class="scene-meta">
@@ -48,9 +43,7 @@
                 <div class="monster-name" :class="getCharacterTypeClass(monster.type)">
                   {{ monster.name }}
                 </div>
-                <div class="monster-level">
-                  等级: {{ monster.baseInfo.level }}
-                </div>
+                <div class="monster-level">等级: {{ monster.baseInfo.level }}</div>
               </div>
               <button
                 class="challenge-button"
@@ -102,24 +95,24 @@ const player = computed(() => playerStore.player);
 const scenes: Scene[] = [
   {
     id: 'forest_path',
-    name: '荒野林径',
-    characters: [goblinMonster, eliteGoblin]
+    name: '天庭星',
+    characters: [goblinMonster, eliteGoblin],
   },
   {
     id: 'dark_cave',
-    name: '幽暗洞穴',
-    characters: [goblinChief]
+    name: '潜杰星',
+    characters: [goblinChief],
   },
   {
     id: 'ancient_ruins',
-    name: '远古遗迹',
-    characters: []
+    name: '星星宫·寒冰原',
+    characters: [],
   },
   {
     id: 'mountain_pass',
-    name: '险峻山道',
-    characters: [goblinMonster]
-  }
+    name: '天籁之城',
+    characters: [goblinMonster],
+  },
 ];
 
 // 状态管理
@@ -141,32 +134,32 @@ const exitScene = () => {
 // 获取场景中的怪物（只显示type为monster的角色）
 const monstersInScene = computed(() => {
   if (!currentScene.value) return [];
-  return currentScene.value.characters.filter(char => char.type === 'monster');
+  return currentScene.value.characters.filter((char) => char.type === 'monster');
 });
 
 // 获取场景描述
 const getSceneDescription = (sceneId: string): string => {
   const descriptions: Record<string, string> = {
-    'forest_path': '古老的森林小径，树木参天，偶尔能听到远处传来的兽吼声...',
-    'dark_cave': '阴森的洞穴深处，黑暗中似乎隐藏着危险的气息...',
-    'ancient_ruins': '残破的古代建筑群，到处都是岁月留下的痕迹...',
-    'mountain_pass': '崎岖的山路蜿蜒向上，寒风呼啸，危机四伏...'
+    forest_path: '古老的森林小径，树木参天，偶尔能听到远处传来的兽吼声...',
+    dark_cave: '阴森的洞穴深处，黑暗中似乎隐藏着危险的气息...',
+    ancient_ruins: '残破的古代建筑群，到处都是岁月留下的痕迹...',
+    mountain_pass: '崎岖的山路蜿蜒向上，寒风呼啸，危机四伏...',
   };
   return descriptions[sceneId] || '这是一个神秘的未知场所...';
 };
 
 // 获取怪物数量
 const getMonsterCount = (scene: Scene): number => {
-  return scene.characters.filter(char => char.type === 'monster').length;
+  return scene.characters.filter((char) => char.type === 'monster').length;
 };
 
 // 获取角色类型样式类
 const getCharacterTypeClass = (type: string): string => {
   const classMap: Record<string, string> = {
-    'monster': 'monster-type',
-    'npc': 'npc-type',
-    'player': 'player-type',
-    'boss': 'boss-type'
+    monster: 'monster-type',
+    npc: 'npc-type',
+    player: 'player-type',
+    boss: 'boss-type',
   };
   return classMap[type] || 'default-type';
 };
@@ -393,9 +386,19 @@ const canFightMonster = (monster: ICharacter): boolean => {
   align-items: center;
 }
 
-.monster-type { color: var(--color-red); }
-.npc-type { color: var(--color-cyan); }
-.player-type { color: var(--color-green); }
-.boss-type { color: var(--color-yellow); }
-.default-type { color: var(--text-main); }
+.monster-type {
+  color: var(--color-red);
+}
+.npc-type {
+  color: var(--color-cyan);
+}
+.player-type {
+  color: var(--color-green);
+}
+.boss-type {
+  color: var(--color-yellow);
+}
+.default-type {
+  color: var(--text-main);
+}
 </style>

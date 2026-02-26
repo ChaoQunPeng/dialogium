@@ -43,10 +43,11 @@
                   <EquipmentItem :equipment="item">
                     <template #default="{ item }">
                       <span>【{{ item.name }}】</span>
-                      <span v-if="item.isLocked" class="lock">[锁]</span>
-                      <div class="item-description">{{ item.description || '--' }}</div>
                     </template>
                   </EquipmentItem>
+
+                  <span v-if="item.isLocked" class="lock">[锁]</span>
+                  <div class="item-description">{{ item.description || '--' }}</div>
                 </div>
               </td>
               <td class="item-count">x{{ item.count }}</td>
