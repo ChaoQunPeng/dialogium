@@ -1,169 +1,142 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
-import type { DaoRealms, ICharacter, IItemInstance } from '@/interface';
+import type { ICharacter, IItemInstance } from '@/interface';
 import { items } from '@/items'; // 导入物品配置
 import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
-import { DaoRealmsDict } from '@/enums';
 
 export const usePlayerStore = defineStore('player', () => {
-  // 玩家基础信息
-  const localPlayer = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
-  const player = reactive<ICharacter>(
-    localPlayer ? JSON.parse(localPlayer) : DEFAULT_PLAYER_CONFIG,
-  );
+  // --- 1. 数据初始化 (State) ---
 
-  // 深度监听玩家属性
-  watch(
-    player,
-    (newVal) => {
-      localStorage.setItem(STORAGE_KEYS.PLAYER_DATA, JSON.stringify(newVal));
-    },
-    { deep: true },
-  );
+  // 玩家基础信息
+  const getInitialPlayer = (): ICharacter => {
+    const local = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
+    if (!local) return { ...DEFAULT_PLAYER_CONFIG };
+    try {
+      return JSON.parse(local);
+    } catch (e) {
+      console.error('玩家存档解析失败，加载默认配置', e);
+      return { ...DEFAULT_PLAYER_CONFIG };
+    }
+  };
+
+  const player = reactive<ICharacter>(getInitialPlayer());
 
   // 背包物品列表
-  const localInventory = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
-  const inventory = ref<IItemInstance[]>(localInventory ? JSON.parse(localInventory) : []);
+  const getInitialInventory = (): IItemInstance[] => {
+    const local = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
+    if (!local) return [];
+    try {
+      return JSON.parse(local);
+    } catch (e) {
+      console.error('背包存档解析失败', e);
+      return [];
+    }
+  };
 
-  // 深度监听背包列表
+  const inventory = ref<IItemInstance[]>(getInitialInventory());
+
+  // --- 2. 核心计算属性 (Getters) ---
+
+  /** * 装备提供的总加成
+   * 这种写法保证了属性永远根据当前装备动态计算，不会存入存档导致叠加错误
+   */
+  const equipmentStats = computed(() => {
+    const stats = { attack: 0, defense: 0, maxHp: 0, maxMp: 0 };
+
+    inventory.value.forEach((item) => {
+      if (item.isEquipped) {
+        const config = items[item.itemId];
+        if (config?.stats) {
+          stats.attack += config.stats.attack || 0;
+          stats.defense += config.stats.defense || 0;
+          stats.maxHp += config.stats.maxHp || 0;
+          stats.maxMp += config.stats.maxMp || 0;
+        }
+      }
+    });
+
+    return stats;
+  });
+
+  /** 最终战斗面板 (基础属性 + 装备加成) */
+  const finalStats = computed(() => {
+    return {
+      attack: (player.battle?.attack || 0) + equipmentStats.value.attack,
+      defense: (player.battle?.defense || 0) + equipmentStats.value.defense,
+      maxHp: (player.baseInfo?.maxHp || 0) + equipmentStats.value.maxHp,
+      maxMp: (player.baseInfo?.maxMp || 0) + equipmentStats.value.maxMp,
+      // hp: (player.baseInfo?.hp || 0) + equipmentStats.value.hp,
+      // mp: (player.baseInfo?.mp || 0) + equipmentStats.value.mp,
+    };
+  });
+
+  const realmData = computed(() => {
+    // 这里未来可以根据 player.baseInfo.level 动态计算
+    return { zh: '凡人', en: 'Mortal', color: '#bbb' };
+  });
+
+  // --- 3. 持久化监听 ---
+
   watch(
-    inventory,
-    (newVal) => {
-      localStorage.setItem(STORAGE_KEYS.PLAYER_ITEMS, JSON.stringify(newVal));
+    player,
+    (nv) => {
+      localStorage.setItem(STORAGE_KEYS.PLAYER_DATA, JSON.stringify(nv));
     },
     { deep: true },
   );
 
-  // 获取当前境界的显示信息
-  const realmData = computed(() => {
-    const realmKey = player.baseInfo.cultivation?.realm as DaoRealms;
-    const res = DaoRealmsDict[realmKey] || { zh: '凡人', en: 'Mortal', color: '#bbb' };
-    return res;
-  });
+  watch(
+    inventory,
+    (nv) => {
+      localStorage.setItem(STORAGE_KEYS.PLAYER_ITEMS, JSON.stringify(nv));
+    },
+    { deep: true },
+  );
+
+  // --- 4. 业务逻辑 (Actions) ---
 
   /** 获得物品 */
   const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {
-    const finalItems = itemsToAdd.map((e) => {
-      return {
-        itemId: e.itemId,
-        count: e.count,
-        instanceId: crypto.randomUUID().replace('-', ''),
-        isEquipped: false,
-        isLocked: false,
-      };
-    });
+    const newInstances = itemsToAdd.map((e) => ({
+      itemId: e.itemId,
+      count: e.count,
+      instanceId: crypto.randomUUID().replace(/-/g, ''),
+      isEquipped: false,
+      isLocked: false,
+    }));
 
-    inventory.value = [...inventory.value, ...finalItems];
+    inventory.value = [...inventory.value, ...newInstances];
   };
 
   /** 穿戴装备 */
   const equipItem = (instanceId: string): boolean => {
-    try {
-      // 查找要装备的物品
-      const itemToEquip = inventory.value.find((item) => item.instanceId === instanceId);
-      if (!itemToEquip) {
-        console.warn('未找到要装备的物品');
-        return false;
+    const itemToEquip = inventory.value.find((i) => i.instanceId === instanceId);
+    if (!itemToEquip) return false;
+
+    const itemConfig = items[itemToEquip.itemId];
+    if (itemConfig?.category !== 'equipment' || !itemConfig.slot) return false;
+
+    // 自动脱下同部位装备：将所有同 slot 的装备设为未装备
+    inventory.value.forEach((item) => {
+      const config = items[item.itemId];
+      if (item.isEquipped && config?.slot === itemConfig.slot) {
+        item.isEquipped = false;
       }
+    });
 
-      // 获取物品配置信息
-      const itemConfig = items[itemToEquip.itemId];
-      if (!itemConfig || itemConfig.category !== 'equipment' || !itemConfig.slot) {
-        console.warn('物品不是装备或没有装备位');
-        return false;
-      }
-
-      // 检查是否已经有相同部位的装备
-      const existingEquippedItem = inventory.value.find(
-        (item) => item.isEquipped && items[item.itemId]?.slot === itemConfig.slot,
-      );
-
-      // 如果有，先脱下原有装备
-      if (existingEquippedItem) {
-        unequipItem(existingEquippedItem.instanceId);
-      }
-
-      // 穿戴新装备
-      itemToEquip.isEquipped = true;
-
-      // 应用属性加成（如果有的话）
-      if (itemConfig.stats) {
-        if (itemConfig.stats.attack) {
-          player.battle!.attack += itemConfig.stats.attack;
-        }
-        if (itemConfig.stats.defense) {
-          player.battle!.defense += itemConfig.stats.defense;
-        }
-        if (itemConfig.stats.hp) {
-          player.baseInfo.maxHp += itemConfig.stats.hp;
-          // player.baseInfo.hp = Math.min(
-          //   player.baseInfo.hp + itemConfig.stats.hp,
-          //   player.baseInfo.maxHp,
-          // );
-        }
-        if (itemConfig.stats.mp) {
-          player.baseInfo.maxMp += itemConfig.stats.mp;
-          // player.baseInfo.mp = Math.min(
-          //   player.baseInfo.mp + itemConfig.stats.mp,
-          //   player.baseInfo.maxMp,
-          // );
-        }
-      }
-
-      console.log(`成功装备: ${itemConfig.name}`);
-      return true;
-    } catch (error) {
-      console.error('装备失败:', error);
-      return false;
-    }
+    // 穿上目标装备
+    itemToEquip.isEquipped = true;
+    return true;
   };
 
-  /**
-   * 脱下装备
-   * @param instanceId 物品的唯一实例ID
-   */
+  /** 脱下装备 */
   const unequipItem = (instanceId: string): boolean => {
-    try {
-      const itemToUnequip = inventory.value.find((item) => item.instanceId === instanceId);
-      if (!itemToUnequip || !itemToUnequip.isEquipped) {
-        console.warn('未找到要脱下的装备');
-        return false;
-      }
-
-      // 获取物品配置信息
-      const itemConfig = items[itemToUnequip.itemId];
-      if (!itemConfig) {
-        console.warn('未找到物品配置');
-        return false;
-      }
-
-      // 移除属性加成
-      if (itemConfig.stats) {
-        if (itemConfig.stats.attack) {
-          player.battle!.attack -= itemConfig.stats.attack;
-        }
-        if (itemConfig.stats.defense) {
-          player.battle!.defense -= itemConfig.stats.defense;
-        }
-        if (itemConfig.stats.hp) {
-          player.baseInfo.maxHp -= itemConfig.stats.hp;
-          player.baseInfo.hp = Math.min(player.baseInfo.hp, player.baseInfo.maxHp);
-        }
-        if (itemConfig.stats.mp) {
-          player.baseInfo.maxMp -= itemConfig.stats.mp;
-          player.baseInfo.mp = Math.min(player.baseInfo.mp, player.baseInfo.maxMp);
-        }
-      }
-
-      // 设置为未装备状态
-      itemToUnequip.isEquipped = false;
-
-      console.log(`成功脱下: ${itemConfig.name}`);
+    const item = inventory.value.find((i) => i.instanceId === instanceId);
+    if (item) {
+      item.isEquipped = false;
       return true;
-    } catch (error) {
-      console.error('脱下装备失败:', error);
-      return false;
     }
+    return false;
   };
 
   /** 丢弃物品 */
@@ -174,10 +147,11 @@ export const usePlayerStore = defineStore('player', () => {
   return {
     player,
     inventory,
+    finalStats, // 建议 UI 绑定这个属性显示面板
+    realmData,
     acquireItem,
     equipItem,
     unequipItem,
     dropItem,
-    realmData,
   };
 });
