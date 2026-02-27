@@ -6,14 +6,9 @@
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
           <div class="scene-header">
             <h3 class="scene-name">{{ scene.name }}</h3>
-            <div class="scene-meta">
-              <span class="monster-count" v-if="getMonsterCount(scene) > 0">
-                🐉 怪物: {{ getMonsterCount(scene) }}只
-              </span>
-            </div>
           </div>
           <div class="scene-description">
-            {{ getSceneDescription(scene.id) }}
+            {{ scene.description }}
           </div>
         </div>
       </div>
@@ -24,7 +19,7 @@
       <BorderContainer :title="`${currentScene.name}`">
         <div class="scene-header-info">
           <div class="scene-description-detail">
-            {{ getSceneDescription(currentScene.id) }}
+            <!-- {{ getSceneDescription(currentScene.id) }} -->
           </div>
           <button class="back-button" @click="exitScene">返回场景列表</button>
         </div>
@@ -84,35 +79,39 @@ import { usePlayerStore } from '@/stores/player';
 import type { Scene } from '@/interface/scene';
 import type { ICharacter } from '@/interface/character';
 import { canFight } from '@/utils/battle';
-import { goblinMonster, eliteGoblin, goblinChief } from '@/npc/monster/ge_bu_lin';
+// import { goblinMonster, eliteGoblin, goblinChief } from '@/npc/enemy/ge_bu_lin';
 import BorderContainer from './borderContainer.vue';
 import BattleView from './BattleView.vue';
+import { tianTingXing } from '@/scene/tianTingXing';
+import { qianJieXing } from '@/scene/qianJieXing';
 
 const playerStore = usePlayerStore();
 const player = computed(() => playerStore.player);
 
 // 场景数据
 const scenes: Scene[] = [
-  {
-    id: 'forest_path',
-    name: '天庭星',
-    characters: [goblinMonster, eliteGoblin],
-  },
-  {
-    id: 'dark_cave',
-    name: '潜杰星',
-    characters: [goblinChief],
-  },
-  {
-    id: 'ancient_ruins',
-    name: '星星宫·寒冰原',
-    characters: [],
-  },
-  {
-    id: 'mountain_pass',
-    name: '天籁之城',
-    characters: [goblinMonster],
-  },
+  tianTingXing,
+  qianJieXing,
+  // {
+  //   id: 'forest_path',
+  //   name: '天庭星',
+  //   characters: [goblinMonster, eliteGoblin],
+  // },
+  // {
+  //   id: 'dark_cave',
+  //   name: '潜杰星',
+  //   characters: [goblinChief],
+  // },
+  // {
+  //   id: 'ancient_ruins',
+  //   name: '星星宫·寒冰原',
+  //   characters: [],
+  // },
+  // {
+  //   id: 'mountain_pass',
+  //   name: '天籁之城',
+  //   characters: [goblinMonster],
+  // },
 ];
 
 // 状态管理
@@ -134,24 +133,9 @@ const exitScene = () => {
 // 获取场景中的怪物（只显示type为monster的角色）
 const monstersInScene = computed(() => {
   if (!currentScene.value) return [];
-  return currentScene.value.characters.filter((char) => char.type === 'monster');
+  return currentScene.value.characters;
+  // return currentScene.value.characters.filter((char) => char.type === 'enemy');
 });
-
-// 获取场景描述
-const getSceneDescription = (sceneId: string): string => {
-  const descriptions: Record<string, string> = {
-    forest_path: '古老的森林小径，树木参天，偶尔能听到远处传来的兽吼声...',
-    dark_cave: '阴森的洞穴深处，黑暗中似乎隐藏着危险的气息...',
-    ancient_ruins: '残破的古代建筑群，到处都是岁月留下的痕迹...',
-    mountain_pass: '崎岖的山路蜿蜒向上，寒风呼啸，危机四伏...',
-  };
-  return descriptions[sceneId] || '这是一个神秘的未知场所...';
-};
-
-// 获取怪物数量
-const getMonsterCount = (scene: Scene): number => {
-  return scene.characters.filter((char) => char.type === 'monster').length;
-};
 
 // 获取角色类型样式类
 const getCharacterTypeClass = (type: string): string => {
@@ -249,8 +233,8 @@ const canFightMonster = (monster: ICharacter): boolean => {
 
 .scene-description {
   color: var(--color-gray);
-  font-style: italic;
   line-height: 1.4;
+  font-size: 14px;
 }
 
 .scene-header-info {

@@ -1,8 +1,8 @@
 <template>
   <div>
     <BorderContainer title="个人属性">
-      <div>攻击力: {{ player.battle?.attack }}</div>
-      <div>防御力: {{ player.battle?.defense }}</div>
+      <div>攻击力: {{ playerStore.finalStats.attack }}</div>
+      <div>防御力: {{ playerStore.finalStats.defense }}</div>
     </BorderContainer>
 
     <BorderContainer title="穿戴装备">
@@ -68,10 +68,6 @@ import { items } from '../items/index';
 import EquipmentItem from './EquipmentItem.vue';
 import { usePlayerStore } from '../stores/player';
 const playerStore = usePlayerStore();
-
-const player = computed(() => {
-  return playerStore.player;
-});
 
 // 纳戒数据与分类逻辑
 const activeTab = ref('equipment');

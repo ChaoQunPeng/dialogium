@@ -19,8 +19,8 @@ export const manTianXin: Record<string, IItem> = {
     stats: {
       attack: 100,
       defense: 100,
-      hp: 100,
-      mp: 100,
+      maxHp: 100,
+      maxMp: 100,
     },
   },
 
@@ -38,8 +38,8 @@ export const manTianXin: Record<string, IItem> = {
     stats: {
       attack: 100,
       defense: 100,
-      hp: 100,
-      mp: 100,
+      maxHp: 100,
+      maxMp: 100,
     },
   },
 
@@ -57,8 +57,8 @@ export const manTianXin: Record<string, IItem> = {
     stats: {
       attack: 100,
       defense: 100,
-      hp: 100,
-      mp: 100,
+      maxHp: 100,
+      maxMp: 100,
     },
   },
 
@@ -76,8 +76,8 @@ export const manTianXin: Record<string, IItem> = {
     stats: {
       attack: 100,
       defense: 100,
-      hp: 100,
-      mp: 100,
+      maxHp: 100,
+      maxMp: 100,
     },
   },
 
@@ -95,8 +95,8 @@ export const manTianXin: Record<string, IItem> = {
     stats: {
       attack: 100,
       defense: 100,
-      hp: 100,
-      mp: 100,
+      maxHp: 100,
+      maxMp: 100,
     },
   },
 };

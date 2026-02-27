@@ -46,8 +46,10 @@ export interface IItem {
     level?: number;
     attack?: number;
     defense?: number;
-    hp?: number; // 气血加成
-    mp?: number; // 灵力加成
+    // hp?: number; // 气血加成
+    // mp?: number; // 灵力加成
+    maxHp?: number; // 最大气血加成
+    maxMp?: number; // 最大灵力加成
     /** 装备位：头部、身体、武器等 */
     slot?: SlotType;
     speed?: number; // 速度 / 身法

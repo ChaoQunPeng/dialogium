@@ -17,11 +17,11 @@
         <div class="status-bars flex-1 ml-3">
           <div class="bar-row">
             <span class="bar-label text-text-main">气血</span>
-            <span class="bar-val text-red ml-2">{{ player.baseInfo.hp }}</span>
+            <span class="bar-val text-red ml-2">{{ playerStore.finalStats.maxHp }}</span>
           </div>
           <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
             <span class="bar-label text-text-main">灵力</span>
-            <span class="bar-val text-green ml-2">{{ player.baseInfo.mp }}</span>
+            <span class="bar-val text-green ml-2">{{ playerStore.finalStats.maxMp }}</span>
           </div>
         </div>
 

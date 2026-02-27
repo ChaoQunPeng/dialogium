@@ -32,8 +32,10 @@ export enum CharacterType {
   Npc = 'npc',
   /** 商家 */
   Merchant = 'merchant',
-  /** 怪物 */
-  Monster = 'monster',
+  // /** 怪物 */
+  // Monster = 'monster',
+  /** 敌人 */
+  Enemy = 'enemy',
   /** BOSS */
   Boss = 'boss',
   /** 宠物 */
