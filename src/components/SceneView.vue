@@ -1,7 +1,7 @@
 <template>
   <div class="scene-view-wrapper">
     <!-- 场景列表视图 -->
-    <BorderContainer title="探索场景" v-if="!currentScene && !isInBattle">
+    <BorderContainer v-if="!currentScene && !isInBattle">
       <div class="scenes-list">
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
           <div class="scene-header">

@@ -19,7 +19,7 @@
             <span class="bar-label text-text-main">气血</span>
             <span class="bar-val text-red ml-2">{{ playerStore.finalStats.maxHp }}</span>
           </div>
-          <div class="bar-row" v-if="player.baseInfo.maxMp > 0">
+          <div class="bar-row" v-if="playerStore.finalStats.maxMp > 0">
             <span class="bar-label text-text-main">灵力</span>
             <span class="bar-val text-green ml-2">{{ playerStore.finalStats.maxMp }}</span>
           </div>
@@ -56,6 +56,7 @@ import SceneView from './components/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 // import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';
+import { getRequiredExp } from './utils/levelManager';
 const playerStore = usePlayerStore();
 
 const player = computed(() => {
@@ -70,6 +71,10 @@ const tabs = [
 ];
 
 const activeTab = ref('realm');
+
+for (let i = 1; i < 20; i++) {
+  console.log(i, getRequiredExp(i));
+}
 </script>
 
 <style lang="scss">

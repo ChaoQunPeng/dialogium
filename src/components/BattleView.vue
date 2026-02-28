@@ -129,9 +129,12 @@ import { canFight } from '@/utils/battle';
 import type { ICharacter } from '@/interface/character';
 import BorderContainer from './borderContainer.vue';
 
+// 重新导入store以刷新类型
+const playerStore = usePlayerStore();
+const { player, acquireItem } = playerStore;
+
 // 定义props
 const props = defineProps<{
-  player: ICharacter;
   monster: ICharacter;
   showCloseButton?: boolean;
 }>();
@@ -144,8 +147,6 @@ const emit = defineEmits<{
 
 // 状态管理
 const { startBattle, currentTurns, battleStatus, battleRewards } = useBattle();
-const playerStore = usePlayerStore();
-const { acquireItem } = playerStore;
 
 const isInBattle = ref(false);
 const battleLogs = ref<string[]>([]);
@@ -157,16 +158,20 @@ const monster = reactive({
 });
 
 // 监听props变化，重置怪物血量
-watch(() => props.monster, (newMonster) => {
-  Object.assign(monster, {
-    ...newMonster,
-    baseInfo: { ...newMonster.baseInfo, hp: newMonster.baseInfo.maxHp }
-  });
-}, { deep: true });
+watch(
+  () => props.monster,
+  (newMonster) => {
+    Object.assign(monster, {
+      ...newMonster,
+      baseInfo: { ...newMonster.baseInfo, hp: newMonster.baseInfo.maxHp },
+    });
+  },
+  { deep: true },
+);
 
 // 选择怪物并开始战斗
 const selectMonster = () => {
-  const check = canFight(props.player, monster);
+  const check = canFight(player, monster);
   if (!check.canFight) {
     alert(check.reason);
     return;
@@ -178,19 +183,19 @@ const selectMonster = () => {
 
   // 2. 延迟一点点触发战斗，增加"切入"感
   setTimeout(() => {
-    startBattle(props.player, monster, {
+    startBattle(player, monster, {
       delay: 700,
       onTurn: (event) => {
-        props.player.baseInfo.hp = event.attackerHp;
+        playerStore.updateHp(event.attackerHp);
         monster.baseInfo.hp = event.defenderHp;
         battleLogs.value.unshift(event.msg);
       },
       onFinish: (result) => {
-        props.player.baseInfo.hp = result.finalAttackerHp;
+        playerStore.updateHp(result.finalAttackerHp);
         monster.baseInfo.hp = result.finalDefenderHp;
 
         // 如果玩家获胜，将获得的物品添加到背包
-        if (result.winner?.id === props.player.id && battleRewards.value) {
+        if (result.winner?.id === player.id && battleRewards.value) {
           // 将掉落物品添加到玩家背包
           const itemsToAdd = battleRewards.value.droppedItems.map((item) => ({
             itemId: item.id,
@@ -228,26 +233,26 @@ const rematchBattle = () => {
   battleRewards.value = null;
   currentTurns.value = 0;
   battleLogs.value = [];
-  
+
   // 重置双方血量
-  props.player.baseInfo.hp = props.player.baseInfo.maxHp;
+  playerStore.updateHp(player.baseInfo.maxHp);
   monster.baseInfo.hp = props.monster.baseInfo.maxHp;
-  
+
   // 延迟一点时间后重新开始战斗
   setTimeout(() => {
-    startBattle(props.player, monster, {
+    startBattle(player, monster, {
       delay: 700,
       onTurn: (event) => {
-        props.player.baseInfo.hp = event.attackerHp;
+        playerStore.updateHp(event.attackerHp);
         monster.baseInfo.hp = event.defenderHp;
         battleLogs.value.unshift(event.msg);
       },
       onFinish: (result) => {
-        props.player.baseInfo.hp = result.finalAttackerHp;
+        playerStore.updateHp(result.finalAttackerHp);
         monster.baseInfo.hp = result.finalDefenderHp;
 
         // 如果玩家获胜，将获得的物品添加到背包
-        if (result.winner?.id === props.player.id && battleRewards.value) {
+        if (result.winner?.id === player.id && battleRewards.value) {
           // 将掉落物品添加到玩家背包
           const itemsToAdd = battleRewards.value.droppedItems.map((item) => ({
             itemId: item.id,

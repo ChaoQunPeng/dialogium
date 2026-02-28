@@ -144,6 +144,11 @@ export const usePlayerStore = defineStore('player', () => {
     inventory.value = inventory.value.filter((i) => i.instanceId !== instanceId);
   };
 
+  /** 更新玩家血量 */
+  const updateHp = (newHp: number) => {
+    player.baseInfo.hp = Math.max(0, Math.min(newHp, player.baseInfo.maxHp));
+  };
+
   return {
     player,
     inventory,
@@ -153,5 +158,6 @@ export const usePlayerStore = defineStore('player', () => {
     equipItem,
     unequipItem,
     dropItem,
+    updateHp,
   };
 });
