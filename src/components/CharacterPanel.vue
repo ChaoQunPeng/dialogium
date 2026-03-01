@@ -163,7 +163,7 @@ const filteredInventory = computed(() => {
   itemsToFilter.forEach((item) => {
     // 使用物品ID和装备状态作为唯一键
     const key = `${item.id}-${item.isEquipped ? 'equipped' : 'unequipped'}`;
-    
+
     if (mergedItems[key]) {
       // 如果已存在，累加数量
       mergedItems[key].count += item.count;
@@ -398,3 +398,4 @@ const filteredInventory = computed(() => {
     gap: 8px;
   }
 }
+</style>

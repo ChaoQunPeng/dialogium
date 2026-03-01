@@ -1,7 +1,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 import type { ICharacter, IItemInstance } from '@/interface';
-import { items } from '@/items'; // 导入物品配置
+import { items } from '@/items';
 import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
 import { clamp } from '@/utils/utils';
 import { formatLevel, getRealmConfig, getRequiredExp } from '@/utils/levelManager';
@@ -21,54 +21,46 @@ export const usePlayerStore = defineStore('player', () => {
     }
   };
 
-  const player = reactive<ICharacter>(getInitialPlayer());
-
-  // 背包物品列表
   const getInitialInventory = (): IItemInstance[] => {
     const local = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
     if (!local) return [];
     try {
       return JSON.parse(local);
     } catch (e) {
-      console.error('背包存档解析失败', e);
+      console.error(e);
       return [];
     }
   };
 
+  const player = reactive<ICharacter>(getInitialPlayer());
   const inventory = ref<IItemInstance[]>(getInitialInventory());
 
   // --- 2. 核心计算属性 (Getters) ---
-
   /** * 装备提供的总加成
    * 这种写法保证了属性永远根据当前装备动态计算，不会存入存档导致叠加错误
    */
   const equipmentStats = computed(() => {
     const stats = { attack: 0, defense: 0, maxHp: 0, maxMp: 0 };
-
     inventory.value.forEach((item) => {
-      if (item.e) {
+      if (item.e === 1) {
         const config = items[item.mid];
         if (config?.stats) {
-          stats.attack += config.stats.attack || 0;
-          stats.defense += config.stats.defense || 0;
-          stats.maxHp += config.stats.maxHp || 0;
-          stats.maxMp += config.stats.maxMp || 0;
+          stats.attack += (config.stats.attack || 0) * item.n;
+          stats.defense += (config.stats.defense || 0) * item.n;
+          stats.maxHp += (config.stats.maxHp || 0) * item.n;
+          stats.maxMp += (config.stats.maxMp || 0) * item.n;
         }
       }
     });
-
     return stats;
   });
 
-  /** 最终战斗面板 (基础属性 + 装备加成) */
-  const finalStats = computed(() => {
-    return {
-      attack: (player.battle?.attack || 0) + equipmentStats.value.attack,
-      defense: (player.battle?.defense || 0) + equipmentStats.value.defense,
-      maxHp: (player.baseInfo?.maxHp || 0) + equipmentStats.value.maxHp,
-      maxMp: (player.baseInfo?.maxMp || 0) + equipmentStats.value.maxMp,
-    };
-  });
+  const finalStats = computed(() => ({
+    attack: (player.battle?.attack || 0) + equipmentStats.value.attack,
+    defense: (player.battle?.defense || 0) + equipmentStats.value.defense,
+    maxHp: (player.baseInfo?.maxHp || 0) + equipmentStats.value.maxHp,
+    maxMp: (player.baseInfo?.maxMp || 0) + equipmentStats.value.maxMp,
+  }));
 
   /** 3. 核心：战斗就绪对象 (关键重构) */
   const finalPlayer = computed<ICharacter>(() => {
@@ -93,76 +85,124 @@ export const usePlayerStore = defineStore('player', () => {
     };
   });
 
-  const realm = computed(() => {
-    return formatLevel(player.baseInfo.level);
-  });
+  const realm = computed(() => formatLevel(player.baseInfo.level));
 
   // --- 3. 持久化监听 ---
-  watch(
-    player,
-    (nv) => {
-      localStorage.setItem(STORAGE_KEYS.PLAYER_DATA, JSON.stringify(nv));
-    },
-    { deep: true },
-  );
-
-  watch(
-    inventory,
-    (nv) => {
-      localStorage.setItem(STORAGE_KEYS.PLAYER_ITEMS, JSON.stringify(nv));
-    },
-    { deep: true },
-  );
+  watch(player, (nv) => localStorage.setItem(STORAGE_KEYS.PLAYER_DATA, JSON.stringify(nv)), {
+    deep: true,
+  });
+  watch(inventory, (nv) => localStorage.setItem(STORAGE_KEYS.PLAYER_ITEMS, JSON.stringify(nv)), {
+    deep: true,
+  });
 
   // --- 4. 业务逻辑 (Actions) ---
+  /** 整理背包：核心合并逻辑 */
+  const mergeInventory = () => {
+    const newInv: IItemInstance[] = [];
+    inventory.value.forEach((item) => {
+      if (item.e === 1) {
+        newInv.push(item);
+      } else {
+        const existing = newInv.find((i) => i.mid === item.mid && i.e === 0);
+        if (existing) {
+          existing.n += item.n;
+        } else {
+          // 使用显式对象构造，避免 TS 担心类型丢失
+          newInv.push({
+            mid: item.mid,
+            id: item.id,
+            n: item.n,
+            e: item.e,
+            l: item.l,
+          });
+        }
+      }
+    });
+    inventory.value = newInv;
+  };
 
   /** 获得物品 */
   const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {
-    const newInstances = itemsToAdd.map((e) => ({
-      mid: e.itemId,
-      n: e.count,
-      id: crypto.randomUUID().replace(/-/g, ''),
-      e: 0,
-      l: 0,
-    }));
-
-    inventory.value = [...inventory.value, ...newInstances];
+    itemsToAdd.forEach((newItem) => {
+      const existing = inventory.value.find((i) => i.mid === newItem.itemId && i.e === 0);
+      if (existing) {
+        existing.n += newItem.count;
+      } else {
+        inventory.value.push({
+          mid: newItem.itemId,
+          n: newItem.count,
+          id: crypto.randomUUID().replace(/-/g, ''),
+          e: 0,
+          l: 0,
+        });
+      }
+    });
   };
 
   /** 穿戴装备 */
   const equipItem = (instanceId: string): boolean => {
     const itemToEquip = inventory.value.find((i) => i.id === instanceId);
+
+    // 守卫 1: 确保 item 存在
     if (!itemToEquip) return false;
 
     const itemConfig = items[itemToEquip.mid];
-    if (itemConfig?.category !== 'equipment' || !itemConfig.slot) return false;
+    // 守卫 2: 确保配置存在且是装备
+    if (!itemConfig || itemConfig.category !== 'equipment' || !itemConfig.slot) return false;
 
-    // 自动脱下同部位装备：将所有同 slot 的装备设为未装备
+    // 1. 脱下同部位装备
     inventory.value.forEach((item) => {
       const config = items[item.mid];
-      if (item.e && config?.slot === itemConfig.slot) {
+      if (item.e === 1 && config?.slot === itemConfig.slot) {
         item.e = 0;
       }
     });
 
-    // 穿上目标装备
-    itemToEquip.e = 1;
+    // 2. 处理拆分
+    if (itemToEquip.n > 1) {
+      itemToEquip.n -= 1;
+      // 显式创建，不使用解构，确保 mid 这种必填项不会丢失
+      const newEquipped: IItemInstance = {
+        mid: itemToEquip.mid,
+        id: crypto.randomUUID().replace(/-/g, ''),
+        n: 1,
+        e: 1,
+        l: itemToEquip.l,
+      };
+      inventory.value.push(newEquipped);
+    } else {
+      itemToEquip.e = 1;
+    }
+
+    mergeInventory();
     return true;
   };
 
   /** 脱下装备 */
   const unequipItem = (instanceId: string): boolean => {
     const item = inventory.value.find((i) => i.id === instanceId);
-    if (item) {
-      item.e = 0;
-      return true;
-    }
-    return false;
+    if (!item) return false;
+
+    item.e = 0;
+    mergeInventory();
+    return true;
   };
 
   /** 丢弃物品 */
-  const dropItem = (instanceId: string) => {
-    inventory.value = inventory.value.filter((i) => i.id !== instanceId);
+  const dropItem = (instanceId: string, count: number = 1) => {
+    // 1. 先找到该物品
+    const item = inventory.value.find((i) => i.id === instanceId);
+
+    // 2. 守卫判断：如果找不到，直接退出
+    if (!item) return;
+
+    // 3. 执行逻辑
+    if (item.n > count) {
+      item.n -= count;
+    } else {
+      // 如果要删除，再通过 id 过滤（比操作 index 更安全）
+      inventory.value = inventory.value.filter((i) => i.id !== instanceId);
+    }
   };
 
   /**
@@ -283,7 +323,7 @@ export const usePlayerStore = defineStore('player', () => {
   return {
     player,
     inventory,
-    finalStats, // 建议 UI 绑定这个属性显示面板
+    finalStats,
     realm,
     finalPlayer,
     acquireItem,
@@ -294,5 +334,6 @@ export const usePlayerStore = defineStore('player', () => {
     healHp,
     setHp,
     gainExp,
+    mergeInventory,
   };
 });

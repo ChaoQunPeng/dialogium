@@ -199,6 +199,8 @@ const battleEnemy = () => {
         // playerStore.updateHp(result.finalAttackerHp);
         // enemy.baseInfo.hp = result.finalDefenderHp;
 
+        console.log(`battleRewards`, battleRewards);
+
         // 如果玩家获胜，将获得的物品添加到背包
         if (result.winner?.id === player.id && battleRewards.value) {
           // 将掉落物品添加到玩家背包
