@@ -186,7 +186,7 @@ const battleEnemy = () => {
   // 2. 延迟一点点触发战斗，增加"切入"感
   setTimeout(() => {
     startBattle(playerStore.finalPlayer, enemy, {
-      delay: 1000,
+      delay: 500,
       onTurn: (event) => {
         console.log(event);
 
@@ -210,9 +210,12 @@ const battleEnemy = () => {
           if (itemsToAdd.length > 0) {
             acquireItem(itemsToAdd);
           }
+
+          playerStore.gainExp(result.loser?.battle?.exp ?? 0);
         }
 
         battleStatus.value = 'finished';
+
         // 发射战斗结束事件，但不自动退出战斗场景
         emit('battleEnd', result);
       },

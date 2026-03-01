@@ -9,7 +9,7 @@
           <div class="body ml-2">
             <div class="flex flex-col">
               <span class="name text-text-main">{{ playerStore.player.name }}</span>
-              <span class="realm text-cyan">{{ playerStore.realmData.zh }}</span>
+              <span class="realm text-cyan">{{ playerStore.realm }}</span>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
 
         <div class="px-4 self-center">等级: {{ playerStore.player.baseInfo.level }}</div>
 
-        <div class="currency text-yellow self-center">灵石: 999</div>
+        <!-- <div class="currency text-yellow self-center">灵石: 999</div> -->
       </BorderContainer>
     </header>
 

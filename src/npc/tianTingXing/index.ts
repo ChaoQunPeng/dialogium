@@ -155,14 +155,16 @@ export const fengKaiYun: ICharacter = {
   type: CharacterType.Npc,
   baseInfo: {
     level: 5,
-    hp: 10000,
-    maxHp: 10000,
+    hp: 1000,
+    maxHp: 1000,
     mp: 500,
     maxMp: 500,
   },
   battle: {
     attack: 620,
     defense: 0,
+    exp: 100,
+    dropList: ['xuan_tie'],
   },
   conversations: [
     {

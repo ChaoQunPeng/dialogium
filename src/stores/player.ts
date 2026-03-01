@@ -4,6 +4,7 @@ import type { ICharacter, IItemInstance } from '@/interface';
 import { items } from '@/items'; // 导入物品配置
 import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
 import { clamp } from '@/utils/utils';
+import { formatLevel, getRealmConfig, getRequiredExp } from '@/utils/levelManager';
 
 export const usePlayerStore = defineStore('player', () => {
   // --- 1. 数据初始化 (State) ---
@@ -92,13 +93,11 @@ export const usePlayerStore = defineStore('player', () => {
     };
   });
 
-  const realmData = computed(() => {
-    // 这里未来可以根据 player.baseInfo.level 动态计算
-    return { zh: '凡人', en: 'Mortal', color: '#bbb' };
+  const realm = computed(() => {
+    return formatLevel(player.baseInfo.level);
   });
 
   // --- 3. 持久化监听 ---
-
   watch(
     player,
     (nv) => {
@@ -217,11 +216,75 @@ export const usePlayerStore = defineStore('player', () => {
     return actualDamage;
   };
 
+  /**
+   * 获得经验值
+   * @param amount 获得的经验数值
+   */
+  const gainExp = (amount: number) => {
+    if (amount <= 0) return;
+
+    // 1. 初始化字段（防止旧存档报错）
+    if (player.baseInfo.currentExp === undefined) player.baseInfo.currentExp = 0;
+    if (player.baseInfo.totalExp === undefined) player.baseInfo.totalExp = 0;
+
+    // 2. 更新累计总经验 (核心修改：只加不减)
+    player.baseInfo.totalExp += amount;
+
+    // 3. 更新当前等级进度
+    player.baseInfo.currentExp += amount;
+
+    // 4. 循环判定升级
+    let needed = getRequiredExp(player.baseInfo.level);
+    while (player.baseInfo.currentExp >= needed) {
+      player.baseInfo.currentExp -= needed;
+      levelUp(); // 执行升级逻辑（增加属性等）
+
+      // 重新获取下一级所需经验
+      needed = getRequiredExp(player.baseInfo.level);
+    }
+  };
+
+  /*
+   * 升级逻辑
+   */
+  const levelUp = () => {
+    const oldLevel = player.baseInfo.level;
+    const newLevel = oldLevel + 1;
+    const oldRealm = getRealmConfig(oldLevel);
+    const newRealm = getRealmConfig(newLevel);
+
+    // 1. 等级递增
+    player.baseInfo.level = newLevel;
+
+    // 2. 属性成长 (根据境界配置动态增长)
+    // 如果进入了新境界，成长系数会变高
+    const growBonus = newRealm ? newRealm.grow / 100 : 1;
+
+    player.baseInfo.maxHp += 20 + Math.floor(growBonus * 10);
+    player.baseInfo.maxMp += 10 + Math.floor(growBonus * 5);
+
+    if (player.battle) {
+      player.battle.attack += 2 + Math.floor(growBonus * 2);
+      player.battle.defense += 1 + Math.floor(growBonus * 1);
+    }
+
+    // 3. 状态补满 (升级福利)
+    healHp(finalStats.value.maxHp);
+    player.baseInfo.mp = finalStats.value.maxMp;
+
+    // 4. 打印反馈
+    if (oldRealm?.name !== newRealm?.name) {
+      console.log(`【系统】震烁古今！你已突破至 ${newRealm?.name} 境界！`);
+    } else {
+      console.log(`【系统】修为精进，达到 ${formatLevel(newLevel)}`);
+    }
+  };
+
   return {
     player,
     inventory,
     finalStats, // 建议 UI 绑定这个属性显示面板
-    realmData,
+    realm,
     finalPlayer,
     acquireItem,
     equipItem,
@@ -230,5 +293,6 @@ export const usePlayerStore = defineStore('player', () => {
     takeDamage,
     healHp,
     setHp,
+    gainExp,
   };
 });

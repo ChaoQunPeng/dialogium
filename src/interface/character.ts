@@ -15,6 +15,8 @@ export interface ICharacter {
   // 基础信息（所有角色都有）
   baseInfo: {
     level: number;
+    currentExp?: number;
+    totalExp?: number;
 
     // 生命值
     hp: number; // 当前生命值
