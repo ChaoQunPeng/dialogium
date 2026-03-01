@@ -365,7 +365,7 @@ const filteredInventory = computed(() => {
   min-height: 24px;
 
   .s-label {
-    color: var(--text-label, #a0a0a0);
+    color: #ddd;
     font-size: 0.95em;
   }
 

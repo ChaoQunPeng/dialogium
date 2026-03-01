@@ -1,52 +1,55 @@
 <template>
   <div class="app-container">
-    <header>
-      <BorderContainer class="game-header flex">
-        <div class="media-box flex">
-          <div class="avatar">
-            <img src="./assets/avatar.png" alt="" />
-          </div>
-          <div class="body ml-2">
-            <div class="flex flex-col">
-              <span class="name text-text-main">{{ playerStore.player.name }}</span>
-              <span class="realm text-cyan">{{ playerStore.realm }}</span>
+    <header class="game-header">
+      <BorderContainer class="header-inner">
+        <div class="mud-horizontal-layout">
+          <div class="identity-section">
+            <div class="avatar-box">
+              <img src="./assets/avatar.png" alt="修仙者" />
+            </div>
+            <div class="name-tag">
+              <span class="p-name">{{ playerStore.player.name }}</span>
+              <span class="p-realm">【{{ playerStore.realm }}】</span>
             </div>
           </div>
+
+          <div class="status-grid-horizontal">
+            <div class="status-column">
+              <div class="attr-row">
+                <span class="label">气血</span>
+                <span class="value text-red"
+                  >{{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}</span
+                >
+              </div>
+              <div class="attr-row">
+                <span class="label">灵力</span>
+                <span class="value text-cyan"
+                  >{{ playerStore.player.baseInfo.mp || 0 }}/{{
+                    playerStore.finalStats.maxMp || 0
+                  }}</span
+                >
+              </div>
+            </div>
+            <div class="status-column">
+              <div class="attr-row">
+                <span class="label">攻击</span>
+                <span class="value text-yellow">{{ playerStore.finalPlayer.battle!.attack }}</span>
+              </div>
+              <div class="attr-row">
+                <span class="label">防御</span>
+                <span class="value text-green">{{ playerStore.finalPlayer.battle!.defense }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-section">
+            <div class="level-box">
+              <span class="label">等级</span>
+              <span class="value">{{ playerStore.player.baseInfo.level }}</span>
+            </div>
+            <button class="mud-cmd-btn" @click="playerStore.healHp(100, true)">[ 调息 ]</button>
+          </div>
         </div>
-
-        <div class="status-bars flex-1 ml-3">
-          <div class="bar-row">
-            <span class="bar-label text-text-main">气血</span>
-            <span class="bar-val text-red ml-2">
-              {{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}
-            </span>
-          </div>
-          <div class="bar-row" v-if="playerStore.finalStats.maxMp > 0">
-            <span class="bar-label text-text-main">灵力</span>
-            <span class="bar-val text-green ml-2">
-              {{ playerStore.player.baseInfo.mp }}/{{ playerStore.finalStats.maxMp }}
-            </span>
-          </div>
-          <!--  -->
-          <div class="bar-row">
-            <span class="bar-label text-text-main">攻击</span>
-            <span class="bar-val text-red ml-2">
-              {{ playerStore.finalPlayer.battle!.attack }}
-            </span>
-          </div>
-          <div class="bar-row">
-            <span class="bar-label text-text-main">防御</span>
-            <span class="bar-val text-green ml-2">
-              {{ playerStore.finalPlayer.battle!.defense }}
-            </span>
-          </div>
-        </div>
-
-        <div @click="playerStore.healHp(100, true)">回复血量</div>
-
-        <div class="px-4 self-center">等级: {{ playerStore.player.baseInfo.level }}</div>
-
-        <!-- <div class="currency text-yellow self-center">灵石: 999</div> -->
       </BorderContainer>
     </header>
 
@@ -122,18 +125,144 @@ body {
   padding: 12px;
 
   .game-header {
-    .media-box {
-      display: flex;
+    margin-bottom: 12px;
 
-      .avatar {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        overflow: hidden;
+    .header-inner {
+      padding: 10px 14px;
+    }
+
+    .mud-horizontal-layout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    /* 身份区 */
+    .identity-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 180px;
+
+      .avatar-box {
+        width: 48px;
+        height: 48px;
+        border: 1px solid #444;
+        padding: 2px;
+        background: #000;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          // 增加一点复古滤镜效果，让头像更融入MUD
+          filter: contrast(1.1) brightness(0.9);
+        }
+      }
+
+      .name-tag {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .p-name {
+          font-size: 1.1rem;
+          font-weight: bold;
+          color: var(--text-main);
+        }
+        .p-realm {
+          font-size: 0.85rem;
+          color: var(--color-cyan);
+        }
+      }
+    }
+
+    /* 核心数值区 - 水平列阵布局 */
+    .status-grid-horizontal {
+      flex: 1;
+      display: flex;
+      gap: 30px;
+      border-left: 1px solid #333;
+      border-right: 1px solid #333;
+      padding: 0 20px;
+
+      .status-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .attr-row {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'Courier New', Courier, monospace; // 数值对齐
+        font-size: 0.95rem;
+
+        .label {
+          color: #ddd;
+          margin-right: 8px;
+        }
+        .value {
+          font-weight: bold;
+        }
+      }
+    }
+
+    /* 右侧动作区 */
+    .action-section {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 100px;
+
+      .level-box {
+        font-size: 0.9rem;
+        .label {
+          color: #ddd;
+          margin-right: 4px;
+        }
+        .value {
+          color: var(--color-yellow);
+          font-weight: bold;
+        }
+      }
+
+      .mud-cmd-btn {
+        background: none;
+        border: none;
+        color: var(--color-yellow);
+        cursor: pointer;
+        font-family: 'STKaiti', serif;
+        font-size: 1rem;
+        padding: 2px 0;
+
+        &:hover {
+          color: #fff;
+          text-shadow: 0 0 5px var(--color-yellow);
+        }
+        &:active {
+          transform: scale(0.95);
+        }
       }
     }
   }
 
+  /* 颜色辅助类 */
+  .text-red {
+    color: var(--color-red);
+  }
+  .text-cyan {
+    color: var(--color-cyan);
+  }
+  .text-green {
+    color: var(--color-green);
+  }
+  .text-yellow {
+    color: var(--color-yellow);
+  }
   .game-content {
     flex: 1;
     overflow-y: auto;
