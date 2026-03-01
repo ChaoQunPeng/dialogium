@@ -46,8 +46,8 @@ export const usePlayerStore = defineStore('player', () => {
     const stats = { attack: 0, defense: 0, maxHp: 0, maxMp: 0 };
 
     inventory.value.forEach((item) => {
-      if (item.isEquipped) {
-        const config = items[item.itemId];
+      if (item.e) {
+        const config = items[item.mid];
         if (config?.stats) {
           stats.attack += config.stats.attack || 0;
           stats.defense += config.stats.defense || 0;
@@ -119,11 +119,11 @@ export const usePlayerStore = defineStore('player', () => {
   /** 获得物品 */
   const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {
     const newInstances = itemsToAdd.map((e) => ({
-      itemId: e.itemId,
-      count: e.count,
-      instanceId: crypto.randomUUID().replace(/-/g, ''),
-      isEquipped: false,
-      isLocked: false,
+      mid: e.itemId,
+      n: e.count,
+      id: crypto.randomUUID().replace(/-/g, ''),
+      e: 0,
+      l: 0,
     }));
 
     inventory.value = [...inventory.value, ...newInstances];
@@ -131,30 +131,30 @@ export const usePlayerStore = defineStore('player', () => {
 
   /** 穿戴装备 */
   const equipItem = (instanceId: string): boolean => {
-    const itemToEquip = inventory.value.find((i) => i.instanceId === instanceId);
+    const itemToEquip = inventory.value.find((i) => i.id === instanceId);
     if (!itemToEquip) return false;
 
-    const itemConfig = items[itemToEquip.itemId];
+    const itemConfig = items[itemToEquip.mid];
     if (itemConfig?.category !== 'equipment' || !itemConfig.slot) return false;
 
     // 自动脱下同部位装备：将所有同 slot 的装备设为未装备
     inventory.value.forEach((item) => {
-      const config = items[item.itemId];
-      if (item.isEquipped && config?.slot === itemConfig.slot) {
-        item.isEquipped = false;
+      const config = items[item.mid];
+      if (item.e && config?.slot === itemConfig.slot) {
+        item.e = 0;
       }
     });
 
     // 穿上目标装备
-    itemToEquip.isEquipped = true;
+    itemToEquip.e = 1;
     return true;
   };
 
   /** 脱下装备 */
   const unequipItem = (instanceId: string): boolean => {
-    const item = inventory.value.find((i) => i.instanceId === instanceId);
+    const item = inventory.value.find((i) => i.id === instanceId);
     if (item) {
-      item.isEquipped = false;
+      item.e = 0;
       return true;
     }
     return false;
@@ -162,7 +162,7 @@ export const usePlayerStore = defineStore('player', () => {
 
   /** 丢弃物品 */
   const dropItem = (instanceId: string) => {
-    inventory.value = inventory.value.filter((i) => i.instanceId !== instanceId);
+    inventory.value = inventory.value.filter((i) => i.id !== instanceId);
   };
 
   /**

@@ -103,11 +103,12 @@ const inventory = computed<IInventoryItem[]>(() => {
   return playerStore.inventory
     .map((itemInstance: IItemInstance) => {
       // 根据 itemId 查找物品配置
-      const itemConfig = items[itemInstance.itemId];
+      const itemConfig = items[itemInstance.mid];
+
       if (!itemConfig) {
         // 如果找不到配置，使用默认值
         return {
-          id: itemInstance.itemId,
+          id: itemInstance.mid,
           name: '未知物品',
           category: 'unknown',
           description: '未知物品',
@@ -117,10 +118,10 @@ const inventory = computed<IInventoryItem[]>(() => {
           stackable: false,
           stats: {},
           grade: 'Normal',
-          count: itemInstance.count,
-          isLocked: itemInstance.isLocked,
-          isEquipped: itemInstance.isEquipped,
-          instanceId: 'unknown',
+          count: itemInstance.n,
+          isLocked: itemInstance.l === 1,
+          isEquipped: itemInstance.e === 1,
+          instanceId: itemInstance.id,
         } as IInventoryItem;
       }
 
@@ -136,40 +137,38 @@ const inventory = computed<IInventoryItem[]>(() => {
         stats: itemConfig.stats,
         grade: itemConfig.grade,
         // 用户数据
-        count: itemInstance.count,
-        isLocked: itemInstance.isLocked,
-        isEquipped: itemInstance.isEquipped,
-        instanceId: itemInstance.instanceId,
+        count: itemInstance.n,
+        isLocked: itemInstance.l === 1,
+        isEquipped: itemInstance.e === 1,
+        instanceId: itemInstance.id,
       };
     })
     .filter((item): item is IInventoryItem => item !== undefined);
 });
 
-// 背包-分类过滤逻辑 - 优化堆叠物品展示
+// 核心：分类过滤逻辑 - 优化堆叠物品展示
 const filteredInventory = computed(() => {
   let itemsToFilter = inventory.value;
 
-  itemsToFilter = itemsToFilter
-    .filter((item) => !item.isEquipped)
-    .filter((item) => item.category === activeTab.value);
+  // 如果不是显示全部，则先按分类过滤
+  if (activeTab.value !== 'all') {
+    itemsToFilter = itemsToFilter
+      .filter((item) => !item.isEquipped)
+      .filter((item: (typeof inventory.value)[number]) => item.category === activeTab.value);
+  }
 
   // 合并可堆叠的相同物品
-  const mergedItems: Record<string, IInventoryItem> = {};
+  const mergedItems: Record<string, (typeof inventory.value)[number]> = {};
 
   itemsToFilter.forEach((item) => {
-    // 对于可堆叠物品，按itemId合并
-    if (item.stackable) {
-      const key = `${item.id}-${item.isEquipped ? 'equipped' : 'unequipped'}`;
-      if (mergedItems[key]) {
-        // 合并数量
-        mergedItems[key].count += item.count;
-      } else {
-        // 创建新的合并项
-        mergedItems[key] = { ...item };
-      }
+    // 使用物品ID和装备状态作为唯一键
+    const key = `${item.id}-${item.isEquipped ? 'equipped' : 'unequipped'}`;
+    
+    if (mergedItems[key]) {
+      // 如果已存在，累加数量
+      mergedItems[key].count += item.count;
     } else {
-      // 不可堆叠物品直接添加
-      const key = `${item.instanceId}-${item.isEquipped ? 'equipped' : 'unequipped'}`;
+      // 如果不存在，直接添加
       mergedItems[key] = { ...item };
     }
   });
@@ -399,4 +398,3 @@ const filteredInventory = computed(() => {
     gap: 8px;
   }
 }
-</style>

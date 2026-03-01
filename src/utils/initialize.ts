@@ -58,53 +58,53 @@ export const initializePlayerItemsData = () => {
    */
   const initialItems: IItemInstance[] = [
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'bai_ren_qiang', // 对应你静态配置表中的 ID
-      count: 1,
-      isEquipped: false, // 紫炎心是入体的，默认就是激活/穿戴状态
-      isLocked: false,
+      id: crypto.randomUUID(),
+      mid: 'bai_ren_qiang', // 对应你静态配置表中的 ID
+      n: 1,
+      e: 0, // 紫炎心是入体的，默认就是激活/穿戴状态
+      l: 0,
     },
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'zi_yan_xin', // 对应你静态配置表中的 ID
-      count: 1,
-      isEquipped: false, // 紫炎心是入体的，默认就是激活/穿戴状态
-      isLocked: false, // 核心至宝，锁定防止误删
+      id: crypto.randomUUID(),
+      mid: 'zi_yan_xin', // 对应你静态配置表中的 ID
+      n: 1,
+      e: 0, // 紫炎心是入体的，默认就是激活/穿戴状态
+      l: 0, // 核心至宝，锁定防止误删
     },
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'man_tian_xin_body',
-      count: 1,
-      isEquipped: false,
-      isLocked: false,
+      id: crypto.randomUUID(),
+      mid: 'man_tian_xin_body',
+      n: 1,
+      e: 0,
+      l: 0,
     },
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'man_tian_xin_shoulder',
-      count: 1,
-      isEquipped: false,
-      isLocked: false,
+      id: crypto.randomUUID(),
+      mid: 'man_tian_xin_shoulder',
+      n: 1,
+      e: 0,
+      l: 0,
     },
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'man_tian_xin_belt',
-      count: 1,
-      isEquipped: false,
-      isLocked: false,
+      id: crypto.randomUUID(),
+      mid: 'man_tian_xin_belt',
+      n: 1,
+      e: 0,
+      l: 0,
     },
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'man_tian_xin_leg',
-      count: 1,
-      isEquipped: false,
-      isLocked: false,
+      id: crypto.randomUUID(),
+      mid: 'man_tian_xin_leg',
+      n: 1,
+      e: 0,
+      l: 0,
     },
     {
-      instanceId: crypto.randomUUID(),
-      itemId: 'man_tian_xin_shoes',
-      count: 1,
-      isEquipped: false,
-      isLocked: false,
+      id: crypto.randomUUID(),
+      mid: 'man_tian_xin_shoes',
+      n: 1,
+      e: 0,
+      l: 0,
     },
   ];
 
