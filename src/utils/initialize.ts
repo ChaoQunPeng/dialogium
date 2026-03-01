@@ -21,7 +21,6 @@ export const initializeGame = () => {
   console.log('角色信息：', {
     name: character.name,
     level: character.baseInfo.level,
-    realm: character.baseInfo.cultivation?.realm,
     hp: `${character.baseInfo.hp}/${character.baseInfo.maxHp}`,
     mp: `${character.baseInfo.mp}/${character.baseInfo.maxMp}`,
   });

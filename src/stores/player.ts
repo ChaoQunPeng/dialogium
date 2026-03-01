@@ -21,6 +21,7 @@ export const usePlayerStore = defineStore('player', () => {
     }
   };
 
+  // 初始物品
   const getInitialInventory = (): IItemInstance[] => {
     const local = localStorage.getItem(STORAGE_KEYS.PLAYER_ITEMS);
     if (!local) return [];
