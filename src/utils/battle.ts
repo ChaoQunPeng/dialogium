@@ -10,6 +10,7 @@ export interface IBattleEvent {
   msg: string;
   attackerHp: number; // 该动作后攻击者的剩余血量
   defenderHp: number; // 该动作后防御者的剩余血量
+  // 造成伤害
   damage?: number; // 该动作产生的数值变动
 }
 
@@ -123,8 +124,8 @@ const getActionMsg = (
  */
 export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBattleSummary {
   // 使用局部变量计算，避免修改原始对象属性
-  let aHp = attacker.baseInfo.hp;
-  let dHp = defender.baseInfo.hp;
+  let attackerHp = attacker.baseInfo.hp;
+  let defenderHp = defender.baseInfo.hp;
 
   const aAtk = attacker.battle?.attack ?? 0;
   const aDef = attacker.battle?.defense ?? 0;
@@ -136,8 +137,8 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
     loser: null,
     turns: 0,
     events: [],
-    finalAttackerHp: aHp,
-    finalDefenderHp: dHp,
+    finalAttackerHp: attackerHp,
+    finalDefenderHp: defenderHp,
     isDraw: false,
   };
 
@@ -147,8 +148,8 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
       turns: 0,
       type: 'system',
       msg: '【系统】双方防御均坚不可摧，陷入僵局。',
-      attackerHp: aHp,
-      defenderHp: dHp,
+      attackerHp: attackerHp,
+      defenderHp: defenderHp,
     });
     summary.isDraw = true;
     return summary;
@@ -156,65 +157,65 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
 
   // 2. 战斗循环
   const MAX_TURNS = 100; // 安全阈值
-  while (aHp > 0 && dHp > 0 && summary.turns < MAX_TURNS) {
+  while (attackerHp > 0 && defenderHp > 0 && summary.turns < MAX_TURNS) {
     summary.turns++;
 
     // --- 攻击方回合 ---
     const aDamage = Math.max(0, aAtk - dDef);
-    dHp = Math.max(0, dHp - aDamage);
+    defenderHp = Math.max(0, defenderHp - aDamage);
 
     summary.events.push({
       turns: summary.turns,
       type: 'attack',
       msg: getActionMsg(attacker.name, defender.name, aDamage, false),
-      attackerHp: aHp,
-      defenderHp: dHp,
+      attackerHp: attackerHp,
+      defenderHp: defenderHp,
       damage: aDamage,
     });
 
     // 重要：如果防御方已倒下，立即结束战斗，不再执行反击逻辑
-    if (dHp <= 0) break;
+    if (defenderHp <= 0) break;
 
     // --- 防御方反击回合 ---
     const dDamage = Math.max(0, dAtk - aDef);
-    aHp = Math.max(0, aHp - dDamage);
+    attackerHp = Math.max(0, attackerHp - dDamage);
 
     summary.events.push({
       turns: summary.turns,
       type: 'defender',
       msg: getActionMsg(defender.name, attacker.name, dDamage, true),
-      attackerHp: aHp,
-      defenderHp: dHp,
+      attackerHp: attackerHp,
+      defenderHp: defenderHp,
       damage: dDamage,
     });
 
     // 如果攻击方倒下，循环也会结束
-    if (aHp <= 0) break;
+    if (attackerHp <= 0) break;
   }
 
   // 3. 结果封存与结局文案
-  summary.finalAttackerHp = aHp;
-  summary.finalDefenderHp = dHp;
+  summary.finalAttackerHp = attackerHp;
+  summary.finalDefenderHp = defenderHp;
 
-  if (aHp > 0 && dHp <= 0) {
+  if (attackerHp > 0 && defenderHp <= 0) {
     summary.winner = attacker;
     summary.loser = defender;
     summary.events.push({
       turns: summary.turns,
       type: 'system',
-      msg: `🏁 战斗结束：${attacker.name} 获得了胜利！剩余生命值：${aHp}`,
-      attackerHp: aHp,
-      defenderHp: dHp,
+      msg: `🏁 战斗结束：${attacker.name} 获得了胜利！剩余生命值：${attackerHp}`,
+      attackerHp: attackerHp,
+      defenderHp: defenderHp,
     });
-  } else if (dHp > 0 && aHp <= 0) {
+  } else if (defenderHp > 0 && attackerHp <= 0) {
     summary.winner = defender;
     summary.loser = attacker;
     summary.events.push({
       turns: summary.turns,
       type: 'system',
-      msg: `💀 战斗结束：${attacker.name} 不幸战败... 对方剩余生命值：${dHp}`,
-      attackerHp: aHp,
-      defenderHp: dHp,
+      msg: `💀 战斗结束：${attacker.name} 不幸战败... 对方剩余生命值：${defenderHp}`,
+      attackerHp: attackerHp,
+      defenderHp: defenderHp,
     });
   } else {
     summary.isDraw = true;
@@ -222,8 +223,8 @@ export function simulateBattle(attacker: ICharacter, defender: ICharacter): IBat
       turns: summary.turns,
       type: 'system',
       msg: `⏳ 战斗结束：双方体力耗尽，最终战成平手。`,
-      attackerHp: aHp,
-      defenderHp: dHp,
+      attackerHp: attackerHp,
+      defenderHp: defenderHp,
     });
   }
 
@@ -254,13 +255,13 @@ export function canFight(attacker: ICharacter, defender: ICharacter): FightCheck
 
   // 2. 检查胜者是否为发起者（玩家）
   // 注意：这里假设通过 id 或 name 识别玩家
-  if (result.winner?.name !== attacker.name) {
-    return {
-      canFight: false,
-      reason: '实力悬殊！请变强后再来挑战吧。',
-      code: 2,
-    };
-  }
+  // if (result.winner?.name !== attacker.name) {
+  //   return {
+  //     canFight: false,
+  //     reason: '实力悬殊！请变强后再来挑战吧。',
+  //     code: 2,
+  //   };
+  // }
 
   return {
     canFight: true,
@@ -338,12 +339,12 @@ export function handleBattleRewards(player: ICharacter, monster: ICharacter): IB
   };
 
   // 1. 获取经验奖励（从怪物的exp字段）
-  const expReward = monster.battle?.exp || 0;
-  if (expReward > 0 && player.baseInfo.cultivation) {
-    player.baseInfo.currentExp += expReward;
-    reward.expGained = expReward;
-    console.log(`✨ 获得 ${expReward} 点经验值`);
-  }
+  // const expReward = monster.battle?.exp || 0;
+  // if (expReward > 0 && player.baseInfo.cultivation) {
+  //   player.baseInfo.currentExp += expReward;
+  //   reward.expGained = expReward;
+  //   console.log(`✨ 获得 ${expReward} 点经验值`);
+  // }
 
   // 2. 处理物品掉落
   const droppedItem = handleLootDrop(monster);

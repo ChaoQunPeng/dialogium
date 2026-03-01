@@ -47,6 +47,10 @@ export function formatBattleEvents(events: IBattleEvent[]): ITurnRecord[] {
   return logs;
 }
 
+// 战斗状态
+//  * - 'idle': 空闲状态 - 没有正在进行的战斗，等待开始新的战斗
+//  * - 'fighting': 战斗中 - 正在进行战斗，双方正在交战
+//  * - 'finished': 战斗结束 - 战斗已完成，产生了胜负结果
 type BattleStatus = 'idle' | 'fighting' | 'finished';
 
 export function useBattle() {
@@ -86,20 +90,20 @@ export function useBattle() {
     // 3. 顺序播放战斗过程
     for (let i = 0; i < displayLogs.length; i++) {
       currentTurns.value++;
-      const logGroup = displayLogs[i];
+      const logItem = displayLogs[i];
 
       // 【核心修复】：显式检查 logGroup 是否存在，消除 TS 的 undefined 报错
-      if (!logGroup) continue;
+      if (!logItem) continue;
 
       // 更新日志显示（最新消息在最前）
-      battleLog.value.unshift(logGroup.msg);
+      battleLog.value.unshift(logItem.msg);
 
       // 更新整体进度百分比
       progress.value = Math.round(((i + 1) / displayLogs.length) * 100);
 
       // 执行回合回调：将合并后的对象传回给 UI 层处理血量同步
       if (onTurn) {
-        onTurn(logGroup, progress.value);
+        onTurn(logItem, progress.value);
       }
 
       // 等待动画间隔

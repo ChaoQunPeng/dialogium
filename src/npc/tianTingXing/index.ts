@@ -154,11 +154,15 @@ export const fengKaiYun: ICharacter = {
   name: '丰凯云',
   type: CharacterType.Npc,
   baseInfo: {
-    level: 5, // 世俗官员无修真等级
-    hp: 1000,
-    maxHp: 1000,
+    level: 5,
+    hp: 10000,
+    maxHp: 10000,
     mp: 500,
     maxMp: 500,
+  },
+  battle: {
+    attack: 620,
+    defense: 0,
   },
   conversations: [
     {

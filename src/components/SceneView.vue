@@ -64,8 +64,8 @@
     <!-- 战斗场景 - 内联展示 -->
     <BattleView
       v-if="isInBattle && selectedMonster"
-      :player="player"
-      :monster="selectedMonster"
+      :player="playerStore.finalPlayer"
+      :enemy="selectedMonster"
       :show-close-button="true"
       @battle-end="onBattleEnd"
       @close="exitBattle"
@@ -86,7 +86,6 @@ import { tianTingXing } from '@/scene/tianTingXing';
 import { qianJieXing } from '@/scene/qianJieXing';
 
 const playerStore = usePlayerStore();
-const player = computed(() => playerStore.player);
 
 // 场景数据
 const scenes: Scene[] = [
@@ -150,7 +149,7 @@ const getCharacterTypeClass = (type: string): string => {
 
 // 挑战怪物
 const challengeMonster = (monster: ICharacter) => {
-  const fightCheck = canFight(player.value, monster);
+  const fightCheck = canFight(playerStore.finalPlayer, monster);
   if (!fightCheck.canFight) {
     alert(fightCheck.reason);
     return;
@@ -179,7 +178,7 @@ const exitBattle = () => {
 
 // 检查是否可以挑战怪物
 const canFightMonster = (monster: ICharacter): boolean => {
-  return !!monster.battle && canFight(player.value, monster).canFight;
+  return !!monster.battle && canFight(playerStore.finalPlayer, monster).canFight;
 };
 </script>
 

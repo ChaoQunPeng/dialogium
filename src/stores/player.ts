@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import type { ICharacter, IItemInstance } from '@/interface';
 import { items } from '@/items'; // 导入物品配置
 import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
+import { clamp } from '@/utils/utils';
 
 export const usePlayerStore = defineStore('player', () => {
   // --- 1. 数据初始化 (State) ---
@@ -65,8 +66,29 @@ export const usePlayerStore = defineStore('player', () => {
       defense: (player.battle?.defense || 0) + equipmentStats.value.defense,
       maxHp: (player.baseInfo?.maxHp || 0) + equipmentStats.value.maxHp,
       maxMp: (player.baseInfo?.maxMp || 0) + equipmentStats.value.maxMp,
-      // hp: (player.baseInfo?.hp || 0) + equipmentStats.value.hp,
-      // mp: (player.baseInfo?.mp || 0) + equipmentStats.value.mp,
+    };
+  });
+
+  /** 3. 核心：战斗就绪对象 (关键重构) */
+  const finalPlayer = computed<ICharacter>(() => {
+    // 这里使用深度克隆或结构赋值，确保不污染原始 state
+    return {
+      ...player,
+      baseInfo: {
+        ...player.baseInfo,
+        // 关键：战斗系统使用的是最终计算后的上限
+        maxHp: finalStats.value.maxHp,
+        maxMp: finalStats.value.maxMp,
+        // 当前血量依然使用 state 中的值
+        hp: player.baseInfo.hp,
+        mp: player.baseInfo.mp,
+      },
+      battle: {
+        ...player.battle,
+        // 关键：将装备攻击力合并进去
+        attack: finalStats.value.attack,
+        defense: finalStats.value.defense,
+      },
     };
   });
 
@@ -144,19 +166,55 @@ export const usePlayerStore = defineStore('player', () => {
     inventory.value = inventory.value.filter((i) => i.instanceId !== instanceId);
   };
 
-  /** 扣除玩家血量（传入伤害值）*/
-  const takeDamage = (damage: number) => {
-    player.baseInfo.hp = Math.max(0, player.baseInfo.hp - damage);
-  };
+  /**
+   * 回复血量方法
+   * @param amount 回复的数值
+   * @param isPercentage 是否是按百分比回复 (默认 false)
+   */
+  const healHp = (amount: number, isPercentage: boolean = false) => {
+    const maxHp = finalStats.value.maxHp;
+    let healValue = amount;
 
-  /** 恢复玩家血量 */
-  const healHp = (healAmount: number) => {
-    player.baseInfo.hp = Math.min(player.baseInfo.maxHp, player.baseInfo.hp + healAmount);
+    if (isPercentage) {
+      // 如果是百分比，则根据当前最大生命值计算
+      healValue = Math.floor(maxHp * (amount / 100));
+    }
+
+    // 使用之前定义的 setHp 逻辑，确保血量不溢出且触发响应式
+    setHp(player.baseInfo.hp + healValue);
+
+    // 可扩展：返回实际回复的数值，方便 UI 显示“+100”字样
+    return healValue;
   };
 
   /** 直接设置血量（特殊情况下使用）*/
   const setHp = (newHp: number) => {
-    player.baseInfo.hp = Math.max(0, Math.min(newHp, player.baseInfo.maxHp));
+    player.baseInfo.hp = clamp(newHp, 0, finalStats.value.maxHp);
+  };
+
+  /**
+   * 扣除血量方法（受击处理）
+   * @param damage 伤害数值
+   * @param options 扩展选项（预留给未来的护盾或暴击逻辑）
+   */
+  const takeDamage = (damage: number) => {
+    // 1. 确保伤害不为负数（防止误传负数导致变相加血）
+    const actualDamage = Math.max(0, Math.floor(damage));
+
+    // 2. 计算扣除后的血量
+    const nextHp = player.baseInfo.hp - actualDamage;
+
+    // 3. 使用统一的 setHp 逻辑
+    // setHp 内部已经处理了 Math.max(0, ...)，所以血量最少只会到 0
+    setHp(nextHp);
+
+    // 4. 可扩展性：如果血量归零，可以触发死亡回调或发送事件
+    if (player.baseInfo.hp <= 0) {
+      // onPlayerDeath(); // 可以在这里处理掉级、掉装备或回城逻辑
+    }
+
+    // 返回实际造成的伤害值，方便 UI 弹出“红字伤害”
+    return actualDamage;
   };
 
   return {
@@ -164,6 +222,7 @@ export const usePlayerStore = defineStore('player', () => {
     inventory,
     finalStats, // 建议 UI 绑定这个属性显示面板
     realmData,
+    finalPlayer,
     acquireItem,
     equipItem,
     unequipItem,

@@ -17,13 +17,32 @@
         <div class="status-bars flex-1 ml-3">
           <div class="bar-row">
             <span class="bar-label text-text-main">气血</span>
-            <span class="bar-val text-red ml-2">{{ playerStore.finalStats.maxHp }}</span>
+            <span class="bar-val text-red ml-2">
+              {{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}
+            </span>
           </div>
           <div class="bar-row" v-if="playerStore.finalStats.maxMp > 0">
             <span class="bar-label text-text-main">灵力</span>
-            <span class="bar-val text-green ml-2">{{ playerStore.finalStats.maxMp }}</span>
+            <span class="bar-val text-green ml-2">
+              {{ playerStore.player.baseInfo.mp }}/{{ playerStore.finalStats.maxMp }}
+            </span>
+          </div>
+          <!--  -->
+          <div class="bar-row">
+            <span class="bar-label text-text-main">攻击</span>
+            <span class="bar-val text-red ml-2">
+              {{ playerStore.finalPlayer.battle!.attack }}
+            </span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label text-text-main">防御</span>
+            <span class="bar-val text-green ml-2">
+              {{ playerStore.finalPlayer.battle!.defense }}
+            </span>
           </div>
         </div>
+
+        <div @click="playerStore.healHp(100, true)">回复血量</div>
 
         <div class="px-4 self-center">等级: {{ playerStore.player.baseInfo.level }}</div>
 
@@ -51,17 +70,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import SceneView from './components/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
 // import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';
-import { getRequiredExp } from './utils/levelManager';
 const playerStore = usePlayerStore();
-
-const player = computed(() => {
-  return playerStore.player;
-});
 
 // 定义 Tab 数据，第三个修改为"修炼"
 const tabs = [
@@ -71,10 +85,6 @@ const tabs = [
 ];
 
 const activeTab = ref('realm');
-
-for (let i = 1; i < 20; i++) {
-  console.log(i, getRequiredExp(i));
-}
 </script>
 
 <style lang="scss">

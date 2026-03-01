@@ -180,6 +180,10 @@ export const fengZhiHao: ICharacter = {
     mp: 1200,
     maxMp: 1200,
   },
+  battle: {
+    attack: 620,
+    defense: 50,
+  },
   conversations: [
     {
       type: 'text',
