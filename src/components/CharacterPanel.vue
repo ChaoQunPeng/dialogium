@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { IItemInstance } from '../interface/index';
 import type { IInventoryItem } from '../interface/item';
 import { items } from '../items/index';
@@ -72,7 +72,6 @@ const playerStore = usePlayerStore();
 // 纳戒数据与分类逻辑
 const activeTab = ref('equipment');
 const tabs = [
-  // { name: '全部', key: 'all' },
   { name: '装备', key: 'equipment' },
   { name: '丹药', key: 'consumable' },
   { name: '材料', key: 'material' },
@@ -105,7 +104,6 @@ const inventory = computed<IInventoryItem[]>(() => {
     .map((itemInstance: IItemInstance) => {
       // 根据 itemId 查找物品配置
       const itemConfig = items[itemInstance.itemId];
-
       if (!itemConfig) {
         // 如果找不到配置，使用默认值
         return {
@@ -147,37 +145,16 @@ const inventory = computed<IInventoryItem[]>(() => {
     .filter((item): item is IInventoryItem => item !== undefined);
 });
 
-// // 装备收藏 - 从库存中筛选装备并转换为IItem格式
-// const equipmentCollection = computed(() => {
-//   return inventory.value
-//     .filter((item) => item.category === 'equipment')
-//     .map((item) => ({
-//       id: item.id,
-//       name: item.name,
-//       category: item.category as IItem['category'],
-//       description: item.description || '',
-//       slot: item.slot,
-//       level: item.level || 1,
-//       price: item.price || 0,
-//       stackable: item.stackable || false,
-//       stats: item.stats,
-//     }))
-//     .slice(0, 12); // 限制显示数量
-// });
-
-// 核心：分类过滤逻辑 - 优化堆叠物品展示
+// 背包-分类过滤逻辑 - 优化堆叠物品展示
 const filteredInventory = computed(() => {
   let itemsToFilter = inventory.value;
 
-  // 如果不是显示全部，则先按分类过滤
-  if (activeTab.value !== 'all') {
-    itemsToFilter = itemsToFilter
-      .filter((item) => !item.isEquipped)
-      .filter((item: (typeof inventory.value)[number]) => item.category === activeTab.value);
-  }
+  itemsToFilter = itemsToFilter
+    .filter((item) => !item.isEquipped)
+    .filter((item) => item.category === activeTab.value);
 
   // 合并可堆叠的相同物品
-  const mergedItems: Record<string, (typeof inventory.value)[number]> = {};
+  const mergedItems: Record<string, IInventoryItem> = {};
 
   itemsToFilter.forEach((item) => {
     // 对于可堆叠物品，按itemId合并
@@ -206,9 +183,6 @@ const filteredInventory = computed(() => {
     return a.name.localeCompare(b.name);
   });
 });
-
-// 组件挂载时加载数据
-onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>

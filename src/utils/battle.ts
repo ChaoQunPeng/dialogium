@@ -340,7 +340,7 @@ export function handleBattleRewards(player: ICharacter, monster: ICharacter): IB
   // 1. 获取经验奖励（从怪物的exp字段）
   const expReward = monster.battle?.exp || 0;
   if (expReward > 0 && player.baseInfo.cultivation) {
-    player.baseInfo.cultivation.currentExp += expReward;
+    player.baseInfo.currentExp += expReward;
     reward.expGained = expReward;
     console.log(`✨ 获得 ${expReward} 点经验值`);
   }

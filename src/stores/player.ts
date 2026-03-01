@@ -144,8 +144,18 @@ export const usePlayerStore = defineStore('player', () => {
     inventory.value = inventory.value.filter((i) => i.instanceId !== instanceId);
   };
 
-  /** 更新玩家血量 */
-  const updateHp = (newHp: number) => {
+  /** 扣除玩家血量（传入伤害值）*/
+  const takeDamage = (damage: number) => {
+    player.baseInfo.hp = Math.max(0, player.baseInfo.hp - damage);
+  };
+
+  /** 恢复玩家血量 */
+  const healHp = (healAmount: number) => {
+    player.baseInfo.hp = Math.min(player.baseInfo.maxHp, player.baseInfo.hp + healAmount);
+  };
+
+  /** 直接设置血量（特殊情况下使用）*/
+  const setHp = (newHp: number) => {
     player.baseInfo.hp = Math.max(0, Math.min(newHp, player.baseInfo.maxHp));
   };
 
@@ -158,6 +168,8 @@ export const usePlayerStore = defineStore('player', () => {
     equipItem,
     unequipItem,
     dropItem,
-    updateHp,
+    takeDamage,
+    healHp,
+    setHp,
   };
 });

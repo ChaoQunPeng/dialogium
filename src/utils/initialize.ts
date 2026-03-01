@@ -59,10 +59,17 @@ export const initializePlayerItemsData = () => {
   const initialItems: IItemInstance[] = [
     {
       instanceId: crypto.randomUUID(),
+      itemId: 'bai_ren_qiang', // 对应你静态配置表中的 ID
+      count: 1,
+      isEquipped: false, // 紫炎心是入体的，默认就是激活/穿戴状态
+      isLocked: false,
+    },
+    {
+      instanceId: crypto.randomUUID(),
       itemId: 'zi_yan_xin', // 对应你静态配置表中的 ID
       count: 1,
-      isEquipped: true, // 紫炎心是入体的，默认就是激活/穿戴状态
-      isLocked: true, // 核心至宝，锁定防止误删
+      isEquipped: false, // 紫炎心是入体的，默认就是激活/穿戴状态
+      isLocked: false, // 核心至宝，锁定防止误删
     },
     {
       instanceId: crypto.randomUUID(),

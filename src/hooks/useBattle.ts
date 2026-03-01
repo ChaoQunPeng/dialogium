@@ -17,7 +17,7 @@ export interface ITurnRecord {
 interface BattleOptions {
   delay?: number;
   /** 每回合的回调，传入该回合合并后的数据 */
-  onTurn?: (logGroup: ITurnRecord, progress: number) => void;
+  onTurn?: (logGroup: IBattleEvent, progress: number) => void;
   /** 战斗结束触发的回调 */
   onFinish?: (result: IBattleSummary) => void;
 }
@@ -80,7 +80,8 @@ export function useBattle() {
     battleResult.value = result;
 
     // 将扁平的 events 预先处理成按回合合并的 displayLogs
-    const displayLogs = formatBattleEvents(result.events);
+    // const displayLogs = formatBattleEvents(result.events);
+    const displayLogs = result.events;
 
     // 3. 顺序播放战斗过程
     for (let i = 0; i < displayLogs.length; i++) {

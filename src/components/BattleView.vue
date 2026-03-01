@@ -186,13 +186,14 @@ const selectMonster = () => {
     startBattle(player, monster, {
       delay: 700,
       onTurn: (event) => {
-        playerStore.updateHp(event.attackerHp);
+        console.log(event);
+        // playerStore.updateHp(event.attackerHp);
         monster.baseInfo.hp = event.defenderHp;
         battleLogs.value.unshift(event.msg);
       },
       onFinish: (result) => {
-        playerStore.updateHp(result.finalAttackerHp);
-        monster.baseInfo.hp = result.finalDefenderHp;
+        // playerStore.updateHp(result.finalAttackerHp);
+        // monster.baseInfo.hp = result.finalDefenderHp;
 
         // 如果玩家获胜，将获得的物品添加到背包
         if (result.winner?.id === player.id && battleRewards.value) {
@@ -235,7 +236,7 @@ const rematchBattle = () => {
   battleLogs.value = [];
 
   // 重置双方血量
-  playerStore.updateHp(player.baseInfo.maxHp);
+  // playerStore.updateHp(player.baseInfo.maxHp);
   monster.baseInfo.hp = props.monster.baseInfo.maxHp;
 
   // 延迟一点时间后重新开始战斗
@@ -243,12 +244,12 @@ const rematchBattle = () => {
     startBattle(player, monster, {
       delay: 700,
       onTurn: (event) => {
-        playerStore.updateHp(event.attackerHp);
+        // playerStore.updateHp(event.attackerHp);
         monster.baseInfo.hp = event.defenderHp;
         battleLogs.value.unshift(event.msg);
       },
       onFinish: (result) => {
-        playerStore.updateHp(result.finalAttackerHp);
+        // playerStore.updateHp(result.finalAttackerHp);
         monster.baseInfo.hp = result.finalDefenderHp;
 
         // 如果玩家获胜，将获得的物品添加到背包
@@ -305,7 +306,7 @@ const rematchBattle = () => {
 .battle-controls {
   margin-top: 16px;
   text-align: center;
-  
+
   .close-button {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid #666;
@@ -314,7 +315,7 @@ const rematchBattle = () => {
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: rgba(255, 255, 255, 0.2);
       border-color: var(--color-cyan);
@@ -442,13 +443,13 @@ const rematchBattle = () => {
   justify-content: center;
   gap: 20px;
   padding: 15px 0;
-  
+
   .cmd-btn {
     padding: 8px 16px;
     border: 1px solid var(--color-cyan);
     border-radius: 4px;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background-color: rgba(0, 255, 255, 0.1);
       border-color: var(--color-yellow);

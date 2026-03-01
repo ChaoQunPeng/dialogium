@@ -5,6 +5,7 @@ import { hanBiJian } from './han_bi_jian';
 import { naJieShouZhuo } from './na_jie_shou_zhuo';
 import { tanBoShouZhuo } from './tan_bo_shou_zhuo';
 import { wuSeYanLuoZhao } from './wu_se_yan_luo_zhao';
+import { baiRenQiang } from './bai_ren_qiang';
 
 export default {
   ...manTianXin,
@@ -14,4 +15,5 @@ export default {
   ...naJieShouZhuo,
   ...tanBoShouZhuo,
   ...wuSeYanLuoZhao,
+  ...baiRenQiang,
 };
