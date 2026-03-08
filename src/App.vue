@@ -123,7 +123,6 @@ body {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
     }
 
     /* 身份区 */
@@ -131,7 +130,7 @@ body {
       display: flex;
       align-items: center;
       gap: 12px;
-      min-width: 180px;
+      min-width: 160px;
 
       .avatar-box {
         width: 48px;

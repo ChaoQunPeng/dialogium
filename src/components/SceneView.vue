@@ -19,9 +19,7 @@
           <p class="scene-intro">{{ currentScene.description }}</p>
 
           <div class="scene-header-info">
-            <button class="back-button" @click="exitScene">
-              <span class="icon">←</span> 返回列表
-            </button>
+            <button class="back-button" @click="exitScene"><span class="icon">←</span> 返回</button>
           </div>
 
           <div class="entity-section" v-if="enemiesInScene.length > 0">
@@ -40,9 +38,9 @@
                   <span class="entity-level">LV.{{ enemy.baseInfo.level }}</span>
                 </div>
                 <div
-                  class="action-btn challenge-btn"
+                  class="entity-tag"
                   @click.stop="challengeMonster(enemy)"
-                  :disabled="!canFightMonster(enemy)"
+                  :class="{ 'disabled-tag': !canFightMonster(enemy), 'challenge-tag': true }"
                 >
                   挑战
                 </div>
@@ -51,7 +49,7 @@
           </div>
 
           <div class="entity-section" v-if="npcsInScene.length > 0">
-            <h3 class="section-title npc-title">👤 NPC</h3>
+            <h3 class="section-title npc-title">👤 仙门道友</h3>
             <div class="entity-grid">
               <div
                 v-for="npc in npcsInScene"
@@ -322,9 +320,12 @@ const canFightMonster = (monster: ICharacter): boolean => {
 }
 
 .entity-tag {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-cyan);
-  opacity: 0.7;
+}
+
+.challenge-tag {
+  color: var(--color-red);
 }
 
 /* 类型色彩 */
