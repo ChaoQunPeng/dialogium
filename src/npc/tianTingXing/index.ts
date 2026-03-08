@@ -243,6 +243,8 @@ export const yuanBa: ICharacter = {
   id: 'yuanBa',
   name: '元霸',
   type: CharacterType.Enemy, // 修正为枚举中存在的Monster类型（普通怪物）
+  introduction: '黑旗军第三旗将，天生神力，率军围攻含林城，被李强与赵豪击退',
+
   baseInfo: {
     level: 25,
     hp: 4500,
@@ -250,12 +252,20 @@ export const yuanBa: ICharacter = {
     mp: 1500,
     maxMp: 1500,
   },
+
   conversations: [
     {
       type: 'text',
       contentList: ['俺元霸的力气，能扛山！', '给我冲！拿下含林城！', '这老头（赵豪）有点东西！'],
     },
   ],
+
+  battle: {
+    attack: 500,
+    defense: 10,
+    exp: 100,
+    dropList: ['xuan_tie'],
+  },
 };
 
 /**

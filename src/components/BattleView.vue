@@ -1,24 +1,25 @@
 <template>
   <div class="mud-game-wrapper">
-    <BorderContainer v-if="!isInBattle" title="当前场景：荒野林径">
-      <div class="scene-description">你环顾四周，林中迷雾缭绕，远处隐约传来阵阵低吼...</div>
-      
+    <BorderContainer v-if="!isInBattle" :title="`当前场景：${sceneName || '荒野林径'}`">
       <!-- 敌人详细信息面板 -->
       <div class="enemy-detail-panel">
         <div class="enemy-header">
-          <span class="enemy-type-badge">【怪物】</span>
           <span class="enemy-name">{{ enemy.name }}</span>
-          <span class="enemy-level">LV.{{ enemy.baseInfo.level }}</span>
+          <span class="enemy-level gray">LV.{{ enemy.baseInfo.level }}</span>
         </div>
-        
-        <div class="enemy-stats-grid">
+
+        <div class="enemy-description-section mb-3">
+          <p class="desc-text">{{ enemy.introduction }}</p>
+        </div>
+
+        <div class="enemy-stats-simple">
           <div class="stat-item">
             <span class="stat-label">生命值</span>
-            <span class="stat-value">{{ enemy.baseInfo.hp }} / {{ enemy.baseInfo.maxHp }}</span>
+            <span class="stat-value">{{ enemy.baseInfo.maxHp }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-label">法力值</span>
-            <span class="stat-value">{{ enemy.baseInfo.mp }} / {{ enemy.baseInfo.maxMp }}</span>
+            <span class="stat-value">{{ enemy.baseInfo.maxMp }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-label">攻击力</span>
@@ -34,11 +35,16 @@
           <div class="section-title">📦 击败奖励</div>
           <div class="reward-info">
             <span class="exp-icon">✨</span>
-            <span class="exp-text">经验值：<span class="highlight">{{ enemy.battle?.exp ?? 0 }}</span> 点</span>
+            <span class="exp-text"
+              >经验值：<span class="highlight">{{ enemy.battle?.exp ?? 0 }}</span> 点</span
+            >
           </div>
         </div>
 
-        <div class="enemy-drops-section" v-if="enemy.battle?.dropList && enemy.battle.dropList.length > 0">
+        <div
+          class="enemy-drops-section"
+          v-if="enemy.battle?.dropList && enemy.battle.dropList.length > 0"
+        >
           <div class="section-title">🎁 可能掉落</div>
           <div class="drop-list">
             <div v-for="(dropId, index) in enemy.battle.dropList" :key="index" class="drop-item">
@@ -47,17 +53,12 @@
             </div>
           </div>
         </div>
-
-        <div class="enemy-description">
-          <div class="section-title">📖 怪物介绍</div>
-          <p class="desc-text">{{ getEnemyDescription(enemy) }}</p>
-        </div>
       </div>
 
       <div class="battle-action">
         <span class="cmd-btn btn-challenge" @click="battleEnemy">[ 尝试挑战 ]</span>
       </div>
-      
+
       <div class="battle-controls" v-if="showCloseButton">
         <button class="close-button" @click="$emit('close')">返回</button>
       </div>
@@ -185,6 +186,7 @@ const { player, acquireItem } = playerStore;
 // 定义props
 const props = defineProps<{
   enemy: ICharacter;
+  sceneName?: string; // 场景名称
   showCloseButton?: boolean;
 }>();
 
@@ -307,19 +309,6 @@ const getDropItemName = (dropId: string): string => {
   const item = items[dropId] as IItem | undefined;
   return item?.name || dropId;
 };
-
-// 获取敌人描述
-const getEnemyDescription = (enemy: ICharacter): string => {
-  // 根据敌人类型和等级生成描述
-  const descriptions: Record<string, string> = {
-    'monster_goblin_001': '一种生活在黑暗洞穴中的类人生物，身材矮小但动作敏捷。它们喜欢群居生活，经常成群结队地袭击过往的旅人。',
-    'monster_goblin_elite_001': '经历过无数战斗洗礼的黑狱兵精英，战斗力远超普通黑狱兵。它们通常担任小队的首领，指挥手下进行狩猎。',
-    'monster_goblin_chief_001': '黑狱兵族群的最强者，拥有惊人的力量和防御能力。据说它曾经 single-handedly 摧毁了整个冒险者小队。',
-  };
-
-  return descriptions[enemy.id] || `一只神秘的怪物，散发着危险的气息。`;
-};
-
 </script>
 
 <style lang="scss" scoped>
@@ -329,14 +318,6 @@ const getEnemyDescription = (enemy: ICharacter): string => {
   gap: 16px;
   max-width: 800px;
   width: 100%;
-}
-
-/* 场景探索样式 */
-.scene-description {
-  color: var(--color-gray);
-  font-style: italic;
-  margin-bottom: 12px;
-  font-size: 0.95em;
 }
 
 .enemy-item {
@@ -352,14 +333,14 @@ const getEnemyDescription = (enemy: ICharacter): string => {
 }
 
 .battle-action {
-  margin-top: 16px;
+  margin-top: 12px;
   text-align: center;
 
   .btn-challenge {
-    font-size: 1.1em;
-    padding: 10px 24px;
+    padding: 8px 20px;
     border-color: var(--color-red);
     color: var(--color-red);
+    font-size: 1em;
 
     &:hover {
       background-color: rgba(255, 0, 0, 0.1);
@@ -434,106 +415,78 @@ const getEnemyDescription = (enemy: ICharacter): string => {
 
 /* 敌人详细信息面板 */
 .enemy-detail-panel {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--color-gray);
-  border-radius: 6px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 
   .enemy-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-    .enemy-type-badge {
-      color: var(--color-red);
-      font-weight: bold;
-      font-size: 0.9em;
-      padding: 2px 8px;
-      background: rgba(255, 0, 0, 0.1);
-      border-radius: 4px;
-    }
+    gap: 10px;
+    margin-bottom: 12px;
 
     .enemy-name {
       color: var(--color-yellow);
       font-weight: bold;
-      font-size: 1.2em;
+      font-size: 1.1em;
     }
 
     .enemy-level {
-      color: var(--color-gray);
-      font-size: 0.9em;
+      font-size: 0.85em;
     }
   }
 
-  .enemy-stats-grid {
+  .enemy-stats-simple {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 8px;
+    margin-bottom: 12px;
 
     .stat-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 3px;
 
       .stat-label {
-        color: var(--color-gray);
-        font-size: 0.9em;
+        font-size: 0.85em;
       }
 
       .stat-value {
         font-weight: bold;
         font-family: monospace;
-        min-width: 60px;
-        text-align: right;
-
-        &.red {
-          color: var(--color-red);
-        }
-
-        &.yellow {
-          color: var(--color-yellow);
-        }
+        font-size: 0.95em;
       }
     }
   }
 
-  .enemy-rewards-section,
-  .enemy-drops-section,
-  .enemy-description {
-    margin-top: 12px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+  .enemy-rewards-section {
+    padding: 8px 10px;
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    border-radius: 3px;
+    margin-bottom: 12px;
 
     .section-title {
       color: var(--color-cyan);
       font-weight: bold;
-      font-size: 0.95em;
-      margin-bottom: 10px;
-    }
-  }
-
-  .reward-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95em;
-
-    .exp-icon {
-      font-size: 1.2em;
+      font-size: 0.9em;
+      margin-bottom: 6px;
     }
 
-    .exp-text {
+    .reward-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9em;
       color: var(--color-gray);
+
+      .exp-icon {
+        font-size: 1.1em;
+      }
 
       .highlight {
         color: var(--color-yellow);
@@ -542,37 +495,64 @@ const getEnemyDescription = (enemy: ICharacter): string => {
     }
   }
 
-  .drop-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .enemy-drops-section {
+    padding: 8px 10px;
+    background: rgba(255, 255, 0, 0.05);
+    border: 1px solid rgba(255, 255, 0, 0.2);
+    border-radius: 3px;
 
-    .drop-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
+    .section-title {
+      color: var(--color-cyan);
+      font-weight: bold;
       font-size: 0.9em;
+      margin-bottom: 8px;
+    }
 
-      .drop-icon {
-        font-size: 1em;
-      }
+    .drop-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
 
-      .drop-name {
-        color: var(--color-cyan);
+      .drop-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+        font-size: 0.85em;
+        color: var(--color-gray);
+
+        .drop-icon {
+          font-size: 1em;
+        }
+
+        .drop-name {
+          color: var(--color-cyan);
+        }
       }
     }
   }
 
-  .desc-text {
-    color: var(--color-gray);
-    font-size: 0.9em;
-    line-height: 1.6;
-    margin: 0;
-    font-style: italic;
+  .enemy-description-section {
+    margin-top: 12px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 3px;
+
+    .section-title {
+      color: var(--color-cyan);
+      font-weight: bold;
+      font-size: 0.9em;
+      margin-bottom: 6px;
+    }
+
+    .desc-text {
+      color: var(--color-gray);
+      font-size: 0.85em;
+      line-height: 1.5;
+      margin: 0;
+    }
   }
 }
 

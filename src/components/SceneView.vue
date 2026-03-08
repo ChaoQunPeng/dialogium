@@ -87,6 +87,7 @@
       v-if="isInBattle && selectedMonster"
       :player="playerStore.finalPlayer"
       :enemy="selectedMonster"
+      :scene-name="currentScene?.name"
       :show-close-button="true"
       @battle-end="onBattleEnd"
       @close="exitBattle"

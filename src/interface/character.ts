@@ -11,6 +11,7 @@ export interface ICharacter {
   id: string; // 建议加上唯一ID
   name: string;
   type: CharacterType;
+  introduction?: string;
 
   // 基础信息（所有角色都有）
   baseInfo: {
