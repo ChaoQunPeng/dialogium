@@ -1,6 +1,6 @@
 <template>
   <div class="shop-view-wrapper">
-    <BorderContainer :title="`🏪 ${shopName}`">
+    <BorderContainer>
       <div class="shop-content">
         <!-- 商店头部信息 -->
         <div class="shop-header">
@@ -81,7 +81,6 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 // 商店信息
-const shopName = computed(() => props.npc.interact?.shopName || '神秘商店');
 const merchantName = computed(() => props.npc.name);
 const greeting = computed(() => props.npc.interact?.greeting || '欢迎光临，随便看看！');
 
@@ -146,7 +145,6 @@ const closeShop = () => {
 }
 
 .shop-content {
-  padding: 16px;
 }
 
 .shop-header {
