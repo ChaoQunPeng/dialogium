@@ -115,8 +115,6 @@ body {
   padding: 12px;
 
   .game-header {
-    margin-bottom: 12px;
-
     .header-inner {
       padding: 10px 14px;
     }

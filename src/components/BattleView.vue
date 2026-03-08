@@ -13,7 +13,7 @@
         </div>
       </div>
       <div class="battle-controls" v-if="showCloseButton">
-        <button class="close-button" @click="$emit('close')">关闭战斗</button>
+        <button class="close-button" @click="$emit('close')">返回</button>
       </div>
     </BorderContainer>
 
@@ -410,7 +410,6 @@ const rematchBattle = () => {
 /* 交互 */
 .battle-actions {
   text-align: center;
-  padding: 10px 0;
   .blink-text {
     color: var(--color-yellow);
     animation: blink 1s infinite;
