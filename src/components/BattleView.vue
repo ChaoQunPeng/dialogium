@@ -56,8 +56,10 @@
       </div>
 
       <div class="battle-actions-group">
-        <button class="action-btn btn-challenge" @click="battleEnemy">[ 尝试挑战 ]</button>
-        <button v-if="showCloseButton" class="action-btn btn-close" @click="$emit('close')">返回</button>
+        <button class="action-btn btn-challenge" @click="battleEnemy">[ 战斗 ]</button>
+        <button v-if="showCloseButton" class="action-btn btn-close" @click="$emit('close')">
+          返回
+        </button>
       </div>
     </BorderContainer>
 
@@ -328,7 +330,6 @@ const getDropItemName = (dropId: string): string => {
     gap: 8px;
   }
 }
-
 
 /* 水平战斗对峙区 */
 .battle-stage-horizontal {
@@ -655,7 +656,11 @@ const getDropItemName = (dropId: string): string => {
   text-align: center;
 
   .btn-close {
-    background: linear-gradient(180deg, rgba(150, 150, 150, 0.15) 0%, rgba(150, 150, 150, 0.05) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(150, 150, 150, 0.15) 0%,
+      rgba(150, 150, 150, 0.05) 100%
+    );
     border-color: var(--color-gray);
     color: var(--color-gray);
 

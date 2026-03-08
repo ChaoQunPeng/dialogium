@@ -42,7 +42,7 @@
                   @click.stop="challengeMonster(enemy)"
                   :class="{ 'disabled-tag': !canFightMonster(enemy), 'challenge-tag': true }"
                 >
-                  挑战
+                  战斗
                 </div>
               </div>
             </div>
@@ -65,7 +65,7 @@
                     npc.baseInfo.level ? `Lv.${npc.baseInfo.level}` : '???'
                   }}</span>
                 </div>
-                <div class="entity-tag" :class="{'merchant-tag': npc.type === 'merchant'}">
+                <div class="entity-tag" :class="{ 'merchant-tag': npc.type === 'merchant' }">
                   {{ npc.type === 'merchant' ? '商店' : '交谈' }}
                 </div>
               </div>
@@ -196,7 +196,7 @@ const exitBattle = () => {
 
 const selectNPC = (npc: ICharacter) => {
   console.log('选择了 NPC:', npc.name);
-  
+
   // 判断是否为 merchant 类型
   if (npc.type === 'merchant') {
     selectedMerchant.value = npc;
@@ -219,7 +219,7 @@ const closeShop = () => {
 
 const handlePurchase = (item: IItem) => {
   const result = playerStore.purchaseItem(item);
-  
+
   if (result.success) {
     alert(`【系统】${result.message}`);
   } else {
@@ -232,7 +232,6 @@ const canFightMonster = (monster: ICharacter): boolean => {
 };
 
 // 判断 NPC 是否可以交互（添加 merchant 类型检查）
-
 </script>
 
 <style lang="scss" scoped>
