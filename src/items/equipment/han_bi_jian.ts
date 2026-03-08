@@ -32,7 +32,7 @@ const hanBiJian: Record<string, IItem> = {
     price: 0,
     stackable: false,
     stats: {
-      mp: 80,
+      maxMp: 80,
       defense: 20,
     },
   },

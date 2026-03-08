@@ -16,7 +16,7 @@ const tanBoShouZhuo: Record<string, IItem> = {
     stackable: false,
     stats: {
       defense: 50,
-      mp: 200,
+      maxMp: 200,
     },
   },
 
@@ -31,7 +31,7 @@ const tanBoShouZhuo: Record<string, IItem> = {
     price: 0,
     stackable: false,
     stats: {
-      mp: 300,
+      maxMp: 300,
     },
   },
 };

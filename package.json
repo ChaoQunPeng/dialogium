@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "electron/main.js",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
@@ -17,7 +18,12 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron\"",
+    "build:electron": "pnpm build && electron-builder",
+    "build:electron:win": "pnpm build && electron-builder --win",
+    "build:electron:mac": "pnpm build && electron-builder --mac",
+    "build:electron:linux": "pnpm build && electron-builder --linux"
   },
   "dependencies": {
     "code-inspector-plugin": "^1.3.4",
@@ -38,7 +44,11 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "autoprefixer": "^10.4.24",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
     "cypress": "^15.8.1",
+    "electron": "^40.8.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^9.39.2",
     "eslint-plugin-cypress": "^5.2.0",
     "eslint-plugin-vue": "~10.6.2",
@@ -54,6 +64,71 @@
     "vite": "^7.3.0",
     "vite-plugin-vue-devtools": "^8.0.5",
     "vitest": "^4.0.16",
-    "vue-tsc": "^3.2.1"
+    "vue-tsc": "^3.2.1",
+    "wait-on": "^9.0.4"
+  },
+  "build": {
+    "appId": "com.dialogium.app",
+    "productName": "dialogium",
+    "directories": {
+      "output": "dist/electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "!**/原著/**/*",
+      "!**/*.log",
+      "!**/.git",
+      "!**/.github",
+      "!**/.vscode",
+      "!**/tests/**/*",
+      "!**/cypress/**/*",
+      "!**/test-results/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "public/",
+        "to": "public",
+        "filter": [
+          "**/*",
+          "!**/原著/**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "src/assets/icon.icns",
+      "category": "public.app-category.games",
+      "files": [
+        "!原著/**/*",
+        "!**/原著/**/*"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "src/assets/icon.ico",
+      "files": [
+        "!原著/**/*",
+        "!**/原著/**/*"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "src/assets/icon.png",
+      "category": "Game",
+      "files": [
+        "!原著/**/*",
+        "!**/原著/**/*"
+      ]
+    }
   }
 }

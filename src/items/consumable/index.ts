@@ -13,7 +13,7 @@ const pu_tong_cao_yao: IItem = {
   level: 1,
   price: 10,
   stats: {
-    mp: 10,
+    maxMp: 10,
   },
 };
 
@@ -30,7 +30,7 @@ const pu_tong_lan_yao: IItem = {
   level: 1,
   price: 10,
   stats: {
-    hp: 10,
+    maxHp: 10,
   },
 };
 

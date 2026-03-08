@@ -16,7 +16,7 @@ const wuSeYanLuoZhao: Record<string, IItem> = {
     stackable: false,
     stats: {
       defense: 250,
-      hp: 200,
+      maxHp: 200,
     },
   },
 
@@ -32,7 +32,7 @@ const wuSeYanLuoZhao: Record<string, IItem> = {
     stackable: false,
     stats: {
       defense: 100,
-      mp: 150,
+      maxMp: 150,
     },
   },
 };

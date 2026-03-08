@@ -1,9 +1,121 @@
-# 飘邈之旅
+# Dialogium - 飘邈之旅
 
-##### Dialogium - 文字修仙游戏
+根据萧潜同名小说《飘邈之旅》开发的文字类角色扮演游戏，通过文本叙述与交互式玩法还原小说中的修真世界。
 
-小说目录
-https://www.hetushu.com/book/3086/index.html
+## 🎮 特性
+
+- **历练战斗** - 回合制战斗系统，体验修真界的纷争
+- **修炼突破** - 境界提升系统，从筑基到渡劫的完整修真之路
+- **法宝装备** - 收集各类法宝、丹药、材料，提升战力
+- **探索星域** - 穿梭于不同星球之间，探索未知的文明
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Node.js >= 20.19.0（推荐 v22.12.0+）
+- pnpm（推荐使用 pnpm 进行依赖管理）
+
+### 安装依赖
+
+```bash
+pnpm install
+## 📄 许可证
+
+MIT License
+
+---
+
+**开发者**: Dialogium Team  
+**基于小说**: 《飘邈之旅》by 萧潜
+
+### 开发模式
+
+#### Web 开发
+```bash
+pnpm dev
+```
+
+#### Electron 桌面开发
+```bash
+pnpm dev:electron
+```
+
+这将同时启动 Vite 开发服务器和 Electron 应用，支持热更新。
+
+### 构建打包
+
+#### 构建 Web 版本
+```bash
+pnpm build
+```
+
+#### 打包 Electron 应用
+
+**跨平台打包** (根据当前系统自动选择):
+```bash
+pnpm build:electron
+```
+
+**指定平台打包**:
+```bash
+# macOS
+pnpm build:electron:mac
+
+# Windows
+pnpm build:electron:win
+
+# Linux
+pnpm build:electron:linux
+```
+
+打包完成后，可执行文件位于 `dist/electron/` 目录。
+
+## 📦 输出文件
+
+根据不同平台，生成的文件格式不同：
+
+- **macOS**: `.dmg` 安装包 和 `.zip` 压缩包
+- **Windows**: `.exe` 安装版 和 便携版
+- **Linux**: `.AppImage` 和 `.deb` 包
+
+## 🛠️ 技术栈
+
+- **前端框架**: Vue 3 (Composition API)
+- **构建工具**: Vite
+- **状态管理**: Pinia
+- **路由**: Vue Router
+- **UI 框架**: Tailwind CSS
+- **游戏引擎**: Phaser.js
+- **桌面框架**: Electron
+- **打包工具**: electron-builder
+
+## 📝 开发规范
+
+### 代码风格
+- 全项目使用 TypeScript
+- ESLint + Prettier 自动格式化
+- 变量命名使用 camelCase 格式
+
+### Git 提交
+- 提交信息应清晰描述变更内容
+- 建议使用语义化提交前缀：feat, fix, docs, style, refactor, test, chore
+
+## 🧪 测试
+
+### 单元测试
+```bash
+pnpm test:unit
+```
+
+### E2E 测试
+```bash
+# 生产模式
+pnpm test:e2e
+
+# 开发模式
+pnpm test:e2e:dev
+```
 
 ```txt
 小说目录

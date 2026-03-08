@@ -16,7 +16,7 @@ const naJieShouZhuo: Record<string, IItem> = {
     stackable: false,
     stats: {
       defense: 30,
-      mp: 100,
+      maxMp: 100,
     },
   },
 
@@ -31,7 +31,7 @@ const naJieShouZhuo: Record<string, IItem> = {
     price: 0,
     stackable: false,
     stats: {
-      mp: 150,
+      maxMp: 150,
     },
   },
 };
