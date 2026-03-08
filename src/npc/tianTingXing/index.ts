@@ -1,4 +1,6 @@
 import { CharacterType, type ICharacter } from '@/interface';
+import type { IItem } from '@/interface/item';
+import { items } from '@/items';
 
 /**
  * 赵豪 - 含林城赵记宝银饰金楼老爷子，李强的记名弟子
@@ -297,6 +299,53 @@ export const guSongHuangShang: ICharacter = {
 };
 
 /**
+ * 林万金 - 含林城最大商会的会长
+ * @description 精明的商人，掌握着整个含林城的物资流通，与各方势力都有往来，只认钱不认人，但只要有钱什么都能买到
+ * @type {ICharacter}
+ */
+export const linWanJin: ICharacter = {
+  id: 'linWanJin',
+  name: '林万金',
+  type: CharacterType.Merchant,
+  introduction: '含林城最大商会的会长，富可敌国的精明商人',
+  baseInfo: {
+    level: 8,
+    hp: 1500,
+    maxHp: 1500,
+    mp: 800,
+    maxMp: 800,
+  },
+  interact: {
+    canTalk: true,
+    services: ['shop'],
+    shopName: '万宝阁',
+    greeting: '哎呀，贵客临门！金银财宝、灵丹妙药，您想要啥？',
+    shopItems: [
+      // 丹药类
+      items.pu_tong_cao_yao,
+      items.pu_tong_lan_yao,
+      // 装备类
+      items.han_bi_jian,
+      items.jin_die_dao,
+      items.na_jie_shou_zhuo,
+      // 材料类
+      items.xuan_tie,
+      items.ge_bu_lin,
+    ].filter((item): item is IItem => item !== undefined),
+  },
+  conversations: [
+    {
+      type: 'text',
+      contentList: [
+        '哎哟，这位道友面生得很！来来来，看看我这儿有没有您需要的宝贝？',
+        '嘿嘿，只要您出得起价，别说丹药法宝，就是天上的星星我也能给您弄来！',
+        '做生意嘛，讲究的就是一个诚信！您说是不是这个理儿？',
+      ],
+    },
+  ],
+};
+
+/**
  * 统一导出所有角色配置
  * @description 便于外部模块批量导入，支持按需导入或全量导入
  */
@@ -311,4 +360,5 @@ export const tianTingXingCharacters = {
   anLang,
   yuanBa,
   guSongHuangShang,
+  linWanJin,
 };

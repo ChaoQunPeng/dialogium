@@ -1,6 +1,6 @@
 <template>
   <div class="scene-view-wrapper">
-    <BorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen">
+    <BorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
       <div class="scenes-list">
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
           <div class="scene-header">
@@ -13,7 +13,7 @@
       </div>
     </BorderContainer>
 
-    <template v-else-if="currentScene && !isInBattle && !isConversationOpen">
+    <template v-else-if="currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
       <BorderContainer :title="`${currentScene.name}`">
         <div class="scene-detail-content">
           <p class="scene-intro">{{ currentScene.description }}</p>
@@ -65,7 +65,9 @@
                     npc.baseInfo.level ? `Lv.${npc.baseInfo.level}` : '???'
                   }}</span>
                 </div>
-                <div class="entity-tag">交谈</div>
+                <div class="entity-tag" :class="{'merchant-tag': npc.type === 'merchant'}">
+                  {{ npc.type === 'merchant' ? '商店' : '交谈' }}
+                </div>
               </div>
             </div>
           </div>
@@ -100,6 +102,14 @@
       :npc="selectedNPC"
       @close="closeConversation"
     />
+
+    <!-- 商店视图 -->
+    <ShopView
+      v-if="isShopOpen && selectedMerchant"
+      :npc="selectedMerchant"
+      @close="closeShop"
+      @purchase="handlePurchase"
+    />
   </div>
 </template>
 
@@ -108,10 +118,12 @@ import { ref, computed } from 'vue';
 import { usePlayerStore } from '@/stores/player';
 import type { Scene } from '@/interface/scene';
 import type { ICharacter } from '@/interface/character';
+import type { IItem } from '@/interface/item';
 import { canFight } from '@/utils/battle';
 import BorderContainer from './borderContainer.vue';
 import BattleView from './BattleView.vue';
 import ConversationView from './ConversationView.vue';
+import ShopView from './ShopView.vue';
 import { tianTingXing } from '@/scene/tianTingXing';
 import { qianJieXing } from '@/scene/qianJieXing';
 
@@ -122,8 +134,10 @@ const scenes: Scene[] = [tianTingXing, qianJieXing];
 const currentScene = ref<Scene | null>(null);
 const selectedMonster = ref<ICharacter | null>(null);
 const selectedNPC = ref<ICharacter | null>(null);
+const selectedMerchant = ref<ICharacter | null>(null);
 const isInBattle = ref(false);
 const isConversationOpen = ref(false);
+const isShopOpen = ref(false);
 
 const enterScene = (scene: Scene) => {
   currentScene.value = scene;
@@ -144,7 +158,9 @@ const enemiesInScene = computed(() => {
 
 const npcsInScene = computed(() => {
   if (!currentScene.value) return [];
-  return currentScene.value.characters.filter((char) => char.type === 'npc');
+  return currentScene.value.characters.filter(
+    (char) => char.type === 'npc' || char.type === 'merchant',
+  );
 });
 
 const getCharacterTypeClass = (type: string): string => {
@@ -154,6 +170,7 @@ const getCharacterTypeClass = (type: string): string => {
     player: 'player-type',
     boss: 'boss-type',
     enemy: 'monster-type',
+    merchant: 'merchant-type',
   };
   return classMap[type] || 'default-type';
 };
@@ -179,8 +196,15 @@ const exitBattle = () => {
 
 const selectNPC = (npc: ICharacter) => {
   console.log('选择了 NPC:', npc.name);
-  selectedNPC.value = npc;
-  isConversationOpen.value = true;
+  
+  // 判断是否为 merchant 类型
+  if (npc.type === 'merchant') {
+    selectedMerchant.value = npc;
+    isShopOpen.value = true;
+  } else {
+    selectedNPC.value = npc;
+    isConversationOpen.value = true;
+  }
 };
 
 const closeConversation = () => {
@@ -188,9 +212,23 @@ const closeConversation = () => {
   selectedNPC.value = null;
 };
 
+const closeShop = () => {
+  isShopOpen.value = false;
+  selectedMerchant.value = null;
+};
+
+const handlePurchase = (item: IItem) => {
+  console.log('购买物品:', item);
+  // TODO: 实现购买逻辑，包括扣除货币、添加物品到背包等
+  alert(`购买了 ${item.name}，价格：${item.price ?? 0}`);
+};
+
 const canFightMonster = (monster: ICharacter): boolean => {
   return !!monster.battle && canFight(playerStore.finalPlayer, monster).canFight;
 };
+
+// 判断 NPC 是否可以交互（添加 merchant 类型检查）
+
 </script>
 
 <style lang="scss" scoped>
@@ -344,8 +382,8 @@ const canFightMonster = (monster: ICharacter): boolean => {
   color: var(--color-cyan);
 }
 
-.challenge-tag {
-  color: var(--color-red);
+.merchant-tag {
+  color: var(--color-yellow);
 }
 
 /* 类型色彩 */
@@ -357,6 +395,9 @@ const canFightMonster = (monster: ICharacter): boolean => {
 }
 .npc-type {
   color: #3bc9db;
+}
+.merchant-type {
+  color: #ffd43b;
 }
 
 .empty-state {

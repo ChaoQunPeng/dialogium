@@ -1,10 +1,13 @@
 <template>
   <div v-if="visible" class="modal-overlay" @click="handleCancel">
     <div class="modal-box" @click.stop>
-      <div class="modal-header">! 确认丢弃 !</div>
-      <div class="modal-body">确认将 [ {{ currentItem?.name }} ] 丢弃？</div>
+      <div class="modal-header">💰 确认购买</div>
+      <div class="modal-body">
+        <p>确认购买 [ {{ currentItem?.name }} ] ？</p>
+        <p class="price-info">价格：<span class="price-value">{{ currentItem?.price ?? 0 }}</span> 💰</p>
+      </div>
       <div class="modal-footer">
-        <span class="modal-btn red" @click="handleConfirm">[ 确认 ]</span>
+        <span class="modal-btn red" @click="handleConfirm">[ 购买 ]</span>
         <span class="modal-btn" @click="handleCancel">[ 取消 ]</span>
       </div>
     </div>
@@ -92,6 +95,20 @@ defineExpose({
   padding: 20px;
   color: var(--color-text);
   text-align: center;
+  
+  p {
+    margin: 8px 0;
+  }
+  
+  .price-info {
+    font-size: 1.1em;
+    color: var(--color-yellow);
+    
+    .price-value {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  }
 }
 
 .modal-footer {

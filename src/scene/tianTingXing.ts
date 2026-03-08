@@ -8,6 +8,7 @@ import {
   yuanBa,
   zhaoHao,
   fuShan,
+  linWanJin,
 } from '@/npc/index';
 
 export const tianTingXing: Scene = {
@@ -23,5 +24,6 @@ export const tianTingXing: Scene = {
     houPiJing,
     guSongHuangShang,
     fengKaiYun,
+    linWanJin,
   ],
 };

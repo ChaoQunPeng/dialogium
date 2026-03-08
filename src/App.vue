@@ -9,7 +9,7 @@
             </div>
             <div class="name-tag">
               <span class="p-name">{{ playerStore.player.name }}</span>
-              <span class="p-realm">【{{ playerStore.realm }}】</span>
+              <span class="p-realm">{{ playerStore.realm }}</span>
             </div>
           </div>
 
@@ -32,13 +32,13 @@
             </div>
           </div>
 
-          <div class="action-section">
+          <!-- <div class="action-section">
             <div class="level-box">
               <span class="label">等级</span>
               <span class="value">{{ playerStore.player.baseInfo.level }}</span>
             </div>
             <button class="mud-cmd-btn" @click="playerStore.healHp(100, true)">[ 调息 ]</button>
-          </div>
+          </div> -->
         </div>
       </BorderContainer>
     </header>
@@ -183,7 +183,6 @@ body {
 
       .attr-row {
         display: flex;
-        justify-content: space-between;
         font-family: 'Courier New', Courier, monospace; // 数值对齐
         font-size: 0.95rem;
 

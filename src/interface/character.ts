@@ -54,9 +54,11 @@ export interface ICharacter {
   // 交互相关（可选）
   interact?: {
     canTalk: boolean; // 明确标记是否能对话
-    quests?: string[]; // 关联的任务ID
+    quests?: string[]; // 关联的任务 ID
     services?: ('shop' | 'repair' | 'train')[]; // 提供的服务
     shopItems?: IItem[]; // 如果是商人
+    shopName?: string; // 商店名称
+    greeting?: string; // 商店老板的问候语
   };
 
   /**
