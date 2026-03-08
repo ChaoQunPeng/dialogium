@@ -55,12 +55,9 @@
         </div>
       </div>
 
-      <div class="battle-action">
-        <span class="cmd-btn btn-challenge" @click="battleEnemy">[ 尝试挑战 ]</span>
-      </div>
-
-      <div class="battle-controls" v-if="showCloseButton">
-        <button class="close-button" @click="$emit('close')">返回</button>
+      <div class="battle-actions-group">
+        <button class="action-btn btn-challenge" @click="battleEnemy">[ 尝试挑战 ]</button>
+        <button v-if="showCloseButton" class="action-btn btn-close" @click="$emit('close')">返回</button>
       </div>
     </BorderContainer>
 
@@ -128,8 +125,8 @@
               </div>
             </div>
             <div class="battle-actions-finished">
-              <span class="cmd-btn" @click="rematchBattle">[ 再次挑战 ]</span>
-              <span class="cmd-btn" @click="quitBattle">[ 离开战场 ]</span>
+              <button class="action-btn" @click="rematchBattle">再次挑战</button>
+              <button class="action-btn" @click="quitBattle">离开战场</button>
             </div>
           </template>
         </div>
@@ -332,44 +329,6 @@ const getDropItemName = (dropId: string): string => {
   }
 }
 
-.battle-action {
-  margin-top: 12px;
-  text-align: center;
-
-  .btn-challenge {
-    padding: 8px 20px;
-    border-color: var(--color-red);
-    color: var(--color-red);
-    font-size: 1em;
-
-    &:hover {
-      background-color: rgba(255, 0, 0, 0.1);
-      border-color: var(--color-yellow);
-      color: var(--color-yellow);
-    }
-  }
-}
-
-.battle-controls {
-  margin-top: 16px;
-  text-align: center;
-
-  .close-button {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #666;
-    color: var(--color-gray);
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: var(--color-cyan);
-      color: var(--color-cyan);
-    }
-  }
-}
 
 /* 水平战斗对峙区 */
 .battle-stage-horizontal {
@@ -632,33 +591,93 @@ const getDropItemName = (dropId: string): string => {
   }
 }
 
-/* 战斗结束按钮组 */
-.battle-actions-finished {
+/* 统一按钮样式 */
+.action-btn {
+  padding: 10px 24px;
+  font-size: 0.95em;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(180deg, rgba(0, 255, 255, 0.2) 0%, rgba(0, 255, 255, 0.1) 100%);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+  &:hover {
+    background: linear-gradient(180deg, rgba(255, 255, 0, 0.25) 0%, rgba(255, 255, 0, 0.1) 100%);
+    border-color: var(--color-yellow);
+    color: var(--color-yellow);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 255, 0, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 战斗按钮组 */
+.battle-actions-group {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  padding: 15px 0;
+  gap: 16px;
+  margin-top: 16px;
 
-  .cmd-btn {
-    padding: 8px 16px;
-    border: 1px solid var(--color-cyan);
-    border-radius: 4px;
-    transition: all 0.2s ease;
+  .action-btn {
+    min-width: 120px;
+    flex: 0 0 auto;
+  }
+}
+
+.battle-action {
+  margin-top: 16px;
+  text-align: center;
+
+  .btn-challenge {
+    background: linear-gradient(180deg, rgba(255, 0, 0, 0.2) 0%, rgba(255, 0, 0, 0.08) 100%);
+    border-color: var(--color-red);
+    color: var(--color-red);
 
     &:hover {
-      background-color: rgba(0, 255, 255, 0.1);
+      background: linear-gradient(180deg, rgba(255, 255, 0, 0.2) 0%, rgba(255, 255, 0, 0.1) 100%);
       border-color: var(--color-yellow);
       color: var(--color-yellow);
+      box-shadow: 0 4px 8px rgba(255, 0, 0, 0.4);
     }
   }
 }
 
-.cmd-btn {
-  color: var(--color-cyan);
-  cursor: pointer;
-  &:hover {
-    color: var(--color-yellow);
-    text-decoration: underline;
+.battle-controls {
+  margin-top: 16px;
+  text-align: center;
+
+  .btn-close {
+    background: linear-gradient(180deg, rgba(150, 150, 150, 0.15) 0%, rgba(150, 150, 150, 0.05) 100%);
+    border-color: var(--color-gray);
+    color: var(--color-gray);
+
+    &:hover {
+      background: linear-gradient(180deg, rgba(255, 255, 0, 0.2) 0%, rgba(255, 255, 0, 0.1) 100%);
+      border-color: var(--color-yellow);
+      color: var(--color-yellow);
+      box-shadow: 0 4px 8px rgba(255, 255, 0, 0.3);
+    }
+  }
+}
+
+/* 战斗结束按钮组 */
+.battle-actions-finished {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 15px 0;
+
+  .action-btn {
+    min-width: 120px;
+    flex: 0 0 auto;
   }
 }
 
