@@ -2,7 +2,7 @@
   <div class="app-container">
     <!-- 游戏开始界面 -->
     <StartScreen v-if="!isGameStarted" @game-started="handleGameStarted" />
-    
+
     <!-- 游戏主界面 -->
     <template v-else>
       <header class="game-header">
@@ -22,16 +22,18 @@
               <div class="status-column">
                 <div class="attr-row">
                   <span class="label">气血</span>
-                  <span class="value text-red"
-                    >{{ hp }}/{{ maxHp }}</span
-                  >
+                  <span class="value text-red">{{ hp }}/{{ maxHp }}</span>
                 </div>
                 <div class="attr-row">
                   <span class="label">灵力</span>
-                  <span class="value text-cyan"
-                    >{{ mp }}/{{ maxMp }}</span
-                  >
+                  <span class="value text-cyan">{{ mp }}/{{ maxMp }}</span>
                 </div>
+              </div>
+
+              <!-- 灵石显示 -->
+              <div class="currency-display">
+                <span class="currency-label">💰 灵石：</span>
+                <span class="currency-value">{{ playerCurrency }}</span>
               </div>
             </div>
           </div>
@@ -74,6 +76,7 @@ const hp = ref(100);
 const maxHp = ref(100);
 const mp = ref(50);
 const maxMp = ref(50);
+const playerCurrency = ref(1000); // 新增：玩家灵石数量，默认1000
 
 // 监听子组件的游戏启动事件
 const handleGameStarted = () => {
@@ -93,6 +96,7 @@ const loadPlayerData = () => {
       maxHp.value = playerData.finalStats?.maxHp || 100;
       mp.value = playerData.player?.baseInfo?.mp || 50;
       maxMp.value = playerData.finalStats?.maxMp || 50;
+      playerCurrency.value = playerData.player?.currency ?? 1000; // 加载灵石数量
     }
   } catch (error) {
     console.warn('加载玩家数据失败:', error);
@@ -208,8 +212,6 @@ body {
       flex: 1;
       display: flex;
       gap: 30px;
-      border-left: 1px solid #333;
-      border-right: 1px solid #333;
       padding: 0 20px;
 
       .status-column {
@@ -219,11 +221,14 @@ body {
         gap: 4px;
       }
 
-      .attr-row {
+      .attr-row,
+      .currency-display {
         display: flex;
         font-family: 'Courier New', Courier, monospace; // 数值对齐
         font-size: 0.95rem;
+      }
 
+      .attr-row {
         .label {
           color: #ddd;
           margin-right: 8px;
@@ -286,6 +291,25 @@ body {
   }
   .text-yellow {
     color: var(--color-yellow);
+  }
+
+  /* 灵石显示样式 */
+  .currency-display {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .currency-label {
+      font-size: 14px;
+      color: var(--text-main);
+      margin-right: 8px;
+    }
+
+    .currency-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--color-yellow);
+    }
   }
   .game-content {
     flex: 1;

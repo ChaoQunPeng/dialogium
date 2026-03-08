@@ -5,6 +5,11 @@
         <h1 class="game-title">
           <span class="title-main">飘邈之旅</span>
         </h1>
+
+        <div class="tribute-text">
+          <span>根据同名小说《飘邈之旅》开发</span>
+        </div>
+
         <div class="tagline-wrapper">
           <p class="tagline">
             也许会看到先进的文明，也许会看到诱人的法宝，也许会看到仙人的遗迹...
@@ -26,7 +31,7 @@
       <div class="action-area">
         <div class="loading-hint" v-if="isLoading">
           <span class="loading-spinner"></span>
-          <span class="loading-text">正在初始化世界...</span>
+          <span class="loading-text">正在进入修真界...</span>
         </div>
 
         <button v-else class="text-btn" @click="handleStart">
@@ -53,8 +58,7 @@ const handleStart = async () => {
   isLoading.value = true;
 
   try {
-    // 模拟修仙意境的加载感
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     await initializeGame();
     emit('game-started');
   } catch (error) {
@@ -69,7 +73,8 @@ const handleStart = async () => {
 .start-screen {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  // 深邃的星空渐变
+  background: linear-gradient(135deg, #050505 0%, #1a1a2e 50%, #16213e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,8 +86,8 @@ const handleStart = async () => {
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 20% 30%, rgba(76, 224, 208, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(238, 196, 63, 0.1) 0%, transparent 50%);
+      radial-gradient(circle at 20% 30%, rgba(64, 224, 208, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(238, 196, 63, 0.05) 0%, transparent 50%);
     animation: pulse-bg 8s ease-in-out infinite alternate;
   }
 }
@@ -91,24 +96,23 @@ const handleStart = async () => {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 20px;
+  padding: 0 40px;
   width: 100%;
   max-width: 580px;
   animation: fadeInUp 1s ease-out;
 }
 
-/* 核心标题：保留最初的霸气效果 */
 .title-section {
   margin-bottom: 30px;
 }
 
 .game-title {
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   animation: title-glow 2s ease-in-out infinite alternate;
 
   .title-main {
     display: block;
-    font-size: 4rem; // 恢复大号字
+    font-size: 4rem;
     font-weight: bold;
     background: linear-gradient(45deg, #40e0d0, #eec43f);
     -webkit-background-clip: text;
@@ -120,19 +124,29 @@ const handleStart = async () => {
   }
 }
 
+/* 根据同名小说开发：采用更纤细的字重，增加神秘感 */
+.tribute-text {
+  font-family: 'PingFang SC', 'STKaiti', serif;
+  font-size: 0.75rem;
+  color: #fff;
+  opacity: 0.3;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+
 .tagline-wrapper {
   max-width: 450px;
   margin: 0 auto;
   .tagline {
     font-size: 0.95rem;
-    color: rgba(160, 160, 160, 0.8);
+    color: rgba(160, 160, 160, 0.7);
     font-family: 'STKaiti', serif;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     line-height: 1.6;
   }
 }
 
-/* 文字排版 Feature 区域 */
 .feature-text-flow {
   margin: 30px 0 45px;
   display: flex;
@@ -153,7 +167,7 @@ const handleStart = async () => {
   }
 
   .feat-sep {
-    color: var(--color-cyan);
+    color: rgba(255, 255, 255, 0.15);
     font-weight: bold;
   }
 }
@@ -162,7 +176,6 @@ const handleStart = async () => {
   min-height: 80px;
 }
 
-/* 文字按钮：[ 开启旅程 ] */
 .text-btn {
   background: transparent;
   border: none;
@@ -196,7 +209,7 @@ const handleStart = async () => {
       text-shadow:
         0 0 15px #40e0d0,
         0 0 30px rgba(64, 224, 208, 0.6);
-      letter-spacing: 10px; // 悬浮时字间距微增，更有张力
+      letter-spacing: 10px;
     }
     .btn-glow {
       opacity: 1;
@@ -231,7 +244,6 @@ const handleStart = async () => {
   }
 }
 
-/* 动画定义 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
