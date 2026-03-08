@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 游戏开始界面 -->
-    <StartScreen v-if="!playerStore.isGameStarted" />
+    <StartScreen v-if="!isGameStarted" @game-started="handleGameStarted" />
     
     <!-- 游戏主界面 -->
     <template v-else>
@@ -13,8 +13,8 @@
                 <img src="./assets/avatar.png" alt="修仙者" />
               </div>
               <div class="name-tag">
-                <span class="p-name">{{ playerStore.player.name }}</span>
-                <span class="p-realm">{{ playerStore.realm }}</span>
+                <span class="p-name">{{ playerName }}</span>
+                <span class="p-realm">{{ realmLevel }}</span>
               </div>
             </div>
 
@@ -23,15 +23,13 @@
                 <div class="attr-row">
                   <span class="label">气血</span>
                   <span class="value text-red"
-                    >{{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}</span
+                    >{{ hp }}/{{ maxHp }}</span
                   >
                 </div>
                 <div class="attr-row">
                   <span class="label">灵力</span>
                   <span class="value text-cyan"
-                    >{{ playerStore.player.baseInfo.mp || 0 }}/{{
-                      playerStore.finalStats.maxMp || 0
-                    }}</span
+                    >{{ mp }}/{{ maxMp }}</span
                   >
                 </div>
               </div>
@@ -60,13 +58,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import StartScreen from './components/StartScreen.vue';
 import SceneView from './components/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
-import { usePlayerStore } from '@/stores/player';
+import { STORAGE_KEYS } from '@/constants';
 
-const playerStore = usePlayerStore();
+// 游戏启动状态 - 直接从 localStorage 读取
+const isGameStarted = ref(false);
+
+// 玩家基础信息（从 localStorage 读取）
+const playerName = ref('无名');
+const realmLevel = ref('凡人');
+const hp = ref(100);
+const maxHp = ref(100);
+const mp = ref(50);
+const maxMp = ref(50);
+
+// 监听子组件的游戏启动事件
+const handleGameStarted = () => {
+  isGameStarted.value = true;
+  loadPlayerData();
+};
+
+// 从 localStorage 加载玩家数据
+const loadPlayerData = () => {
+  try {
+    const savedData = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
+    if (savedData) {
+      const playerData = JSON.parse(savedData);
+      playerName.value = playerData.player?.name || '无名';
+      realmLevel.value = playerData.realm || '凡人';
+      hp.value = playerData.player?.baseInfo?.hp || 100;
+      maxHp.value = playerData.finalStats?.maxHp || 100;
+      mp.value = playerData.player?.baseInfo?.mp || 50;
+      maxMp.value = playerData.finalStats?.maxMp || 50;
+    }
+  } catch (error) {
+    console.warn('加载玩家数据失败:', error);
+  }
+};
+
+// 组件挂载时检查 localStorage
+onMounted(() => {
+  const hasPlayerData = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
+  isGameStarted.value = !!hasPlayerData;
+  if (isGameStarted.value) {
+    loadPlayerData();
+  }
+  console.log('🎭 App.vue 初始化检查 - 游戏是否已启动:', isGameStarted.value);
+});
 
 // 定义 Tab 数据
 const tabs = [

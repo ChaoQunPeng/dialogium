@@ -374,7 +374,10 @@ export const usePlayerStore = defineStore('player', () => {
    * 设置游戏启动状态
    */
   const setGameStarted = (started: boolean) => {
+    console.log('📢 setGameStarted 被调用，started =', started);
+    console.log('📢 调用前 isGameStarted.value =', isGameStarted.value);
     isGameStarted.value = started;
+    console.log('📢 调用后 isGameStarted.value =', isGameStarted.value);
   };
 
   return {

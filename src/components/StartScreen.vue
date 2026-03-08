@@ -29,15 +29,15 @@
         </div>
       </div>
 
-      <button class="start-btn" @click="handleStart">
+      <div class="loading-hint" v-if="isLoading">
+        <span class="loading-spinner"></span>
+        <span class="loading-text">正在进入修真界...</span>
+      </div>
+
+      <button v-else class="start-btn" @click="handleStart">
         <span class="btn-text">开启你的飘邈之旅</span>
         <span class="btn-glow"></span>
       </button>
-
-      <div class="loading-hint" v-if="isLoading">
-        <span class="loading-spinner"></span>
-        <span class="loading-text">正在初始化世界...</span>
-      </div>
     </div>
   </div>
 </template>
@@ -48,17 +48,29 @@ import { initializeGame } from '@/utils/initialize';
 
 const isLoading = ref(false);
 
+// 定义 emit
+const emit = defineEmits<{
+  'game-started': [];
+}>();
+
 const handleStart = async () => {
   if (isLoading.value) return;
 
   isLoading.value = true;
 
   try {
+    console.log('🎮 开始初始化游戏...');
+
+    // 延时模拟加载过程
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     // 执行游戏初始化
     await initializeGame();
 
-    // 注意：不再需要手动设置状态，initializeGame 会写入 localStorage，
-    // isGameStarted 计算属性会自动检测到变化并更新
+    // 通知父组件游戏已启动
+    emit('game-started');
+    console.log('✅ 游戏启动状态已确认');
+    console.log('✅ 即将进入游戏主界面...');
   } catch (error) {
     console.error('游戏初始化失败:', error);
     isLoading.value = false;
@@ -137,7 +149,7 @@ const handleStart = async () => {
 }
 
 .tagline {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #a0a0a0;
   font-family: 'STKaiti', serif;
   letter-spacing: 4px;
