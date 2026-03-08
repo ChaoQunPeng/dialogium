@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 游戏开始界面 -->
-    <StartScreen v-if="!isGameStarted" @game-started="handleGameStarted" />
+    <StartScreen v-if="!playerStore.isGameStarted" @game-started="handleGameStarted" />
 
     <!-- 游戏主界面 -->
     <template v-else>
@@ -13,8 +13,8 @@
                 <img src="./assets/avatar.png" alt="修仙者" />
               </div>
               <div class="name-tag">
-                <span class="p-name">{{ playerName }}</span>
-                <span class="p-realm">{{ realmLevel }}</span>
+                <span class="p-name">{{ playerStore.player.name || '无名' }}</span>
+                <span class="p-realm">{{ playerStore.realm || '凡人' }}</span>
               </div>
             </div>
 
@@ -22,18 +22,18 @@
               <div class="status-column">
                 <div class="attr-row">
                   <span class="label">气血</span>
-                  <span class="value text-red">{{ hp }}/{{ maxHp }}</span>
+                  <span class="value text-red">{{ playerStore.player.baseInfo.hp || 100 }}/{{ playerStore.finalStats.maxHp || 100 }}</span>
                 </div>
                 <div class="attr-row">
                   <span class="label">灵力</span>
-                  <span class="value text-cyan">{{ mp }}/{{ maxMp }}</span>
+                  <span class="value text-cyan">{{ playerStore.player.baseInfo.mp || 50 }}/{{ playerStore.finalStats.maxMp || 50 }}</span>
                 </div>
               </div>
 
               <!-- 灵石显示 -->
               <div class="currency-display">
                 <span class="currency-label">💰 灵石：</span>
-                <span class="currency-value">{{ playerCurrency }}</span>
+                <span class="currency-value">{{ playerStore.player.currency ?? 1000 }}</span>
               </div>
             </div>
           </div>
@@ -64,53 +64,24 @@ import { ref, onMounted } from 'vue';
 import StartScreen from './components/StartScreen.vue';
 import SceneView from './components/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
+import { usePlayerStore } from '@/stores/player';
 import { STORAGE_KEYS } from '@/constants';
 
-// 游戏启动状态 - 直接从 localStorage 读取
-const isGameStarted = ref(false);
-
-// 玩家基础信息（从 localStorage 读取）
-const playerName = ref('无名');
-const realmLevel = ref('凡人');
-const hp = ref(100);
-const maxHp = ref(100);
-const mp = ref(50);
-const maxMp = ref(50);
-const playerCurrency = ref(1000); // 新增：玩家灵石数量，默认1000
+// 引入 player store
+const playerStore = usePlayerStore();
 
 // 监听子组件的游戏启动事件
 const handleGameStarted = () => {
-  isGameStarted.value = true;
-  loadPlayerData();
-};
-
-// 从 localStorage 加载玩家数据
-const loadPlayerData = () => {
-  try {
-    const savedData = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
-    if (savedData) {
-      const playerData = JSON.parse(savedData);
-      playerName.value = playerData.player?.name || '无名';
-      realmLevel.value = playerData.realm || '凡人';
-      hp.value = playerData.player?.baseInfo?.hp || 100;
-      maxHp.value = playerData.finalStats?.maxHp || 100;
-      mp.value = playerData.player?.baseInfo?.mp || 50;
-      maxMp.value = playerData.finalStats?.maxMp || 50;
-      playerCurrency.value = playerData.player?.currency ?? 1000; // 加载灵石数量
-    }
-  } catch (error) {
-    console.warn('加载玩家数据失败:', error);
-  }
+  playerStore.setGameStarted(true);
 };
 
 // 组件挂载时检查 localStorage
 onMounted(() => {
   const hasPlayerData = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
-  isGameStarted.value = !!hasPlayerData;
-  if (isGameStarted.value) {
-    loadPlayerData();
+  if (hasPlayerData) {
+    playerStore.setGameStarted(true);
   }
-  console.log('🎭 App.vue 初始化检查 - 游戏是否已启动:', isGameStarted.value);
+  console.log('🎭 App.vue 初始化检查 - 游戏是否已启动:', playerStore.isGameStarted);
 });
 
 // 定义 Tab 数据
