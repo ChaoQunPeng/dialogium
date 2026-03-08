@@ -1,6 +1,6 @@
 <template>
   <div class="scene-view-wrapper">
-    <BorderContainer v-if="!currentScene && !isInBattle">
+    <BorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen">
       <div class="scenes-list">
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
           <div class="scene-header">
@@ -13,7 +13,7 @@
       </div>
     </BorderContainer>
 
-    <template v-else-if="currentScene && !isInBattle">
+    <template v-else-if="currentScene && !isInBattle && !isConversationOpen">
       <BorderContainer :title="`${currentScene.name}`">
         <div class="scene-detail-content">
           <p class="scene-intro">{{ currentScene.description }}</p>
@@ -83,6 +83,7 @@
       </BorderContainer>
     </template>
 
+    <!-- 战斗视图 -->
     <BattleView
       v-if="isInBattle && selectedMonster"
       :player="playerStore.finalPlayer"
@@ -91,6 +92,13 @@
       :show-close-button="true"
       @battle-end="onBattleEnd"
       @close="exitBattle"
+    />
+
+    <!-- 对话视图 -->
+    <ConversationView
+      v-if="isConversationOpen && selectedNPC"
+      :npc="selectedNPC"
+      @close="closeConversation"
     />
   </div>
 </template>
@@ -103,6 +111,7 @@ import type { ICharacter } from '@/interface/character';
 import { canFight } from '@/utils/battle';
 import BorderContainer from './borderContainer.vue';
 import BattleView from './BattleView.vue';
+import ConversationView from './ConversationView.vue';
 import { tianTingXing } from '@/scene/tianTingXing';
 import { qianJieXing } from '@/scene/qianJieXing';
 
@@ -112,7 +121,9 @@ const scenes: Scene[] = [tianTingXing, qianJieXing];
 
 const currentScene = ref<Scene | null>(null);
 const selectedMonster = ref<ICharacter | null>(null);
+const selectedNPC = ref<ICharacter | null>(null);
 const isInBattle = ref(false);
+const isConversationOpen = ref(false);
 
 const enterScene = (scene: Scene) => {
   currentScene.value = scene;
@@ -121,6 +132,7 @@ const enterScene = (scene: Scene) => {
 const exitScene = () => {
   currentScene.value = null;
   selectedMonster.value = null;
+  selectedNPC.value = null;
 };
 
 const enemiesInScene = computed(() => {
@@ -167,6 +179,13 @@ const exitBattle = () => {
 
 const selectNPC = (npc: ICharacter) => {
   console.log('选择了 NPC:', npc.name);
+  selectedNPC.value = npc;
+  isConversationOpen.value = true;
+};
+
+const closeConversation = () => {
+  isConversationOpen.value = false;
+  selectedNPC.value = null;
 };
 
 const canFightMonster = (monster: ICharacter): boolean => {

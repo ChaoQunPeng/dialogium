@@ -28,14 +28,19 @@ const content = ref('');
 
 onMounted(() => {
   const currentInstance = getCurrentInstance();
-  typewriterContainer!.save(currentInstance!.uid.toString(), {
-    showAll,
-    handleStart,
-    handlePause,
-    isTyping,
-    isDone,
-    isPause,
-  });
+  
+  // 只有在提供了 typeWriterManager 时才注册
+  if (typewriterContainer && currentInstance) {
+    typewriterContainer.save(currentInstance.uid.toString(), {
+      showAll,
+      handleStart,
+      handlePause,
+      isTyping,
+      isDone,
+      isPause,
+    });
+  }
+  
   getRandomContent();
   handleStart();
 });
