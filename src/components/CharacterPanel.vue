@@ -1,8 +1,11 @@
 <template>
   <div>
     <BorderContainer title="个人属性">
-      <div>攻击力: {{ playerStore.finalStats.attack }}</div>
-      <div>防御力: {{ playerStore.finalStats.defense }}</div>
+      <div class="flex justify-between">
+        <div>攻击: {{ playerStore.finalStats.attack }}</div>
+        <div>防御: {{ playerStore.finalStats.defense }}</div>
+        <div>生命: {{ playerStore.finalStats.maxHp }}</div>
+      </div>
     </BorderContainer>
 
     <BorderContainer title="穿戴装备">
@@ -185,6 +188,37 @@ const filteredInventory = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+/* 移除了复杂的网格样式，使用最基本的flex布局 */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+
+  .stat-label {
+    color: var(--color-text, #ccc);
+    font-size: 0.9em;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    color: var(--color-yellow, #ffd700);
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+}
+
 .tab-row {
   display: flex;
 

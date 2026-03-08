@@ -30,16 +30,6 @@
                 >
               </div>
             </div>
-            <div class="status-column">
-              <div class="attr-row">
-                <span class="label">攻击</span>
-                <span class="value text-yellow">{{ playerStore.finalPlayer.battle!.attack }}</span>
-              </div>
-              <div class="attr-row">
-                <span class="label">防御</span>
-                <span class="value text-green">{{ playerStore.finalPlayer.battle!.defense }}</span>
-              </div>
-            </div>
           </div>
 
           <div class="action-section">
