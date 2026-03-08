@@ -46,8 +46,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { initializeGame } from '@/utils/initialize';
+import { usePlayerStore } from '@/stores/player';
 
 const isLoading = ref(false);
+const playerStore = usePlayerStore();
 
 const emit = defineEmits<{
   'game-started': [];
@@ -59,7 +61,16 @@ const handleStart = async () => {
 
   try {
     await new Promise((resolve) => setTimeout(resolve, 3000));
+    
+    // 1. 先执行游戏初始化（设置 localStorage）
     await initializeGame();
+    
+    // 2. 然后刷新 playerStore 的数据
+    playerStore.initialize();
+    
+    console.log('✅ 游戏数据初始化完成，playerStore 已同步');
+    
+    // 3. 通知父组件游戏已启动
     emit('game-started');
   } catch (error) {
     console.error('游戏初始化失败:', error);

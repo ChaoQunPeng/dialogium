@@ -371,6 +371,26 @@ export const usePlayerStore = defineStore('player', () => {
   };
 
   /**
+   * 显式初始化方法
+   * 用于在设置 localStorage 数据后重新加载玩家和背包数据
+   */
+  const initialize = () => {
+    const initialData = getInitialPlayer();
+    const initialItems = getInitialInventory();
+    
+    // 重置玩家数据
+    Object.assign(player, initialData);
+    
+    // 重置背包数据
+    inventory.value = [...initialItems];
+    
+    console.log('✅ 玩家数据初始化完成', { 
+      player: { ...player }, 
+      inventory: inventory.value 
+    });
+  };
+
+  /**
    * 设置游戏启动状态
    */
   const setGameStarted = (started: boolean) => {
@@ -398,5 +418,6 @@ export const usePlayerStore = defineStore('player', () => {
     gainExp,
     mergeInventory,
     purchaseItem,
+    initialize,
   };
 });
