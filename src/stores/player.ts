@@ -9,6 +9,9 @@ import { formatLevel, getRealmConfig, getRequiredExp } from '@/utils/levelManage
 export const usePlayerStore = defineStore('player', () => {
   // --- 1. 数据初始化 (State) ---
 
+  // 游戏启动状态（使用响应式变量而非计算属性）
+  const isGameStarted = ref(false);
+
   // 玩家基础信息
   const getInitialPlayer = (): ICharacter => {
     const local = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
@@ -125,11 +128,13 @@ export const usePlayerStore = defineStore('player', () => {
   /** 获得物品 */
   const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {
     console.log(`🎁 开始添加物品，待添加列表：`, itemsToAdd);
-    
+
     itemsToAdd.forEach((newItem) => {
       const existing = inventory.value.find((i) => i.mid === newItem.itemId && i.e === 0);
       if (existing) {
-        console.log(`📦 找到相同物品 ${newItem.itemId}，堆叠数量：${existing.n} -> ${existing.n + newItem.count}`);
+        console.log(
+          `📦 找到相同物品 ${newItem.itemId}，堆叠数量：${existing.n} -> ${existing.n + newItem.count}`,
+        );
         existing.n += newItem.count;
       } else {
         const newItemInstance = {
@@ -143,7 +148,7 @@ export const usePlayerStore = defineStore('player', () => {
         inventory.value.push(newItemInstance);
       }
     });
-    
+
     console.log(`📦 当前背包所有物品：`, inventory.value);
   };
 
@@ -299,7 +304,7 @@ export const usePlayerStore = defineStore('player', () => {
    */
   const purchaseItem = (item: IItem) => {
     const price = item.price ?? 0;
-    
+
     // 1. 检查货币是否足够
     const currentCurrency = player.currency ?? 0;
     if (currentCurrency < price) {
@@ -317,12 +322,12 @@ export const usePlayerStore = defineStore('player', () => {
     const itemId = item.id;
     console.log(`📦 准备添加物品到背包：${item.name} (ID: ${itemId})`);
     console.log(`📦 当前背包物品数量：${inventory.value.length}`);
-    
+
     acquireItem([{ itemId, count: 1 }]);
-    
+
     console.log(`📦 添加后背包物品数量：${inventory.value.length}`);
     console.log(`✅ 购买了 ${item.name}，花费 ${price} 灵石`);
-    
+
     return {
       success: true,
       message: `成功购买 ${item.name}，花费 ${price} 灵石`,
@@ -365,12 +370,21 @@ export const usePlayerStore = defineStore('player', () => {
     }
   };
 
+  /**
+   * 设置游戏启动状态
+   */
+  const setGameStarted = (started: boolean) => {
+    isGameStarted.value = started;
+  };
+
   return {
     player,
     inventory,
     finalStats,
     realm,
     finalPlayer,
+    isGameStarted,
+    setGameStarted,
     acquireItem,
     equipItem,
     unequipItem,

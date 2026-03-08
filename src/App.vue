@@ -1,80 +1,77 @@
 <template>
   <div class="app-container">
-    <header class="game-header">
-      <BorderContainer class="header-inner">
-        <div class="mud-horizontal-layout">
-          <div class="identity-section">
-            <div class="avatar-box">
-              <img src="./assets/avatar.png" alt="修仙者" />
-            </div>
-            <div class="name-tag">
-              <span class="p-name">{{ playerStore.player.name }}</span>
-              <span class="p-realm">{{ playerStore.realm }}</span>
-            </div>
-          </div>
-
-          <div class="status-grid-horizontal">
-            <div class="status-column">
-              <div class="attr-row">
-                <span class="label">气血</span>
-                <span class="value text-red"
-                  >{{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}</span
-                >
+    <!-- 游戏开始界面 -->
+    <StartScreen v-if="!playerStore.isGameStarted" />
+    
+    <!-- 游戏主界面 -->
+    <template v-else>
+      <header class="game-header">
+        <BorderContainer class="header-inner">
+          <div class="mud-horizontal-layout">
+            <div class="identity-section">
+              <div class="avatar-box">
+                <img src="./assets/avatar.png" alt="修仙者" />
               </div>
-              <div class="attr-row">
-                <span class="label">灵力</span>
-                <span class="value text-cyan"
-                  >{{ playerStore.player.baseInfo.mp || 0 }}/{{
-                    playerStore.finalStats.maxMp || 0
-                  }}</span
-                >
+              <div class="name-tag">
+                <span class="p-name">{{ playerStore.player.name }}</span>
+                <span class="p-realm">{{ playerStore.realm }}</span>
               </div>
             </div>
-          </div>
 
-          <!-- <div class="action-section">
-            <div class="level-box">
-              <span class="label">等级</span>
-              <span class="value">{{ playerStore.player.baseInfo.level }}</span>
+            <div class="status-grid-horizontal">
+              <div class="status-column">
+                <div class="attr-row">
+                  <span class="label">气血</span>
+                  <span class="value text-red"
+                    >{{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}</span
+                  >
+                </div>
+                <div class="attr-row">
+                  <span class="label">灵力</span>
+                  <span class="value text-cyan"
+                    >{{ playerStore.player.baseInfo.mp || 0 }}/{{
+                      playerStore.finalStats.maxMp || 0
+                    }}</span
+                  >
+                </div>
+              </div>
             </div>
-            <button class="mud-cmd-btn" @click="playerStore.healHp(100, true)">[ 调息 ]</button>
-          </div> -->
+          </div>
+        </BorderContainer>
+      </header>
+
+      <main class="game-content">
+        <CharacterPanel v-show="activeTab === 'realm'" />
+        <SceneView v-show="activeTab === 'adventure'" />
+      </main>
+
+      <footer class="game-nav flex">
+        <div
+          v-for="tab in tabs"
+          :key="tab.id"
+          :class="['nav-item', { active: activeTab === tab.id }]"
+          @click="activeTab = tab.id"
+        >
+          <span class="nav-text">{{ tab.name }}</span>
         </div>
-      </BorderContainer>
-    </header>
-
-    <main class="game-content">
-      <CharacterPanel v-show="activeTab === 'realm'" />
-      <SceneView v-show="activeTab === 'adventure'" />
-      <!-- <CultivationPanel v-if="activeTab === 'practice'" /> -->
-    </main>
-
-    <footer class="game-nav flex">
-      <div
-        v-for="tab in tabs"
-        :key="tab.id"
-        :class="['nav-item', { active: activeTab === tab.id }]"
-        @click="activeTab = tab.id"
-      >
-        <span class="nav-text">{{ tab.name }}</span>
-      </div>
-    </footer>
+      </footer>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import StartScreen from './components/StartScreen.vue';
 import SceneView from './components/SceneView.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
-// import CultivationPanel from './components/CultivationPanel.vue';
 import { usePlayerStore } from '@/stores/player';
+
 const playerStore = usePlayerStore();
 
-// 定义 Tab 数据，第三个修改为"修炼"
+// 定义 Tab 数据
 const tabs = [
   { id: 'realm', name: '修为' },
   { id: 'adventure', name: '历练' },
-  // { id: 'practice', name: '修炼' }, // 修改此处 id 和 name
 ];
 
 const activeTab = ref('realm');

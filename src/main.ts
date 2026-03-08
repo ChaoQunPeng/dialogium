@@ -1,11 +1,11 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { initializeGame } from '@/utils/initialize';
 
 // 导入 TailwindCSS 样式
 import './assets/main.css';
 
-initializeGame();
+// 注意：游戏初始化已移至开始界面，用户点击开始按钮后才执行
+// initializeGame();
 
 import App from './App.vue';
 import router from './router';
