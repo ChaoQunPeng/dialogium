@@ -2,16 +2,62 @@
   <div class="mud-game-wrapper">
     <BorderContainer v-if="!isInBattle" title="当前场景：荒野林径">
       <div class="scene-description">你环顾四周，林中迷雾缭绕，远处隐约传来阵阵低吼...</div>
-      <div class="enemy-list">
-        <div class="enemy-item">
-          <span class="m-info">
-            <span class="red">【怪物】</span>
-            <span class="bold">{{ enemy.name }}</span>
-            <span class="gray">(等级: {{ enemy.baseInfo.level }})</span>
-          </span>
-          <span class="cmd-btn" @click="battleEnemy">[ 尝试挑战 ]</span>
+      
+      <!-- 敌人详细信息面板 -->
+      <div class="enemy-detail-panel">
+        <div class="enemy-header">
+          <span class="enemy-type-badge">【怪物】</span>
+          <span class="enemy-name">{{ enemy.name }}</span>
+          <span class="enemy-level">LV.{{ enemy.baseInfo.level }}</span>
+        </div>
+        
+        <div class="enemy-stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">生命值</span>
+            <span class="stat-value">{{ enemy.baseInfo.hp }} / {{ enemy.baseInfo.maxHp }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">法力值</span>
+            <span class="stat-value">{{ enemy.baseInfo.mp }} / {{ enemy.baseInfo.maxMp }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">攻击力</span>
+            <span class="stat-value red">{{ enemy.battle?.attack ?? 0 }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">防御力</span>
+            <span class="stat-value yellow">{{ enemy.battle?.defense ?? 0 }}</span>
+          </div>
+        </div>
+
+        <div class="enemy-rewards-section">
+          <div class="section-title">📦 击败奖励</div>
+          <div class="reward-info">
+            <span class="exp-icon">✨</span>
+            <span class="exp-text">经验值：<span class="highlight">{{ enemy.battle?.exp ?? 0 }}</span> 点</span>
+          </div>
+        </div>
+
+        <div class="enemy-drops-section" v-if="enemy.battle?.dropList && enemy.battle.dropList.length > 0">
+          <div class="section-title">🎁 可能掉落</div>
+          <div class="drop-list">
+            <div v-for="(dropId, index) in enemy.battle.dropList" :key="index" class="drop-item">
+              <span class="drop-icon">📦</span>
+              <span class="drop-name">{{ getDropItemName(dropId) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="enemy-description">
+          <div class="section-title">📖 怪物介绍</div>
+          <p class="desc-text">{{ getEnemyDescription(enemy) }}</p>
         </div>
       </div>
+
+      <div class="battle-action">
+        <span class="cmd-btn btn-challenge" @click="battleEnemy">[ 尝试挑战 ]</span>
+      </div>
+      
       <div class="battle-controls" v-if="showCloseButton">
         <button class="close-button" @click="$emit('close')">返回</button>
       </div>
@@ -19,6 +65,7 @@
 
     <div v-else class="battle-scene">
       <BorderContainer :title="`正在与 ${enemy.name} 厮杀 (回合 ${currentTurns || 1})`">
+        <!-- 战斗对峙界面 -->
         <div class="battle-stage-horizontal">
           <div class="unit-panel">
             <div class="u-header">
@@ -69,14 +116,14 @@
             <!-- 显示战斗奖励 -->
             <div v-if="battleRewards" class="battle-rewards">
               <div v-if="battleRewards.expGained > 0" class="reward-item">
-                ✨ 获得经验: {{ battleRewards.expGained }} 点
+                ✨ 获得经验：<span class="highlight">{{ battleRewards.expGained }}</span> 点
               </div>
               <div
                 v-for="(item, index) in battleRewards.droppedItems"
                 :key="index"
                 class="reward-item"
               >
-                🎉 获得物品: {{ item.name }} x{{ item.count }}
+                🎉 获得物品：<span class="highlight">{{ item.name }}</span> x{{ item.count }}
               </div>
             </div>
             <div class="battle-actions-finished">
@@ -127,6 +174,8 @@ import { usePlayerStore } from '@/stores/player';
 import { useBattle } from '@/hooks/useBattle';
 import { canFight } from '@/utils/battle';
 import type { ICharacter } from '@/interface/character';
+import type { IItem } from '@/interface/item';
+import { items } from '@/items';
 import BorderContainer from './borderContainer.vue';
 
 // 重新导入store以刷新类型
@@ -252,6 +301,25 @@ const rematchBattle = () => {
     battleEnemy();
   }, 500);
 };
+
+// 获取掉落物品名称
+const getDropItemName = (dropId: string): string => {
+  const item = items[dropId] as IItem | undefined;
+  return item?.name || dropId;
+};
+
+// 获取敌人描述
+const getEnemyDescription = (enemy: ICharacter): string => {
+  // 根据敌人类型和等级生成描述
+  const descriptions: Record<string, string> = {
+    'monster_goblin_001': '一种生活在黑暗洞穴中的类人生物，身材矮小但动作敏捷。它们喜欢群居生活，经常成群结队地袭击过往的旅人。',
+    'monster_goblin_elite_001': '经历过无数战斗洗礼的黑狱兵精英，战斗力远超普通黑狱兵。它们通常担任小队的首领，指挥手下进行狩猎。',
+    'monster_goblin_chief_001': '黑狱兵族群的最强者，拥有惊人的力量和防御能力。据说它曾经 single-handedly 摧毁了整个冒险者小队。',
+  };
+
+  return descriptions[enemy.id] || `一只神秘的怪物，散发着危险的气息。`;
+};
+
 </script>
 
 <style lang="scss" scoped>
@@ -280,6 +348,24 @@ const rematchBattle = () => {
   .m-info {
     display: flex;
     gap: 8px;
+  }
+}
+
+.battle-action {
+  margin-top: 16px;
+  text-align: center;
+
+  .btn-challenge {
+    font-size: 1.1em;
+    padding: 10px 24px;
+    border-color: var(--color-red);
+    color: var(--color-red);
+
+    &:hover {
+      background-color: rgba(255, 0, 0, 0.1);
+      border-color: var(--color-yellow);
+      color: var(--color-yellow);
+    }
   }
 }
 
@@ -346,6 +432,150 @@ const rematchBattle = () => {
   }
 }
 
+/* 敌人详细信息面板 */
+.enemy-detail-panel {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-gray);
+  border-radius: 6px;
+
+  .enemy-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .enemy-type-badge {
+      color: var(--color-red);
+      font-weight: bold;
+      font-size: 0.9em;
+      padding: 2px 8px;
+      background: rgba(255, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+
+    .enemy-name {
+      color: var(--color-yellow);
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .enemy-level {
+      color: var(--color-gray);
+      font-size: 0.9em;
+    }
+  }
+
+  .enemy-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+
+      .stat-label {
+        color: var(--color-gray);
+        font-size: 0.9em;
+      }
+
+      .stat-value {
+        font-weight: bold;
+        font-family: monospace;
+        min-width: 60px;
+        text-align: right;
+
+        &.red {
+          color: var(--color-red);
+        }
+
+        &.yellow {
+          color: var(--color-yellow);
+        }
+      }
+    }
+  }
+
+  .enemy-rewards-section,
+  .enemy-drops-section,
+  .enemy-description {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+
+    .section-title {
+      color: var(--color-cyan);
+      font-weight: bold;
+      font-size: 0.95em;
+      margin-bottom: 10px;
+    }
+  }
+
+  .reward-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+
+    .exp-icon {
+      font-size: 1.2em;
+    }
+
+    .exp-text {
+      color: var(--color-gray);
+
+      .highlight {
+        color: var(--color-yellow);
+        font-weight: bold;
+      }
+    }
+  }
+
+  .drop-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .drop-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      font-size: 0.9em;
+
+      .drop-icon {
+        font-size: 1em;
+      }
+
+      .drop-name {
+        color: var(--color-cyan);
+      }
+    }
+  }
+
+  .desc-text {
+    color: var(--color-gray);
+    font-size: 0.9em;
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
+  }
+}
+
 /* 血条样式 */
 .hp-line {
   display: flex;
@@ -380,6 +610,12 @@ const rematchBattle = () => {
   .reward-item {
     margin-bottom: 5px;
     font-size: 0.9em;
+    color: var(--color-gray);
+
+    .highlight {
+      color: var(--color-yellow);
+      font-weight: bold;
+    }
 
     &:last-child {
       margin-bottom: 0;
