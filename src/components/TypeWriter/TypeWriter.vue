@@ -15,7 +15,7 @@ interface TypewriterContainer {
   save: (id: string, instance: any) => void;
 }
 
-const typewriterContainer = inject<TypewriterContainer>('typeWriterManager');
+const typewriterContainer = inject<TypewriterContainer | undefined>('typeWriterManager', undefined);
 
 const index = ref(0);
 const typewriterContent = ref('');
