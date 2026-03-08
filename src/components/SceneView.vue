@@ -218,9 +218,13 @@ const closeShop = () => {
 };
 
 const handlePurchase = (item: IItem) => {
-  console.log('购买物品:', item);
-  // TODO: 实现购买逻辑，包括扣除货币、添加物品到背包等
-  alert(`购买了 ${item.name}，价格：${item.price ?? 0}`);
+  const result = playerStore.purchaseItem(item);
+  
+  if (result.success) {
+    alert(`【系统】${result.message}`);
+  } else {
+    alert(`【系统】${result.message}`);
+  }
 };
 
 const canFightMonster = (monster: ICharacter): boolean => {

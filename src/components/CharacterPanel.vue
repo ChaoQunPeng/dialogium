@@ -2,9 +2,13 @@
   <div>
     <BorderContainer title="个人属性">
       <div class="flex justify-between">
-        <div>攻击: {{ playerStore.finalStats.attack }}</div>
-        <div>防御: {{ playerStore.finalStats.defense }}</div>
-        <div>生命: {{ playerStore.finalStats.maxHp }}</div>
+        <div>攻击：{{ playerStore.finalStats.attack }}</div>
+        <div>防御：{{ playerStore.finalStats.defense }}</div>
+        <div>生命：{{ playerStore.finalStats.maxHp }}</div>
+      </div>
+      <div class="currency-display mt-4">
+        <span class="currency-label">💰 灵石：</span>
+        <span class="currency-value">{{ playerStore.player.currency ?? 0 }}</span>
       </div>
     </BorderContainer>
 
@@ -216,6 +220,28 @@ const filteredInventory = computed(() => {
     color: var(--color-yellow, #ffd700);
     font-weight: bold;
     font-size: 1.1em;
+  }
+}
+
+.currency-display {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+
+  .currency-label {
+    font-size: 14px;
+    color: var(--text-main);
+    margin-right: 8px;
+  }
+
+  .currency-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-yellow);
   }
 }
 

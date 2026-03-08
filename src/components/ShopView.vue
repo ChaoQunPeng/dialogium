@@ -57,7 +57,7 @@
     </BorderContainer>
 
     <!-- 物品详情弹窗 -->
-    <DropConfirmModal ref="modalRef" />
+    <DropConfirmModal ref="modalRef" @confirm="handlePurchase" />
   </div>
 </template>
 
@@ -101,6 +101,12 @@ const modalRef = ref<InstanceType<typeof DropConfirmModal> | null>(null);
 const shopItems = computed<IItem[]>(() => {
   return props.npc.interact?.shopItems || [];
 });
+
+// 处理购买确认（从弹窗组件事件转发到父组件）
+const handlePurchase = (item: IItem) => {
+  console.log(`🛒 ShopView 收到购买请求：${item.name}`);
+  emit('purchase', item);
+};
 
 // 过滤后的商品
 const filteredItems = computed(() => {

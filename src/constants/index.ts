@@ -28,50 +28,51 @@ export const DEFAULT_PLAYER_CONFIG = {
     maxMp: 0,
   },
   battle: { attack: 10, defense: 10 },
+  currency: 1000, // 初始货币：灵石
 } as ICharacter;
 
 /** 默认玩家背包物品 */
 export const initialItems: IItemInstance[] = [
   {
-    instanceId: crypto.randomUUID(),
-    itemId: 'zi_yan_xin', // 对应你静态配置表中的 ID
-    count: 1,
-    isEquipped: true, // 紫炎心是入体的，默认就是激活/穿戴状态
-    isLocked: true, // 核心至宝，锁定防止误删
+    id: crypto.randomUUID(),
+    mid: 'zi_yan_xin', // 对应你静态配置表中的 ID
+    n: 1,
+    e: 1, // 紫炎心是入体的，默认就是激活/穿戴状态
+    l: 1, // 核心至宝，锁定防止误删
   },
   {
-    instanceId: crypto.randomUUID(),
-    itemId: 'man_tian_xin_body',
-    count: 1,
-    isEquipped: true,
-    isLocked: true,
+    id: crypto.randomUUID(),
+    mid: 'man_tian_xin_body',
+    n: 1,
+    e: 1,
+    l: 1,
   },
   {
-    instanceId: crypto.randomUUID(),
-    itemId: 'man_tian_xin_shoulder',
-    count: 1,
-    isEquipped: true,
-    isLocked: true,
+    id: crypto.randomUUID(),
+    mid: 'man_tian_xin_shoulder',
+    n: 1,
+    e: 1,
+    l: 1,
   },
   {
-    instanceId: crypto.randomUUID(),
-    itemId: 'man_tian_xin_belt',
-    count: 1,
-    isEquipped: true,
-    isLocked: true,
+    id: crypto.randomUUID(),
+    mid: 'man_tian_xin_belt',
+    n: 1,
+    e: 1,
+    l: 1,
   },
   {
-    instanceId: crypto.randomUUID(),
-    itemId: 'man_tian_xin_leg',
-    count: 1,
-    isEquipped: true,
-    isLocked: true,
+    id: crypto.randomUUID(),
+    mid: 'man_tian_xin_leg',
+    n: 1,
+    e: 1,
+    l: 1,
   },
   {
-    instanceId: crypto.randomUUID(),
-    itemId: 'man_tian_xin_shoes',
-    count: 1,
-    isEquipped: true,
-    isLocked: true,
+    id: crypto.randomUUID(),
+    mid: 'man_tian_xin_shoes',
+    n: 1,
+    e: 1,
+    l: 1,
   },
 ];

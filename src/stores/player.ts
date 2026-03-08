@@ -1,6 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
-import type { ICharacter, IItemInstance } from '@/interface';
+import type { ICharacter, IItem, IItemInstance } from '@/interface';
 import { items } from '@/items';
 import { STORAGE_KEYS, DEFAULT_PLAYER_CONFIG } from '@/constants';
 import { clamp } from '@/utils/utils';
@@ -124,20 +124,27 @@ export const usePlayerStore = defineStore('player', () => {
 
   /** 获得物品 */
   const acquireItem = (itemsToAdd: { itemId: string; count: number }[]) => {
+    console.log(`🎁 开始添加物品，待添加列表：`, itemsToAdd);
+    
     itemsToAdd.forEach((newItem) => {
       const existing = inventory.value.find((i) => i.mid === newItem.itemId && i.e === 0);
       if (existing) {
+        console.log(`📦 找到相同物品 ${newItem.itemId}，堆叠数量：${existing.n} -> ${existing.n + newItem.count}`);
         existing.n += newItem.count;
       } else {
-        inventory.value.push({
+        const newItemInstance = {
           mid: newItem.itemId,
           n: newItem.count,
           id: crypto.randomUUID().replace(/-/g, ''),
           e: 0,
           l: 0,
-        });
+        };
+        console.log(`✨ 创建新物品实例：`, newItemInstance);
+        inventory.value.push(newItemInstance);
       }
     });
+    
+    console.log(`📦 当前背包所有物品：`, inventory.value);
   };
 
   /** 穿戴装备 */
@@ -285,6 +292,43 @@ export const usePlayerStore = defineStore('player', () => {
     }
   };
 
+  /**
+   * 购买物品
+   * @param item 要购买的物品
+   * @returns { success: boolean, message: string } 购买结果
+   */
+  const purchaseItem = (item: IItem) => {
+    const price = item.price ?? 0;
+    
+    // 1. 检查货币是否足够
+    const currentCurrency = player.currency ?? 0;
+    if (currentCurrency < price) {
+      return {
+        success: false,
+        message: `灵石不足！需要 ${price} 灵石，当前仅有 ${currentCurrency} 灵石`,
+      };
+    }
+
+    // 2. 扣除货币
+    player.currency = currentCurrency - price;
+    console.log(`💰 扣除 ${price} 灵石，剩余：${player.currency} 灵石`);
+
+    // 3. 添加物品到背包
+    const itemId = item.id;
+    console.log(`📦 准备添加物品到背包：${item.name} (ID: ${itemId})`);
+    console.log(`📦 当前背包物品数量：${inventory.value.length}`);
+    
+    acquireItem([{ itemId, count: 1 }]);
+    
+    console.log(`📦 添加后背包物品数量：${inventory.value.length}`);
+    console.log(`✅ 购买了 ${item.name}，花费 ${price} 灵石`);
+    
+    return {
+      success: true,
+      message: `成功购买 ${item.name}，花费 ${price} 灵石`,
+    };
+  };
+
   /*
    * 升级逻辑
    */
@@ -336,5 +380,6 @@ export const usePlayerStore = defineStore('player', () => {
     setHp,
     gainExp,
     mergeInventory,
+    purchaseItem,
   };
 });
