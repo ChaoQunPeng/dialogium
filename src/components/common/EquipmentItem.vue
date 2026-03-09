@@ -22,7 +22,7 @@ import { ref } from 'vue';
 import ItemDetailModal from './ItemDetailModal.vue';
 import DropConfirmModal from './DropConfirmModal.vue';
 import type { IInventoryItem } from '@/interface';
-import { usePlayerStore } from '../stores/player';
+import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
 
 interface EquipmentItemProps {

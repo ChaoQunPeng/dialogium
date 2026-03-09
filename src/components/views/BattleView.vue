@@ -176,7 +176,7 @@ import { canFight } from '@/utils/battle';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
 import { items } from '@/items';
-import BorderContainer from './borderContainer.vue';
+import BorderContainer from '../common/BorderContainer.vue';
 
 // 重新导入store以刷新类型
 const playerStore = usePlayerStore();

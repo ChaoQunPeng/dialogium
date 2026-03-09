@@ -65,11 +65,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type { IItemInstance } from '../interface/index';
-import type { IInventoryItem } from '../interface/item';
-import { items } from '../items/index';
-import EquipmentItem from './EquipmentItem.vue';
-import { usePlayerStore } from '../stores/player';
+import type { IItemInstance } from '@/interface/index';
+import type { IInventoryItem } from '@/interface/item';
+import { items } from '@/items/index';
+import EquipmentItem from '../common/EquipmentItem.vue';
+import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
 
 // 纳戒数据与分类逻辑

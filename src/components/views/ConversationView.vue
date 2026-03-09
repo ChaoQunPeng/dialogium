@@ -58,8 +58,8 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import type { ICharacter } from '@/interface/character';
-import BorderContainer from './borderContainer.vue';
-import TypeWriter from './TypeWriter/TypeWriter.vue';
+import BorderContainer from '../common/BorderContainer.vue';
+import TypeWriter from '../common/TypeWriter/TypeWriter.vue';
 
 // Props
 const props = defineProps<{

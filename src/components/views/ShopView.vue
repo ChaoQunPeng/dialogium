@@ -65,8 +65,8 @@
 import { ref, computed } from 'vue';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
-import BorderContainer from './borderContainer.vue';
-import DropConfirmModal from './DropConfirmModal.vue';
+import BorderContainer from '../common/BorderContainer.vue';
+import DropConfirmModal from '../common/DropConfirmModal.vue';
 
 interface Props {
   npc: ICharacter;

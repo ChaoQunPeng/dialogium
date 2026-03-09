@@ -120,7 +120,7 @@ import type { Scene } from '@/interface/scene';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
 import { canFight } from '@/utils/battle';
-import BorderContainer from './borderContainer.vue';
+import BorderContainer from '../common/BorderContainer.vue';
 import BattleView from './BattleView.vue';
 import ConversationView from './ConversationView.vue';
 import ShopView from './ShopView.vue';

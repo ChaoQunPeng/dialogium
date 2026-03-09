@@ -61,9 +61,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import StartScreen from './components/StartScreen.vue';
-import SceneView from './components/SceneView.vue';
-import CharacterPanel from './components/CharacterPanel.vue';
+import StartScreen from './components/views/StartScreen.vue';
+import SceneView from './components/views/SceneView.vue';
+import CharacterPanel from './components/views/CharacterPanel.vue';
 import { usePlayerStore } from '@/stores/player';
 import { STORAGE_KEYS } from '@/constants';
 
