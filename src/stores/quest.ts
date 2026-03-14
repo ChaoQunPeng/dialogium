@@ -11,19 +11,7 @@ import { STORAGE_KEYS } from '@/constants';
 export const useQuestStore = defineStore('quest', () => {
   // --- 1. 状态初始化 ---
   
-  /** 从 localStorage 加载任务数据 */
-  const getInitialQuests = (): IQuest[] => {
-    const local = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
-    if (!local) return [];
-    try {
-      return JSON.parse(local);
-    } catch (e) {
-      console.error('任务存档解析失败，返回空数组', e);
-      return [];
-    }
-  };
-  
-  const quests = ref<IQuest[]>(getInitialQuests());
+  const quests = ref<IQuest[]>([]);
   const activeQuestId = ref<string | null>(null);
 
   // --- 2. 计算属性 ---
@@ -55,10 +43,51 @@ export const useQuestStore = defineStore('quest', () => {
   );
 
   // --- 3. 核心方法 ---
-  /** 加载任务数据 */
+  /** 加载任务数据（合并配置和存档进度） */
   const loadQuests = (questData: IQuest[]) => {
-    quests.value = questData;
-    console.log(`📜 加载了 ${quests.value.length} 个任务`);
+    // 尝试从 localStorage 加载已保存的进度
+    const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
+    
+    if (savedProgress) {
+      try {
+        const progressData = JSON.parse(savedProgress);
+        
+        // 合并配置数据和存档进度
+        const mergedQuests = questData.map((configQuest) => {
+          const savedQuest = progressData?.p?.[configQuest.id];
+          
+          if (savedQuest) {
+            // 有存档进度，覆盖状态和目标进度
+            return {
+              ...configQuest,
+              status: savedQuest.s as QuestStatus,
+              objectives: configQuest.objectives.map((obj) => {
+                const savedCurrent = savedQuest.o?.[obj.id] ?? 0;
+                return {
+                  ...obj,
+                  current: savedCurrent,
+                  completed: savedCurrent >= obj.required,
+                };
+              }),
+            };
+          }
+          
+          // 没有存档，使用配置数据
+          return configQuest;
+        });
+
+        quests.value = mergedQuests;
+        activeQuestId.value = progressData?.a || null;
+        console.log(`📜 加载了 ${quests.value.length} 个任务（包含存档进度）`);
+      } catch (e) {
+        console.error('任务存档解析失败，使用原始配置', e);
+        quests.value = questData;
+      }
+    } else {
+      // 没有存档，使用原始配置
+      quests.value = questData;
+      console.log(`📜 加载了 ${quests.value.length} 个任务（新游戏）`);
+    }
   };
 
   /** 接受任务 */
@@ -141,7 +170,7 @@ export const useQuestStore = defineStore('quest', () => {
 
     // 发放奖励
     const playerStore = usePlayerStore();
-    let rewardMessages: string[] = [];
+    const rewardMessages: string[] = [];
 
     quest.rewards.forEach((reward: IQuestReward) => {
       switch (reward.type) {
@@ -221,23 +250,95 @@ export const useQuestStore = defineStore('quest', () => {
     console.log(`🔄 重置可重复任务：${quest.name}`);
   };
 
-  // --- 4. 持久化监听 ---
-  watch(quests, (nv) => localStorage.setItem(STORAGE_KEYS.PLAYER_QUESTS, JSON.stringify(nv)), {
-    deep: true,
-  });
+  // --- 4. 持久化监听与保存 ---
+  
+  /** 提取进度数据（紧凑格式） */
+  const extractProgressData = () => {
+    const progress: Record<string, { s: string; o: Record<string, number> }> = {};
+    
+    quests.value.forEach((quest) => {
+      // 只保存有进度变化的任务（非 locked 状态或有进度的目标）
+      const hasProgress = 
+        quest.status !== QuestStatus.Locked || 
+        quest.objectives.some(obj => obj.current > 0);
+      
+      if (hasProgress) {
+        progress[quest.id] = {
+          s: quest.status,
+          o: quest.objectives.reduce((acc, obj) => {
+            // 只保存 current > 0 的目标
+            if (obj.current > 0) {
+              acc[obj.id] = obj.current;
+            }
+            return acc;
+          }, {} as Record<string, number>),
+        };
+      }
+    });
+    
+    return {
+      p: progress,
+      a: activeQuestId.value || undefined,
+    };
+  };
+  
+  /** 保存到 localStorage */
+  const saveProgress = () => {
+    const progressData = extractProgressData();
+    localStorage.setItem(STORAGE_KEYS.PLAYER_QUESTS, JSON.stringify(progressData));
+    console.log('💾 任务进度已自动保存');
+  };
+  
+  // 监听任务数据变化，自动保存
+  watch(quests, saveProgress, { deep: true });
+  
+  // 监听 activeQuestId 变化，自动保存
+  watch(activeQuestId, saveProgress);
 
   /** 显式初始化方法
    * 用于在设置 localStorage 数据后重新加载任务数据
+   * 注意：需要配合完整的任务配置数据一起使用
    */
   const initialize = () => {
-    const initialQuests = getInitialQuests();
+    const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
     
-    // 重置任务数据
-    quests.value = [...initialQuests];
-    
-    console.log('📜 任务数据初始化完成', { 
-      questCount: quests.value.length 
-    });
+    if (savedProgress) {
+      try {
+        const progressData = JSON.parse(savedProgress);
+        
+        // 更新当前激活的任务 ID
+        activeQuestId.value = progressData?.a || null;
+        
+        // 遍历现有任务，应用存档进度
+        quests.value = quests.value.map((quest) => {
+          const savedQuest = progressData?.p?.[quest.id];
+          
+          if (savedQuest) {
+            return {
+              ...quest,
+              status: savedQuest.s as QuestStatus,
+              objectives: quest.objectives.map((obj) => {
+                const savedCurrent = savedQuest.o?.[obj.id] ?? 0;
+                return {
+                  ...obj,
+                  current: savedCurrent,
+                  completed: savedCurrent >= obj.required,
+                };
+              }),
+            };
+          }
+          
+          return quest;
+        });
+        
+        console.log('📜 任务进度已从存档恢复', { 
+          questCount: quests.value.length,
+          activeQuestId: activeQuestId.value,
+        });
+      } catch (e) {
+        console.error('任务存档解析失败', e);
+      }
+    }
   };
 
   return {

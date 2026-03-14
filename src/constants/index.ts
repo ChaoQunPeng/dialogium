@@ -11,7 +11,7 @@ export const STORAGE_KEYS = {
   PLAYER_DATA: 'PD',
   /** 玩家背包物品存储键 */
   PLAYER_ITEMS: 'PI',
-  /** 玩家任务进度存储键 */
+  /** 玩家任务进度存储键（紧凑格式） */
   PLAYER_QUESTS: 'PQ',
   /** 完整存档导出键 */
   SAVE_FILE: 'dialogium_save',
