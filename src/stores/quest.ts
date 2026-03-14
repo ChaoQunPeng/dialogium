@@ -1,15 +1,29 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type { IQuest, IQuestReward } from '@/interface/quest';
 import { QuestStatus } from '@/interface/quest';
 import { usePlayerStore } from './player';
+import { STORAGE_KEYS } from '@/constants';
 
 /**
  * 任务状态管理 Store
  */
 export const useQuestStore = defineStore('quest', () => {
   // --- 1. 状态初始化 ---
-  const quests = ref<IQuest[]>([]);
+  
+  /** 从 localStorage 加载任务数据 */
+  const getInitialQuests = (): IQuest[] => {
+    const local = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
+    if (!local) return [];
+    try {
+      return JSON.parse(local);
+    } catch (e) {
+      console.error('任务存档解析失败，返回空数组', e);
+      return [];
+    }
+  };
+  
+  const quests = ref<IQuest[]>(getInitialQuests());
   const activeQuestId = ref<string | null>(null);
 
   // --- 2. 计算属性 ---
@@ -207,6 +221,25 @@ export const useQuestStore = defineStore('quest', () => {
     console.log(`🔄 重置可重复任务：${quest.name}`);
   };
 
+  // --- 4. 持久化监听 ---
+  watch(quests, (nv) => localStorage.setItem(STORAGE_KEYS.PLAYER_QUESTS, JSON.stringify(nv)), {
+    deep: true,
+  });
+
+  /** 显式初始化方法
+   * 用于在设置 localStorage 数据后重新加载任务数据
+   */
+  const initialize = () => {
+    const initialQuests = getInitialQuests();
+    
+    // 重置任务数据
+    quests.value = [...initialQuests];
+    
+    console.log('📜 任务数据初始化完成', { 
+      questCount: quests.value.length 
+    });
+  };
+
   return {
     // State
     quests,
@@ -226,5 +259,6 @@ export const useQuestStore = defineStore('quest', () => {
     canAcceptQuest,
     unlockQuest,
     resetRepeatableQuest,
+    initialize,
   };
 });

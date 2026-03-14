@@ -43,6 +43,7 @@
       <main class="game-content">
         <CharacterPanel v-show="activeTab === 'realm'" />
         <SceneView v-show="activeTab === 'adventure'" />
+        <SystemPanel v-show="activeTab === 'system'" />
       </main>
 
       <footer class="game-nav flex">
@@ -64,6 +65,7 @@ import { ref, onMounted } from 'vue';
 import StartScreen from './components/views/StartScreen.vue';
 import SceneView from './components/views/SceneView.vue';
 import CharacterPanel from './components/views/CharacterPanel.vue';
+import SystemPanel from './components/views/SystemPanel.vue';
 import { usePlayerStore } from '@/stores/player';
 import { STORAGE_KEYS } from '@/constants';
 
@@ -88,6 +90,7 @@ onMounted(() => {
 const tabs = [
   { id: 'realm', name: '修为' },
   { id: 'adventure', name: '历练' },
+  { id: 'system', name: '设置' },
 ];
 
 const activeTab = ref('realm');
