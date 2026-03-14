@@ -1,5 +1,18 @@
 <template>
   <div class="scene-view-wrapper">
+    <!-- 任务入口按钮 -->
+    <button class="quest-btn" @click="toggleQuestPanel">
+      📜 任务 ({{ activeQuestCount }})
+    </button>
+
+    <!-- 任务面板 -->
+    <QuestPanel
+      v-if="isQuestPanelOpen"
+      @close="toggleQuestPanel"
+      @accept="handleAcceptQuest"
+      @claim="handleClaimReward"
+    />
+
     <BorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
       <div class="scenes-list">
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
@@ -116,6 +129,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { usePlayerStore } from '@/stores/player';
+import { useQuestStore } from '@/stores/quest';
 import type { Scene } from '@/interface/scene';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
@@ -124,10 +138,16 @@ import BorderContainer from '../common/BorderContainer.vue';
 import BattleView from './BattleView.vue';
 import ConversationView from './ConversationView.vue';
 import ShopView from './ShopView.vue';
+import QuestPanel from './QuestPanel.vue';
 import { tianTingXing } from '@/scene/tianTingXing';
 import { qianJieXing } from '@/scene/qianJieXing';
+import { initialQuests } from '@/data/quests';
 
 const playerStore = usePlayerStore();
+const questStore = useQuestStore();
+
+// 初始化任务数据
+questStore.loadQuests(initialQuests);
 
 const scenes: Scene[] = [tianTingXing, qianJieXing];
 
@@ -138,6 +158,26 @@ const selectedMerchant = ref<ICharacter | null>(null);
 const isInBattle = ref(false);
 const isConversationOpen = ref(false);
 const isShopOpen = ref(false);
+const isQuestPanelOpen = ref(false);
+
+const activeQuestCount = computed(() => questStore.activeQuests.length);
+
+const toggleQuestPanel = () => {
+  isQuestPanelOpen.value = !isQuestPanelOpen.value;
+};
+
+const handleAcceptQuest = (questId: string) => {
+  const success = questStore.acceptQuest(questId);
+  if (success) {
+    const quest = questStore.quests.find((q) => q.id === questId);
+    alert(`✅ 接受了任务：${quest?.name}`);
+  }
+};
+
+const handleClaimReward = (questId: string) => {
+  const result = questStore.claimReward(questId);
+  alert(result.message);
+};
 
 const enterScene = (scene: Scene) => {
   currentScene.value = scene;
@@ -187,6 +227,17 @@ const challengeMonster = (monster: ICharacter) => {
 
 const onBattleEnd = (result: any) => {
   console.log('战斗结束:', result);
+  
+  // 更新击杀类任务进度
+  if (result.victory && selectedMonster.value) {
+    const monsterId = selectedMonster.value.id;
+    
+    // 更新特定怪物的击杀任务
+    questStore.updateQuestsByTarget('kill', monsterId, 1);
+    
+    // 更新"任意怪物"的击杀任务（日常任务）
+    questStore.updateQuestsByTarget('kill', 'any', 1);
+  }
 };
 
 const exitBattle = () => {
@@ -196,6 +247,9 @@ const exitBattle = () => {
 
 const selectNPC = (npc: ICharacter) => {
   console.log('选择了 NPC:', npc.name);
+
+  // 更新交谈类任务进度
+  questStore.updateQuestsByTarget('talk', npc.id, 1);
 
   // 判断是否为 merchant 类型
   if (npc.type === 'merchant') {
@@ -222,6 +276,9 @@ const handlePurchase = (item: IItem) => {
 
   if (result.success) {
     alert(`【系统】${result.message}`);
+    
+    // 更新购买类任务进度
+    questStore.updateQuestsByTarget('purchase', item.id, 1);
   } else {
     alert(`【系统】${result.message}`);
   }
@@ -412,6 +469,33 @@ const canFightMonster = (monster: ICharacter): boolean => {
   .empty-icon {
     font-size: 24px;
     margin-bottom: 8px;
+  }
+}
+
+/* 任务按钮样式 */
+.quest-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.5);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 </style>
