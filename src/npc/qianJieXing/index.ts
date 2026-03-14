@@ -16,6 +16,11 @@ export const baiHuangLaoRen: ICharacter = {
     mp: 11000,
     maxMp: 11000,
   },
+  battle: {
+    attack: 1,
+    defense: 100,
+    exp: 10000000,
+  },
   conversations: [
     {
       type: 'text',

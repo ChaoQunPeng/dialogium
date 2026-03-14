@@ -8,9 +8,9 @@ import type { ICharacter, IItemInstance } from '@/interface';
 // 本地存储键名
 export const STORAGE_KEYS = {
   /** 玩家基础数据存储键 */
-  PLAYER_DATA: 'DIALOGIUM_PLAYER_DATA',
+  PLAYER_DATA: 'PD',
   /** 玩家背包物品存储键 */
-  PLAYER_ITEMS: 'DIALOGIUM_PLAYER_ITEMS',
+  PLAYER_ITEMS: 'PI',
 } as const;
 
 // 默认玩家配置
