@@ -73,6 +73,7 @@ export const useQuestStore = defineStore('quest', () => {
    */
   const loadQuests = () => {
     const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
+    debugger;
     if (savedProgress) {
       try {
         const progressData = JSON.parse(savedProgress);
@@ -175,7 +176,15 @@ export const useQuestStore = defineStore('quest', () => {
           (targetType === 'talk' && obj.type === 'talk') ||
           (targetType === 'purchase' && obj.type === 'purchase');
 
-        if (isMatchByType && obj.target === targetId) {
+        if (!isMatchByType) return;
+
+        // 匹配逻辑：
+        // 1. 精确匹配：目标 ID 完全一致
+        // 2. 通配符匹配：当任务目标的 target 为 'any' 时，匹配任意同类型目标
+        const isMatchById = obj.target === targetId;
+        const isMatchByAny = obj.target === 'any';
+
+        if (isMatchById || isMatchByAny) {
           updateObjective(questId, obj.id, amount);
         }
       });

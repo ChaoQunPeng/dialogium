@@ -267,7 +267,7 @@ const battleEnemy = () => {
           }
 
           playerStore.gainExp(result.loser?.battle?.exp ?? 0);
-          questStore.updateQuestsByTarget('kill', result.loser!.id, 1);
+          questStore.updateQuestsByTarget('kill', 'any', 1);
         }
 
         battleStatus.value = 'finished';
