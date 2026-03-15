@@ -1,9 +1,7 @@
 <template>
   <div class="scene-view-wrapper">
     <!-- 任务入口按钮 -->
-    <button class="quest-btn" @click="toggleQuestPanel">
-      📜 任务 ({{ activeQuestCount }})
-    </button>
+    <button class="quest-btn" @click="toggleQuestPanel">📜 任务 ({{ activeQuestCount }})</button>
 
     <!-- 任务面板 -->
     <QuestPanel
@@ -216,25 +214,25 @@ const getCharacterTypeClass = (type: string): string => {
 };
 
 const challengeMonster = (monster: ICharacter) => {
-  const fightCheck = canFight(playerStore.finalPlayer, monster);
-  if (!fightCheck.canFight) {
-    alert(fightCheck.reason);
-    return;
-  }
+  // const fightCheck = canFight(playerStore.finalPlayer, monster);
+  // if (!fightCheck.canFight) {
+  //   alert(fightCheck.reason);
+  //   return;
+  // }
   selectedMonster.value = monster;
   isInBattle.value = true;
 };
 
 const onBattleEnd = (result: any) => {
   console.log('战斗结束:', result);
-  
+
   // 更新击杀类任务进度
   if (result.victory && selectedMonster.value) {
     const monsterId = selectedMonster.value.id;
-    
+
     // 更新特定怪物的击杀任务
     questStore.updateQuestsByTarget('kill', monsterId, 1);
-    
+
     // 更新"任意怪物"的击杀任务（日常任务）
     questStore.updateQuestsByTarget('kill', 'any', 1);
   }
@@ -276,7 +274,7 @@ const handlePurchase = (item: IItem) => {
 
   if (result.success) {
     alert(`【系统】${result.message}`);
-    
+
     // 更新购买类任务进度
     questStore.updateQuestsByTarget('purchase', item.id, 1);
   } else {

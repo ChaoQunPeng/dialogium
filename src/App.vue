@@ -22,11 +22,15 @@
               <div class="status-column">
                 <div class="attr-row">
                   <span class="label">气血</span>
-                  <span class="value text-red">{{ playerStore.player.baseInfo.hp || 100 }}/{{ playerStore.finalStats.maxHp || 100 }}</span>
+                  <span class="value text-red"
+                    >{{ playerStore.player.baseInfo.hp }}/{{ playerStore.finalStats.maxHp }}</span
+                  >
                 </div>
                 <div class="attr-row">
                   <span class="label">灵力</span>
-                  <span class="value text-cyan">{{ playerStore.player.baseInfo.mp || 50 }}/{{ playerStore.finalStats.maxMp || 50 }}</span>
+                  <span class="value text-cyan"
+                    >{{ playerStore.player.baseInfo.mp }}/{{ playerStore.finalStats.maxMp }}</span
+                  >
                 </div>
               </div>
 

@@ -377,16 +377,16 @@ export const usePlayerStore = defineStore('player', () => {
   const initialize = () => {
     const initialData = getInitialPlayer();
     const initialItems = getInitialInventory();
-    
+
     // 重置玩家数据
     Object.assign(player, initialData);
-    
+
     // 重置背包数据
     inventory.value = [...initialItems];
-    
-    console.log('✅ 玩家数据初始化完成', { 
-      player: { ...player }, 
-      inventory: inventory.value 
+
+    console.log('✅ 玩家数据初始化完成', {
+      player: { ...player },
+      inventory: inventory.value,
     });
   };
 

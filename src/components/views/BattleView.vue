@@ -223,11 +223,11 @@ watch(
 
 // 选择怪物并开始战斗
 const battleEnemy = () => {
-  const check = canFight(playerStore.finalPlayer, enemy);
-  if (!check.canFight) {
-    alert(check.reason);
-    return;
-  }
+  // const check = canFight(playerStore.finalPlayer, enemy);
+  // if (!check.canFight) {
+  //   alert(check.reason);
+  //   return;
+  // }
 
   // 1. 切换场景
   isInBattle.value = true;
