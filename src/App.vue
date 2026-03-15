@@ -47,7 +47,12 @@
       <main class="game-content">
         <CharacterPanel v-show="activeTab === 'realm'" />
         <SceneView v-show="activeTab === 'adventure'" />
-        <SystemPanel v-show="activeTab === 'system'" />
+        <QuestPanel
+          v-show="activeTab === 'quest'"
+          @accept="handleAcceptQuest"
+          @claim="handleClaimQuest"
+        />
+        <!-- <SystemPanel v-show="activeTab === 'system'" /> -->
       </main>
 
       <footer class="game-nav flex">
@@ -69,12 +74,14 @@ import { ref, onMounted } from 'vue';
 import StartScreen from './components/views/StartScreen.vue';
 import SceneView from './components/views/SceneView.vue';
 import CharacterPanel from './components/views/CharacterPanel.vue';
-import SystemPanel from './components/views/SystemPanel.vue';
+import QuestPanel from './components/views/QuestPanel.vue';
 import { usePlayerStore } from '@/stores/player';
+import { useQuestStore } from '@/stores/quest';
 import { STORAGE_KEYS } from '@/constants';
 
-// 引入 player store
+// 引入 player store 和 quest store
 const playerStore = usePlayerStore();
+const questStore = useQuestStore();
 
 // 监听子组件的游戏启动事件
 const handleGameStarted = () => {
@@ -94,10 +101,19 @@ onMounted(() => {
 const tabs = [
   { id: 'realm', name: '修为' },
   { id: 'adventure', name: '历练' },
-  { id: 'system', name: '设置' },
+  { id: 'quest', name: '任务' },
+  // { id: 'system', name: '设置' },
 ];
 
 const activeTab = ref('realm');
+
+const handleAcceptQuest = (questId: string) => {
+  questStore.acceptQuest(questId);
+};
+
+const handleClaimQuest = (questId: string) => {
+  questStore.claimReward(questId);
+};
 </script>
 
 <style lang="scss">
@@ -118,7 +134,6 @@ const activeTab = ref('realm');
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  //  'PingFang SC',
   font-family: 'STKaiti', serif; /* 加入楷体更有修仙感 */
   line-height: 1.25;
 }
@@ -163,7 +178,6 @@ body {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          // 增加一点复古滤镜效果，让头像更融入MUD
           filter: contrast(1.1) brightness(0.9);
         }
       }
@@ -202,7 +216,7 @@ body {
       .attr-row,
       .currency-display {
         display: flex;
-        font-family: 'Courier New', Courier, monospace; // 数值对齐
+        font-family: 'Courier New', Courier, monospace;
         font-size: 0.95rem;
       }
 
@@ -289,6 +303,7 @@ body {
       color: var(--color-yellow);
     }
   }
+
   .game-content {
     flex: 1;
     overflow-y: auto;

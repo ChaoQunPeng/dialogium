@@ -1,113 +1,110 @@
 <template>
-  <div class="quest-panel-overlay" @click.self="$emit('close')">
-    <div class="quest-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">📜 任务列表</h2>
-        <button class="close-btn" @click="$emit('close')">×</button>
+  <div class="quest-panel">
+    <div class="panel-header">
+      <h2 class="panel-title">📜 任务列表</h2>
+    </div>
+
+    <!-- 任务分类标签 -->
+    <div class="quest-tabs">
+      <button
+        :class="{ active: activeTab === 'available' }"
+        @click="activeTab = 'available'"
+        class="tab-btn"
+      >
+        可接受 ({{ availableQuests.length }})
+      </button>
+      <button
+        :class="{ active: activeTab === 'inProgress' }"
+        @click="activeTab = 'inProgress'"
+        class="tab-btn"
+      >
+        进行中 ({{ inProgressQuests.length }})
+      </button>
+      <button
+        :class="{ active: activeTab === 'completed' }"
+        @click="activeTab = 'completed'"
+        class="tab-btn"
+      >
+        可领取 ({{ completedQuests.length }})
+      </button>
+    </div>
+
+    <!-- 任务列表 -->
+    <div class="quest-list">
+      <div v-if="displayQuests.length === 0" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-text">暂无任务</div>
       </div>
 
-      <!-- 任务分类标签 -->
-      <div class="quest-tabs">
-        <button
-          :class="{ active: activeTab === 'available' }"
-          @click="activeTab = 'available'"
-          class="tab-btn"
-        >
-          可接受 ({{ availableQuests.length }})
-        </button>
-        <button
-          :class="{ active: activeTab === 'inProgress' }"
-          @click="activeTab = 'inProgress'"
-          class="tab-btn"
-        >
-          进行中 ({{ inProgressQuests.length }})
-        </button>
-        <button
-          :class="{ active: activeTab === 'completed' }"
-          @click="activeTab = 'completed'"
-          class="tab-btn"
-        >
-          可领取 ({{ completedQuests.length }})
-        </button>
-      </div>
-
-      <!-- 任务列表 -->
-      <div class="quest-list">
-        <div v-if="displayQuests.length === 0" class="empty-state">
-          <div class="empty-icon">📭</div>
-          <div class="empty-text">暂无任务</div>
+      <div
+        v-for="quest in displayQuests"
+        :key="quest.id"
+        class="quest-item"
+        :class="[quest.type, quest.status]"
+      >
+        <!-- 任务头部信息 -->
+        <div class="quest-header">
+          <div class="quest-main-info">
+            <span class="quest-type-badge" :class="quest.type">
+              {{ getQuestTypeLabel(quest.type) }}
+            </span>
+            <h3 class="quest-name">{{ quest.name }}</h3>
+          </div>
+          <span class="quest-status-badge" :class="quest.status">
+            {{ getQuestStatusLabel(quest.status) }}
+          </span>
         </div>
 
-        <div
-          v-for="quest in displayQuests"
-          :key="quest.id"
-          class="quest-item"
-          :class="[quest.type, quest.status]"
-        >
-          <!-- 任务头部信息 -->
-          <div class="quest-header">
-            <div class="quest-main-info">
-              <span class="quest-type-badge" :class="quest.type">
-                {{ getQuestTypeLabel(quest.type) }}
-              </span>
-              <h3 class="quest-name">{{ quest.name }}</h3>
-            </div>
-            <span class="quest-status-badge" :class="quest.status">
-              {{ getQuestStatusLabel(quest.status) }}
+        <!-- 任务描述 -->
+        <p class="quest-description">{{ quest.description }}</p>
+
+        <!-- 任务目标 -->
+        <div class="quest-objectives">
+          <div
+            v-for="objective in quest.objectives"
+            :key="objective.id"
+            class="objective-item"
+            :class="{ completed: objective.completed }"
+          >
+            <span class="objective-icon">{{ getObjectiveIcon(objective.type) }}</span>
+            <span class="objective-text">{{ objective.description }}</span>
+            <span class="objective-progress">
+              {{ objective.current }}/{{ objective.required }}
             </span>
           </div>
+        </div>
 
-          <!-- 任务描述 -->
-          <p class="quest-description">{{ quest.description }}</p>
+        <!-- 任务奖励预览 -->
+        <div class="quest-rewards-preview">
+          <span class="rewards-label">🎁 奖励:</span>
+          <span v-for="(reward, index) in quest.rewards" :key="index" class="reward-tag">
+            {{ formatReward(reward) }}
+          </span>
+        </div>
 
-          <!-- 任务目标 -->
-          <div class="quest-objectives">
-            <div
-              v-for="objective in quest.objectives"
-              :key="objective.id"
-              class="objective-item"
-              :class="{ completed: objective.completed }"
-            >
-              <span class="objective-icon">{{ getObjectiveIcon(objective.type) }}</span>
-              <span class="objective-text">{{ objective.description }}</span>
-              <span class="objective-progress">
-                {{ objective.current }}/{{ objective.required }}
-              </span>
-            </div>
-          </div>
-
-          <!-- 任务奖励预览 -->
-          <div class="quest-rewards-preview">
-            <span class="rewards-label">🎁 奖励:</span>
-            <span v-for="(reward, index) in quest.rewards" :key="index" class="reward-tag">
-              {{ formatReward(reward) }}
-            </span>
-          </div>
-
-          <!-- 操作按钮 -->
-          <div class="quest-actions">
-            <button
-              v-if="quest.status === 'available'"
-              @click="$emit('accept', quest.id)"
-              class="action-btn accept-btn"
-            >
-              ✅ 接受任务
-            </button>
-            <button
-              v-if="quest.status === 'completed'"
-              @click="$emit('claim', quest.id)"
-              class="action-btn claim-btn"
-            >
-              🎁 领取奖励
-            </button>
-            <button
-              v-if="quest.status === 'claimed'"
-              disabled
-              class="action-btn claimed-btn"
-            >
-              ✔️ 已完成
-            </button>
-          </div>
+        <!-- 操作按钮 -->
+        <div class="quest-actions">
+          <button
+            v-if="quest.status === 'available'"
+            @click="$emit('accept', quest.id)"
+            class="action-btn accept-btn"
+          >
+            ✅ 接受任务
+          </button>
+          <button
+            v-if="quest.status === 'completed'"
+            @click="$emit('claim', quest.id)"
+            class="action-btn claim-btn"
+          >
+            🎁 领取奖励
+          </button>
+          <button
+            v-if="quest.status === 'claimed'"
+            disabled
+            class="action-btn claimed-btn"
+          >
+            ✔️ 已完成
+          </button>
         </div>
       </div>
     </div>
@@ -120,7 +117,6 @@ import type { IQuestReward, QuestType, QuestStatus, QuestObjectiveType } from '@
 import { useQuestStore } from '@/stores/quest';
 
 defineEmits<{
-  close: [];
   accept: [questId: string];
   claim: [questId: string];
 }>();
@@ -194,31 +190,10 @@ const formatReward = (reward: IQuestReward): string => {
 </script>
 
 <style lang="scss" scoped>
-.quest-panel-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
-}
-
 .quest-panel {
-  background: linear-gradient(135deg, rgba(30, 30, 40, 0.98), rgba(20, 20, 30, 0.98));
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  border-radius: 12px;
-  padding: 24px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .panel-header {
@@ -227,35 +202,15 @@ const formatReward = (reward: IQuestReward): string => {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .panel-title {
-  font-size: 20px;
+  font-size: 24px;
   color: var(--color-yellow);
   margin: 0;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.3s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: rotate(90deg);
-  }
 }
 
 /* 标签页 */
@@ -267,13 +222,13 @@ const formatReward = (reward: IQuestReward): string => {
 
 .tab-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 10px 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-main);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.3s;
 
   &:hover {
@@ -291,30 +246,10 @@ const formatReward = (reward: IQuestReward): string => {
 
 /* 任务列表 */
 .quest-list {
-  flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding-right: 8px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 215, 0, 0.3);
-    border-radius: 3px;
-
-    &:hover {
-      background: rgba(255, 215, 0, 0.5);
-    }
-  }
 }
 
 .empty-state {
@@ -342,7 +277,8 @@ const formatReward = (reward: IQuestReward): string => {
   &:hover {
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 215, 0, 0.3);
-    transform: translateX(4px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   &.main {

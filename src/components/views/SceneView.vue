@@ -1,16 +1,5 @@
 <template>
   <div class="scene-view-wrapper">
-    <!-- 任务入口按钮 -->
-    <button class="quest-btn" @click="toggleQuestPanel">📜 任务 ({{ activeQuestCount }})</button>
-
-    <!-- 任务面板 -->
-    <QuestPanel
-      v-if="isQuestPanelOpen"
-      @close="toggleQuestPanel"
-      @accept="handleAcceptQuest"
-      @claim="handleClaimReward"
-    />
-
     <BorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
       <div class="scenes-list">
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
@@ -136,7 +125,7 @@ import BorderContainer from '../common/BorderContainer.vue';
 import BattleView from './BattleView.vue';
 import ConversationView from './ConversationView.vue';
 import ShopView from './ShopView.vue';
-import QuestPanel from './QuestPanel.vue';
+// 移除了 import QuestPanel from './QuestPanel.vue';
 import { tianTingXing } from '@/scene/tianTingXing';
 import { qianJieXing } from '@/scene/qianJieXing';
 
@@ -152,26 +141,7 @@ const selectedMerchant = ref<ICharacter | null>(null);
 const isInBattle = ref(false);
 const isConversationOpen = ref(false);
 const isShopOpen = ref(false);
-const isQuestPanelOpen = ref(false);
-
-const activeQuestCount = computed(() => questStore.activeQuests.length);
-
-const toggleQuestPanel = () => {
-  isQuestPanelOpen.value = !isQuestPanelOpen.value;
-};
-
-const handleAcceptQuest = (questId: string) => {
-  const success = questStore.acceptQuest(questId);
-  if (success) {
-    const quest = questStore.quests.find((q) => q.id === questId);
-    alert(`✅ 接受了任务：${quest?.name}`);
-  }
-};
-
-const handleClaimReward = (questId: string) => {
-  const result = questStore.claimReward(questId);
-  alert(result.message);
-};
+// 移除了 const isQuestPanelOpen = ref(false);
 
 const enterScene = (scene: Scene) => {
   currentScene.value = scene;
@@ -466,30 +436,4 @@ const canFightMonster = (monster: ICharacter): boolean => {
   }
 }
 
-/* 任务按钮样式 */
-.quest-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.5);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
 </style>
