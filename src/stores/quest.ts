@@ -4,6 +4,7 @@ import type { IQuest, IQuestReward } from '@/interface/quest';
 import { QuestStatus } from '@/interface/quest';
 import { usePlayerStore } from './player';
 import { STORAGE_KEYS } from '@/constants';
+import { initialQuests } from '@/data/quests';
 
 /**
  * 防抖工具函数
@@ -13,16 +14,16 @@ import { STORAGE_KEYS } from '@/constants';
  */
 function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  
-  return function(...args: Parameters<T>) {
+
+  return function (...args: Parameters<T>) {
     // 如果已有定时器，清除它
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
-    
+
     // 重新设置定时器
     timeoutId = setTimeout(() => {
       func(...args);
@@ -35,7 +36,7 @@ function debounce<T extends (...args: any[]) => any>(
  */
 export const useQuestStore = defineStore('quest', () => {
   // --- 1. 状态初始化 ---
-  
+
   const quests = ref<IQuest[]>([]);
   const activeQuestId = ref<string | null>(null);
 
@@ -43,34 +44,34 @@ export const useQuestStore = defineStore('quest', () => {
   /** 活跃的任务（可接受 + 进行中） */
   const activeQuests = computed(() =>
     quests.value.filter(
-      (q) => q.status === QuestStatus.Available || q.status === QuestStatus.InProgress
-    )
+      (q) => q.status === QuestStatus.Available || q.status === QuestStatus.InProgress,
+    ),
   );
 
   /** 可进行中的任务 */
   const availableQuests = computed(() =>
-    quests.value.filter((q) => q.status === QuestStatus.Available)
+    quests.value.filter((q) => q.status === QuestStatus.Available),
   );
 
   /** 进行中的任务 */
   const inProgressQuests = computed(() =>
-    quests.value.filter((q) => q.status === QuestStatus.InProgress)
+    quests.value.filter((q) => q.status === QuestStatus.InProgress),
   );
 
   /** 已完成但未领取奖励的任务 */
   const completedQuests = computed(() =>
-    quests.value.filter((q) => q.status === QuestStatus.Completed)
+    quests.value.filter((q) => q.status === QuestStatus.Completed),
   );
 
   /** 当前选中的任务 */
-  const currentQuest = computed(() =>
-    quests.value.find((q) => q.id === activeQuestId.value)
-  );
+  const currentQuest = computed(() => quests.value.find((q) => q.id === activeQuestId.value));
 
   // --- 3. 核心方法 ---
-  /** 加载任务数据（合并配置和存档进度） */
-  const loadQuests = (questData: IQuest[]) => {
-    // 尝试从 localStorage 加载已保存的进度
+  /** 
+   * 从 localStorage 加载任务进度并合并到配置数据
+   * 在应用启动时调用，读取持久化数据并恢复到内存状态
+   */
+  const loadQuests = () => {
     const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
     
     if (savedProgress) {
@@ -78,7 +79,7 @@ export const useQuestStore = defineStore('quest', () => {
         const progressData = JSON.parse(savedProgress);
         
         // 合并配置数据和存档进度
-        const mergedQuests = questData.map((configQuest) => {
+        const mergedQuests = initialQuests.map((configQuest) => {
           const savedQuest = progressData?.p?.[configQuest.id];
           
           if (savedQuest) {
@@ -106,12 +107,12 @@ export const useQuestStore = defineStore('quest', () => {
         console.log(`📜 加载了 ${quests.value.length} 个任务（包含存档进度）`);
       } catch (e) {
         console.error('任务存档解析失败，使用原始配置', e);
-        quests.value = questData;
+        quests.value = initialQuests;
       }
     } else {
-      // 没有存档，使用原始配置
-      quests.value = questData;
-      console.log(`📜 加载了 ${quests.value.length} 个任务（新游戏）`);
+      // 没有存档，直接使用配置数据
+      quests.value = initialQuests;
+      console.log(`📜 加载了 ${initialQuests.length} 个任务（新游戏）`);
     }
   };
 
@@ -129,11 +130,7 @@ export const useQuestStore = defineStore('quest', () => {
   };
 
   /** 更新任务目标进度 */
-  const updateObjective = (
-    questId: string,
-    objectiveId: string,
-    increment: number = 1
-  ): void => {
+  const updateObjective = (questId: string, objectiveId: string, increment: number = 1): void => {
     const quest = quests.value.find((q) => q.id === questId);
     if (!quest || quest.status !== 'inProgress') {
       return;
@@ -149,7 +146,7 @@ export const useQuestStore = defineStore('quest', () => {
     objective.completed = objective.current >= objective.required;
 
     console.log(
-      `📝 更新任务进度：${quest.name} - ${objective.description} (${objective.current}/${objective.required})`
+      `📝 更新任务进度：${quest.name} - ${objective.description} (${objective.current}/${objective.required})`,
     );
 
     // 检查所有目标是否完成
@@ -163,17 +160,17 @@ export const useQuestStore = defineStore('quest', () => {
   const updateQuestsByTarget = (
     targetType: 'kill' | 'collect' | 'talk' | 'purchase',
     targetId: string,
-    amount: number = 1
+    amount: number = 1,
   ): void => {
     const inProgressQuestIds = inProgressQuests.value.map((q) => q.id);
-    
+
     inProgressQuestIds.forEach((questId) => {
       const quest = quests.value.find((q) => q.id === questId);
       if (!quest) return;
 
       quest.objectives.forEach((obj) => {
         // 根据目标类型和目标 ID 匹配
-        const isMatchByType = 
+        const isMatchByType =
           (targetType === 'kill' && obj.type === 'kill') ||
           (targetType === 'collect' && obj.type === 'collect') ||
           (targetType === 'talk' && obj.type === 'talk') ||
@@ -221,10 +218,10 @@ export const useQuestStore = defineStore('quest', () => {
 
     // 标记为已领取
     quest.status = QuestStatus.Claimed;
-    
+
     const message = `领取任务【${quest.name}】奖励：${rewardMessages.join('、')}`;
     console.log(`🎁 ${message}`);
-    
+
     return { success: true, message };
   };
 
@@ -239,7 +236,10 @@ export const useQuestStore = defineStore('quest', () => {
     if (quest.prerequisites && quest.prerequisites.length > 0) {
       const allPrerequisitesCompleted = quest.prerequisites.every((prereqId) => {
         const prereqQuest = quests.value.find((q) => q.id === prereqId);
-        return prereqQuest?.status === QuestStatus.Completed || prereqQuest?.status === QuestStatus.Claimed;
+        return (
+          prereqQuest?.status === QuestStatus.Completed ||
+          prereqQuest?.status === QuestStatus.Claimed
+        );
       });
 
       if (!allPrerequisitesCompleted) {
@@ -276,51 +276,53 @@ export const useQuestStore = defineStore('quest', () => {
   };
 
   // --- 4. 持久化监听与保存 ---
-  
+
   /** 提取进度数据（紧凑格式） */
   const extractProgressData = () => {
     const progress: Record<string, { s: string; o: Record<string, number> }> = {};
-    
+
     quests.value.forEach((quest) => {
       // 只保存有进度变化的任务（非 locked 状态或有进度的目标）
-      const hasProgress = 
-        quest.status !== QuestStatus.Locked || 
-        quest.objectives.some(obj => obj.current > 0);
-      
+      const hasProgress =
+        quest.status !== QuestStatus.Locked || quest.objectives.some((obj) => obj.current > 0);
+
       if (hasProgress) {
         progress[quest.id] = {
           s: quest.status,
-          o: quest.objectives.reduce((acc, obj) => {
-            // 只保存 current > 0 的目标
-            if (obj.current > 0) {
-              acc[obj.id] = obj.current;
-            }
-            return acc;
-          }, {} as Record<string, number>),
+          o: quest.objectives.reduce(
+            (acc, obj) => {
+              // 只保存 current > 0 的目标
+              if (obj.current > 0) {
+                acc[obj.id] = obj.current;
+              }
+              return acc;
+            },
+            {} as Record<string, number>,
+          ),
         };
       }
     });
-    
+
     return {
       p: progress,
       a: activeQuestId.value || undefined,
     };
   };
-  
+
   /** 保存到 localStorage */
   const saveProgress = () => {
     const progressData = extractProgressData();
     localStorage.setItem(STORAGE_KEYS.PLAYER_QUESTS, JSON.stringify(progressData));
     console.log('💾 任务进度已自动保存');
   };
-  
+
   /** 防抖版本的保存函数（1 秒延迟） */
   const debouncedSaveProgress = debounce(saveProgress, 1000);
 
   // 监听任务数据变化，使用防抖保存（避免频繁更新导致卡顿）
   // 场景：战斗中每秒多次 updateObjective → 只会在最后一次更新后 1 秒保存一次
   watch(quests, debouncedSaveProgress, { deep: true });
-  
+
   // 监听 activeQuestId 变化，立即保存（重要状态变更）
   // 场景：接受任务、切换追踪目标等关键操作立即保存
   watch(activeQuestId, saveProgress);
@@ -331,18 +333,18 @@ export const useQuestStore = defineStore('quest', () => {
    */
   const initialize = () => {
     const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
-    
+
     if (savedProgress) {
       try {
         const progressData = JSON.parse(savedProgress);
-        
+
         // 更新当前激活的任务 ID
         activeQuestId.value = progressData?.a || null;
-        
+
         // 遍历现有任务，应用存档进度
         quests.value = quests.value.map((quest) => {
           const savedQuest = progressData?.p?.[quest.id];
-          
+
           if (savedQuest) {
             return {
               ...quest,
@@ -357,11 +359,11 @@ export const useQuestStore = defineStore('quest', () => {
               }),
             };
           }
-          
+
           return quest;
         });
-        
-        console.log('📜 任务进度已从存档恢复', { 
+
+        console.log('📜 任务进度已从存档恢复', {
           questCount: quests.value.length,
           activeQuestId: activeQuestId.value,
         });

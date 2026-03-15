@@ -139,13 +139,12 @@ import ShopView from './ShopView.vue';
 import QuestPanel from './QuestPanel.vue';
 import { tianTingXing } from '@/scene/tianTingXing';
 import { qianJieXing } from '@/scene/qianJieXing';
-import { initialQuests } from '@/data/quests';
 
 const playerStore = usePlayerStore();
 const questStore = useQuestStore();
 
-// 初始化任务数据
-questStore.loadQuests(initialQuests);
+// 从 localStorage 加载任务数据到内存
+questStore.loadQuests();
 
 const scenes: Scene[] = [tianTingXing, qianJieXing];
 

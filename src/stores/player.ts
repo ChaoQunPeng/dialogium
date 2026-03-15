@@ -374,7 +374,7 @@ export const usePlayerStore = defineStore('player', () => {
    * 显式初始化方法
    * 用于在设置 localStorage 数据后重新加载玩家和背包数据
    */
-  const syncFromStorage = () => {
+  const loadStorageData = () => {
     const initialData = getInitialPlayer();
     const initialItems = getInitialInventory();
 
@@ -418,6 +418,6 @@ export const usePlayerStore = defineStore('player', () => {
     gainExp,
     mergeInventory,
     purchaseItem,
-    syncFromStorage,
+    loadStorageData,
   };
 });
