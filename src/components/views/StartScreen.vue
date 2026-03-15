@@ -60,13 +60,13 @@ const handleStart = async () => {
   isLoading.value = true;
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // 1. 先执行游戏初始化（设置 localStorage）
     await initializeGame();
 
     // 2. 然后刷新 playerStore 的数据
-    playerStore.initialize();
+    playerStore.syncFromStorage();
 
     console.log('✅ 游戏数据初始化完成，playerStore 已同步');
 

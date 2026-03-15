@@ -18,7 +18,7 @@ export const initialQuests: IQuest[] = [
         id: 'obj_001_1',
         description: '与接引仙人交谈',
         type: QuestObjectiveType.Talk,
-        target: 'npc_guide_001',
+        target: 'fuShan',
         current: 0,
         required: 1,
         completed: false,
