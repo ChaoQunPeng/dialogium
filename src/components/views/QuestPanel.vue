@@ -5,32 +5,12 @@
     </div>
 
     <!-- 任务分类标签 -->
-    <div class="quest-tabs">
-      <button
-        :class="{ active: activeTab === 'available' }"
-        @click="activeTab = 'available'"
-        class="tab-btn"
-      >
-        可接受 ({{ availableQuests.length }})
-      </button>
-      <button
-        :class="{ active: activeTab === 'inProgress' }"
-        @click="activeTab = 'inProgress'"
-        class="tab-btn"
-      >
-        进行中 ({{ inProgressQuests.length }})
-      </button>
-      <button
-        :class="{ active: activeTab === 'completed' }"
-        @click="activeTab = 'completed'"
-        class="tab-btn"
-      >
-        可领取 ({{ completedQuests.length }})
-      </button>
-    </div>
+    <TabSwitcher v-model="activeTab" :tabs="tabConfigs"> </TabSwitcher>
 
     <!-- 任务列表 -->
     <div class="quest-list">
+      <div class="common-btn">按钮</div>
+
       <div v-if="displayQuests.length === 0" class="empty-state">
         <div class="empty-icon">📭</div>
         <div class="empty-text">暂无任务</div>
@@ -98,11 +78,7 @@
           >
             🎁 领取奖励
           </button>
-          <button
-            v-if="quest.status === 'claimed'"
-            disabled
-            class="action-btn claimed-btn"
-          >
+          <button v-if="quest.status === 'claimed'" disabled class="action-btn claimed-btn">
             ✔️ 已完成
           </button>
         </div>
@@ -115,6 +91,7 @@
 import { ref, computed } from 'vue';
 import type { IQuestReward, QuestType, QuestStatus, QuestObjectiveType } from '@/interface/quest';
 import { useQuestStore } from '@/stores/quest';
+import TabSwitcher from '@/components/common/TabSwitcher.vue';
 
 defineEmits<{
   accept: [questId: string];
@@ -141,6 +118,12 @@ const displayQuests = computed(() => {
 const availableQuests = computed(() => questStore.availableQuests);
 const inProgressQuests = computed(() => questStore.inProgressQuests);
 const completedQuests = computed(() => questStore.completedQuests);
+
+const tabConfigs = computed(() => [
+  { id: 'available', label: '可接受', count: availableQuests.value.length },
+  { id: 'inProgress', label: '进行中', count: inProgressQuests.value.length },
+  { id: 'completed', label: '可领取', count: completedQuests.value.length },
+]);
 
 // 工具函数
 const getQuestTypeLabel = (type: QuestType): string => {
@@ -213,35 +196,14 @@ const formatReward = (reward: IQuestReward): string => {
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
-/* 标签页 */
-.quest-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+/* Tab 插槽内容样式 */
+.tab-label {
+  margin-right: 4px;
 }
 
-.tab-btn {
-  flex: 1;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  &.active {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 180, 0, 0.2));
-    border-color: var(--color-yellow);
-    color: var(--color-yellow);
-    font-weight: bold;
-  }
+.tab-count {
+  font-weight: normal;
+  opacity: 0.9;
 }
 
 /* 任务列表 */
