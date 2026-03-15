@@ -47,9 +47,11 @@
 import { ref } from 'vue';
 import { initializeGame } from '@/utils/initialize';
 import { usePlayerStore } from '@/stores/player';
+import { useQuestStore } from '@/stores/quest';
 
 const isLoading = ref(false);
 const playerStore = usePlayerStore();
+const questStore = useQuestStore();
 
 const emit = defineEmits<{
   'game-started': [];
@@ -62,13 +64,14 @@ const handleStart = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // 1. 先执行游戏初始化（设置 localStorage）
+    // 1. 先执行游戏初始化（只负责写入 localStorage）
     await initializeGame();
 
-    // 2. 然后刷新 playerStore 的数据
-    playerStore.syncFromStorage();
+    // 2. 然后从 localStorage 加载数据到各 store 的内存状态
+    playerStore.loadStorageData();
+    questStore.loadQuests();
 
-    console.log('✅ 游戏数据初始化完成，playerStore 已同步');
+    console.log('✅ 游戏数据初始化完成，所有 Store 已同步');
 
     // 3. 通知父组件游戏已启动
     emit('game-started');

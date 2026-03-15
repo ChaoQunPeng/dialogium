@@ -9,7 +9,7 @@ import { initialQuests } from '@/data/quests';
 /**
  * 防抖工具函数
  * @param func 需要防抖的函数
- * @param wait 等待时间（毫秒）
+ * @param wait 等待时间 (毫秒)
  * @returns 防抖后的函数
  */
 function debounce<T extends (...args: any[]) => any>(
@@ -41,7 +41,7 @@ export const useQuestStore = defineStore('quest', () => {
   const activeQuestId = ref<string | null>(null);
 
   // --- 2. 计算属性 ---
-  /** 活跃的任务（可接受 + 进行中） */
+  /** 活跃的任务 (可接受 + 进行中) */
   const activeQuests = computed(() =>
     quests.value.filter(
       (q) => q.status === QuestStatus.Available || q.status === QuestStatus.InProgress,
@@ -64,12 +64,14 @@ export const useQuestStore = defineStore('quest', () => {
   );
 
   /** 当前选中的任务 */
-  const currentQuest = computed(() => quests.value.find((q) => q.id === activeQuestId.value));
+  const currentQuest = computed(() =>
+    quests.value.find((q) => q.id === activeQuestId.value),
+  );
 
   // --- 3. 核心方法 ---
   /** 
-   * 从 localStorage 加载任务进度并合并到配置数据
-   * 在应用启动时调用，读取持久化数据并恢复到内存状态
+   * 从 localStorage 加载任务进度并合并到内存状态
+   * 这是 Store 层的主要加载方法，应该在应用启动时调用
    */
   const loadQuests = () => {
     const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
@@ -104,7 +106,7 @@ export const useQuestStore = defineStore('quest', () => {
 
         quests.value = mergedQuests;
         activeQuestId.value = progressData?.a || null;
-        console.log(`📜 加载了 ${quests.value.length} 个任务（包含存档进度）`);
+        console.log(`📜 加载了 ${quests.value.length} 个任务 (包含存档进度)`);
       } catch (e) {
         console.error('任务存档解析失败，使用原始配置', e);
         quests.value = initialQuests;
@@ -112,7 +114,7 @@ export const useQuestStore = defineStore('quest', () => {
     } else {
       // 没有存档，直接使用配置数据
       quests.value = initialQuests;
-      console.log(`📜 加载了 ${initialQuests.length} 个任务（新游戏）`);
+      console.log(`📜 加载了 ${initialQuests.length} 个任务 (新游戏)`);
     }
   };
 

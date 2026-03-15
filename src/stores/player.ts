@@ -371,8 +371,8 @@ export const usePlayerStore = defineStore('player', () => {
   };
 
   /**
-   * 显式初始化方法
-   * 用于在设置 localStorage 数据后重新加载玩家和背包数据
+   * 从 localStorage 加载玩家和背包数据到内存状态
+   * 这是 Store 层的主要加载方法，应该在应用启动时调用
    */
   const loadStorageData = () => {
     const initialData = getInitialPlayer();

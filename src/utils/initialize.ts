@@ -1,42 +1,26 @@
 import type { IItemInstance, ICharacter } from '@/interface';
-import type { IQuest } from '@/interface/quest';
 import { DEFAULT_PLAYER_CONFIG, STORAGE_KEYS } from '@/constants';
-import { initialQuests } from '@/data/quests';
 
 /**
  * 统一初始化方法
- * 同时初始化角色数据、背包数据和任务数据
+ * 同时初始化角色数据、背包数据和任务数据到 localStorage
  * 这是游戏启动时应该调用的主要初始化方法
- *
- * @returns 包含角色、物品和任务数据的初始化结果
+ * 
+ * 注意：此方法只负责向 localStorage 写入初始数据，不负责加载到内存
  */
 export const initializeGame = () => {
   console.log('=== 开始初始化飘邈之旅游戏数据 ===');
 
-  // 初始化角色数据
-  const character = initializeCharacterData();
+  // 初始化角色数据 (写入 localStorage)
+  initializeCharacterData();
 
-  // 初始化物品数据
-  const items = initializePlayerItemsData();
+  // 初始化物品数据 (写入 localStorage)
+  initializePlayerItemsData();
 
-  // 初始化任务数据
-  const quests = initializeQuestData();
+  // 初始化任务数据 (写入 localStorage)
+  initializeQuestData();
 
-  console.log('=== 游戏初始化完成 ===');
-  console.log('角色信息:', {
-    name: character.name,
-    level: character.baseInfo.level,
-    hp: `${character.baseInfo.hp}/${character.baseInfo.maxHp}`,
-    mp: `${character.baseInfo.mp}/${character.baseInfo.maxMp}`,
-  });
-  console.log('物品数量:', items.length);
-  console.log('任务数量:', quests.length);
-
-  return {
-    character,
-    items,
-    quests,
-  };
+  console.log('=== 游戏初始化完成，所有数据已写入 localStorage ===');
 };
 
 /**
@@ -159,14 +143,12 @@ export const initializeCharacterData = (): ICharacter => {
 /**
  * 初始化任务数据到 localStorage
  * 仅在首次游戏时调用，将初始任务配置写入持久化存储
- * 
- * @returns 加载后的任务数组
  */
-export const initializeQuestData = (): IQuest[] => {
+export const initializeQuestData = () => {
   // 环境检查
   if (typeof localStorage === 'undefined') {
     console.warn('当前环境不支持 localStorage，无法初始化任务数据');
-    return [];
+    return;
   }
 
   // 1. 检查是否已经有任务存档
@@ -184,62 +166,9 @@ export const initializeQuestData = (): IQuest[] => {
       console.log('📜 任务数据已初始化到 localStorage (新游戏)');
     } catch (e) {
       console.error('任务数据初始化失败:', e);
-      return [];
     }
   } else {
     console.log('📜 检测到已有任务存档，跳过初始化');
   }
-
-  // 2. 从 localStorage 加载并合并配置数据
-  return loadQuestData();
 };
 
-/**
- * 从 localStorage 加载任务进度并合并到配置数据
- * 在应用启动时调用，读取持久化数据并恢复到内存状态
- * 
- * @returns 加载后的任务数组
- */
-export const loadQuestData = (): IQuest[] => {
-  const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
-  
-  if (savedProgress) {
-    try {
-      const progressData = JSON.parse(savedProgress);
-      
-      // 合并配置数据和存档进度
-      const mergedQuests = initialQuests.map((configQuest) => {
-        const savedQuest = progressData?.p?.[configQuest.id];
-        
-        if (savedQuest) {
-          // 有存档进度，覆盖状态和目标进度
-          return {
-            ...configQuest,
-            status: savedQuest.s,
-            objectives: configQuest.objectives.map((obj) => {
-              const savedCurrent = savedQuest.o?.[obj.id] ?? 0;
-              return {
-                ...obj,
-                current: savedCurrent,
-                completed: savedCurrent >= obj.required,
-              };
-            }),
-          };
-        }
-        
-        // 没有存档，使用配置数据
-        return configQuest;
-      });
-
-      console.log(`📜 加载了 ${mergedQuests.length} 个任务（包含存档进度）`);
-      return mergedQuests;
-    } catch (e) {
-      console.error('任务存档解析失败，使用原始配置', e);
-      return initialQuests;
-    }
-  }
-  
-  // 没有存档，直接使用配置数据
-  console.log(`📜 加载了 ${initialQuests.length} 个任务（新游戏）`);
-  return initialQuests;
-};
