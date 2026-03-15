@@ -65,25 +65,18 @@
           <p>💡 <strong>提示：</strong></p>
           <ul>
             <li>游戏会自动保存您的进度</li>
-            <li>导出存档可将数据保存到本地文件</li>
-            <li>导入存档可从备份文件恢复进度</li>
+            <li>导出存档将下载 JSON 文件到本地</li>
+            <li>导入存档可从备份文件恢复进度（选择 JSON 文件）</li>
             <li>重置游戏将清除所有进度数据</li>
           </ul>
         </div>
       </div>
 
-      <!-- 隐藏的文本域用于复制 -->
-      <textarea 
-        ref="exportTextarea" 
-        class="hidden-textarea"
-        readonly
-      ></textarea>
-
       <!-- 隐藏的文件输入 -->
       <input 
         ref="fileInput" 
         type="file" 
-        accept=".json,.txt" 
+        accept=".json" 
         class="hidden-input"
         @change="handleFileSelect"
       />
@@ -95,13 +88,12 @@
 import { computed, ref } from 'vue';
 import { usePlayerStore } from '@/stores/player';
 import { useQuestStore } from '@/stores/quest';
-import { STORAGE_KEYS } from '@/constants';
+import { exportSaveFile, importSaveFile, resetGame } from '@/utils/saveManager';
 import type { IQuest } from '@/interface/quest';
 
 const playerStore = usePlayerStore();
 const questStore = useQuestStore();
 
-const exportTextarea = ref<HTMLTextAreaElement | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const lastSaveTime = ref<string>('自动保存中...');
 
@@ -118,29 +110,14 @@ const questProgress = computed(() => {
   };
 });
 
-/** 导出存档到剪贴板 */
+/** 导出存档到 JSON 文件 */
 const handleExportSave = async () => {
   try {
-    const saveData = questStore.exportSaveData();
-    
-    // 使用 Clipboard API
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(saveData);
-      alert('✅ 存档已复制到剪贴板！\n\n您可以粘贴到文本文件中保存。');
-    } else {
-      // 降级方案：使用 textarea
-      if (exportTextarea.value) {
-        exportTextarea.value.value = saveData;
-        exportTextarea.value.select();
-        document.execCommand('copy');
-        alert('✅ 存档已复制到剪贴板！\n\n您可以粘贴到文本文件中保存。');
-      }
-    }
-    
-    console.log('📤 存档导出成功');
+    exportSaveFile();
+    alert('✅ 存档文件已开始下载！\n\n包含：玩家数据 (PD)、背包物品 (PI)、任务进度 (PQ)');
   } catch (error) {
     console.error('导出失败', error);
-    alert('❌ 导出失败，请手动操作');
+    alert('❌ 导出失败，请重试');
   }
 };
 
@@ -150,37 +127,34 @@ const triggerImport = () => {
 };
 
 /** 处理文件选择 */
-const handleFileSelect = (event: Event) => {
+const handleFileSelect = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   
   if (!file) return;
   
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const content = e.target?.result as string;
-      const result = questStore.importSaveData(content);
-      
-      if (result.success) {
-        alert(`✅ ${result.message}\n\n页面将刷新以应用新存档。`);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      } else {
-        alert(`❌ ${result.message}`);
-      }
-    } catch (error) {
-      console.error('导入失败', error);
-      alert('❌ 文件读取失败，请确保文件格式正确');
+  // 验证文件类型
+  if (!file.name.endsWith('.json')) {
+    alert('❌ 请选择 JSON 格式的文件');
+    target.value = '';
+    return;
+  }
+  
+  try {
+    const result = await importSaveFile(file);
+    
+    if (result.success) {
+      alert(`✅ ${result.message}\n\n页面将刷新以应用新存档。`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else {
+      alert(`❌ ${result.message}`);
     }
-  };
-  
-  reader.onerror = () => {
-    alert('❌ 文件读取失败');
-  };
-  
-  reader.readAsText(file);
+  } catch (error) {
+    console.error('导入失败', error);
+    alert('❌ 文件读取失败，请确保文件格式正确');
+  }
   
   // 清空 input，允许重复选择同一文件
   target.value = '';
@@ -193,30 +167,12 @@ const confirmReset = () => {
   );
   
   if (confirmed) {
-    resetGame();
-  }
-};
-
-/** 重置游戏 */
-const resetGame = () => {
-  try {
-    // 清除所有 localStorage
-    localStorage.removeItem(STORAGE_KEYS.PLAYER_DATA);
-    localStorage.removeItem(STORAGE_KEYS.PLAYER_ITEMS);
-    localStorage.removeItem(STORAGE_KEYS.QUEST_DATA);
-    
-    console.log('✅ 游戏数据已清除');
-    
-    // 重新初始化
-    playerStore.initialize();
-    
-    alert('✅ 游戏已重置，页面将刷新。');
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-  } catch (error) {
-    console.error('重置失败', error);
-    alert('❌ 重置失败，请手动清除浏览器数据');
+    try {
+      resetGame();
+    } catch (error) {
+      console.error('重置失败', error);
+      alert('❌ 重置失败，请手动清除浏览器数据');
+    }
   }
 };
 </script>
@@ -345,7 +301,6 @@ const resetGame = () => {
   }
 }
 
-.hidden-textarea,
 .hidden-input {
   position: absolute;
   width: 1px;

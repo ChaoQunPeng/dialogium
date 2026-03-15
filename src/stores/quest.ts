@@ -73,7 +73,6 @@ export const useQuestStore = defineStore('quest', () => {
    */
   const loadQuests = () => {
     const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
-    debugger;
     if (savedProgress) {
       try {
         const progressData = JSON.parse(savedProgress);
