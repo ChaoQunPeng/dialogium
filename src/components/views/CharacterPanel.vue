@@ -1,25 +1,25 @@
 <template>
-  <div>
-    <BorderContainer title="个人属性">
+  <div class="character-panel">
+    <BaseBorderContainer title="个人属性">
       <div class="flex justify-between">
         <div>攻击：{{ playerStore.finalStats.attack }}</div>
         <div>防御：{{ playerStore.finalStats.defense }}</div>
         <div>生命：{{ playerStore.finalStats.maxHp }}</div>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
 
-    <BorderContainer title="穿戴装备">
+    <BaseBorderContainer title="穿戴装备">
       <div class="equip-line-grid">
         <div v-for="slot in equipmentSlots" :key="slot.key" class="slot-item">
           <div class="slot-inner">
             <span class="s-label mr-4">{{ slot.label }}:</span>
-            <EquipmentItem :equipment="equippedMap[slot.key]!"> </EquipmentItem>
+            <BaseEquipmentItem :equipment="equippedMap[slot.key]!"> </BaseEquipmentItem>
           </div>
         </div>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
 
-    <BorderContainer :title="`储物纳戒 (${filteredInventory.length})`">
+    <BaseBorderContainer :title="`储物纳戒 (${filteredInventory.length})`">
       <div class="tab-row">
         <div
           v-for="tab in tabs"
@@ -43,11 +43,11 @@
             <tr v-for="(item, index) in filteredInventory" :key="index" class="item-row">
               <td class="item-name">
                 <div>
-                  <EquipmentItem :equipment="item">
+                  <BaseEquipmentItem :equipment="item">
                     <template #default="{ item }">
                       <span>【{{ item.name }}】</span>
                     </template>
-                  </EquipmentItem>
+                  </BaseEquipmentItem>
 
                   <span v-if="item.isLocked" class="lock">[锁]</span>
                   <div class="item-description">{{ item.description || '--' }}</div>
@@ -59,7 +59,7 @@
         </table>
         <div v-if="filteredInventory.length === 0" class="empty-text">--- 纳戒空无一物 ---</div>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
   </div>
 </template>
 
@@ -68,7 +68,7 @@ import { computed, ref } from 'vue';
 import type { IItemInstance } from '@/interface/index';
 import type { IInventoryItem } from '@/interface/item';
 import { items } from '@/items/index';
-import EquipmentItem from '../common/EquipmentItem.vue';
+import BaseEquipmentItem from '../common/BaseEquipmentItem.vue';
 import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
 

@@ -5,7 +5,11 @@
     </div>
 
     <!-- 任务分类标签 -->
-    <TabSwitcher v-model="activeTab" :tabs="tabConfigs"> </TabSwitcher>
+    <BaseTabSwitcher
+      v-model="activeTab"
+      :tabs="tabConfigs"
+    >
+    </BaseTabSwitcher>
 
     <!-- 任务列表 -->
     <div class="quest-list">
@@ -91,7 +95,7 @@
 import { ref, computed } from 'vue';
 import type { IQuestReward, QuestType, QuestStatus, QuestObjectiveType } from '@/interface/quest';
 import { useQuestStore } from '@/stores/quest';
-import TabSwitcher from '@/components/common/TabSwitcher.vue';
+import BaseTabSwitcher from '@/components/common/BaseTabSwitcher.vue';
 
 defineEmits<{
   accept: [questId: string];

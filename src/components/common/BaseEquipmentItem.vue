@@ -1,26 +1,24 @@
 <template>
-  <div v-if="equipment">
-    <div class="equipment-item" :class="getRarityClass()" @click="showDetail">
-      <span class="equipment-name">
-        <slot :item="equipment">{{ equipment.name }}</slot>
-      </span>
-    </div>
+  <div class="equipment-item" :class="getRarityClass()" @click="showDetail">
+    <span class="equipment-name">
+      <slot :item="equipment">{{ equipment?.name }}</slot>
+    </span>
 
-    <ItemDetailModal
+    <BaseItemDetailModal
       ref="detailModalRef"
+      :item-data="equipment"
+      @remove="handleRemove"
       @equip="handleEquip"
-      @unequip="handleUnequip"
-      @drop="handleShowDropConfirm"
     />
 
-    <DropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
+    <BaseDropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ItemDetailModal from './ItemDetailModal.vue';
-import DropConfirmModal from './DropConfirmModal.vue';
+import BaseItemDetailModal from './BaseItemDetailModal.vue';
+import BaseDropConfirmModal from './BaseDropConfirmModal.vue';
 import type { IInventoryItem } from '@/interface';
 import { usePlayerStore } from '@/stores/player';
 const playerStore = usePlayerStore();
@@ -40,9 +38,9 @@ const props = withDefaults(defineProps<EquipmentItemProps>(), {});
 const emits = defineEmits<EquipmentItemEmits>();
 
 // 引用详情弹窗组件
-const detailModalRef = ref<InstanceType<typeof ItemDetailModal> | null>(null);
+const detailModalRef = ref<InstanceType<typeof BaseItemDetailModal> | null>(null);
 // 引用丢弃确认弹窗组件
-const dropConfirmModalRef = ref<InstanceType<typeof DropConfirmModal> | null>(null);
+const dropConfirmModalRef = ref<InstanceType<typeof BaseDropConfirmModal> | null>(null);
 
 // /** 品级配置信息（用于 UI 渲染） */
 // const GRADE_CONFIG: Record<ItemGrade, { label: string; color: string; level: number }> = {
@@ -63,29 +61,20 @@ const getRarityClass = () => {
 
 // 显示详情 - 调用子组件的show方法
 const showDetail = () => {
-  detailModalRef.value?.show(props.equipment);
+  detailModalRef.value?.show();
 };
 
 // 装备处理
 const handleEquip = (instanceId: string) => {
   emits('equip', instanceId);
-
   playerStore.equipItem(instanceId);
 };
 
-// 卸下处理
-const handleUnequip = (item: any) => {
-  emits('unequip', item);
-
-  if (item.instanceId) {
-    playerStore.unequipItem(item.instanceId);
+// 移除处理（丢弃）
+const handleRemove = (item: any) => {
+  if (item.instanceId && !item.isEquipped && !item.isLocked) {
+    dropConfirmModalRef.value?.show(item);
   }
-};
-
-// 显示丢弃确认弹窗
-const handleShowDropConfirm = (item: any) => {
-  emits('drop', item);
-  dropConfirmModalRef.value?.show(item);
 };
 
 // 确认丢弃处理

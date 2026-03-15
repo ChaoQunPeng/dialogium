@@ -1,6 +1,6 @@
 <template>
   <div class="shop-view-wrapper">
-    <BorderContainer>
+    <BaseBorderContainer>
       <div class="shop-content">
         <!-- 商店头部信息 -->
         <div class="shop-header">
@@ -54,10 +54,13 @@
           </button>
         </div>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
 
-    <!-- 物品详情弹窗 -->
-    <DropConfirmModal ref="modalRef" @confirm="handlePurchase" />
+    <BaseDropConfirmModal
+      ref="dropConfirmModalRef"
+      @confirm="handleDropConfirm"
+      @cancel="handleDropCancel"
+    />
   </div>
 </template>
 
@@ -65,8 +68,8 @@
 import { ref, computed } from 'vue';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
-import BorderContainer from '../common/BorderContainer.vue';
-import DropConfirmModal from '../common/DropConfirmModal.vue';
+import BaseBorderContainer from '../common/BaseBorderContainer.vue';
+import BaseDropConfirmModal from '../common/BaseDropConfirmModal.vue';
 
 interface Props {
   npc: ICharacter;
@@ -94,7 +97,7 @@ const tabs = [
 
 const currentTab = ref<string>('all');
 const selectedItem = ref<IItem | null>(null);
-const modalRef = ref<InstanceType<typeof DropConfirmModal> | null>(null);
+const dropConfirmModalRef = ref<InstanceType<typeof BaseDropConfirmModal> | null>(null);
 
 // 商品列表
 const shopItems = computed<IItem[]>(() => {
@@ -129,12 +132,22 @@ const getItemTypeName = (category: string): string => {
 const selectItem = (item: IItem) => {
   selectedItem.value = item;
   // 调用弹窗组件的 show 方法显示确认框
-  modalRef.value?.show(item);
+  dropConfirmModalRef.value?.show(item);
 };
 
 // 关闭商店
 const closeShop = () => {
   emit('close');
+};
+
+// 处理确认弹窗的确认事件
+const handleDropConfirm = (item: IItem) => {
+  handlePurchase(item);
+};
+
+// 处理确认弹窗的取消事件
+const handleDropCancel = () => {
+  selectedItem.value = null;
 };
 </script>
 

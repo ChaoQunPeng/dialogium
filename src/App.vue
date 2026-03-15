@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
     <!-- 游戏开始界面 -->
-    <StartScreen v-if="!playerStore.isGameStarted" @game-started="handleGameStarted" />
+    <StartView v-if="!playerStore.isGameStarted" @game-started="handleGameStarted" />
 
     <!-- 游戏主界面 -->
     <template v-else>
       <header class="game-header">
-        <BorderContainer class="header-inner">
+        <BaseBorderContainer class="header-inner">
           <div class="mud-horizontal-layout">
             <div class="identity-section">
               <div class="avatar-box">
@@ -41,18 +41,18 @@
               </div>
             </div>
           </div>
-        </BorderContainer>
+        </BaseBorderContainer>
       </header>
 
       <main class="game-content">
         <CharacterPanel v-show="activeTab === 'realm'" />
         <SceneView v-show="activeTab === 'adventure'" />
-        <QuestPanel
+        <QuestView
           v-show="activeTab === 'quest'"
           @accept="handleAcceptQuest"
           @claim="handleClaimQuest"
         />
-        <!-- <SystemPanel v-show="activeTab === 'system'" /> -->
+        <!-- <SystemView v-show="activeTab === 'system'" /> -->
       </main>
 
       <footer class="game-nav flex">
@@ -71,10 +71,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import StartScreen from './components/views/StartScreen.vue';
+import StartView from './components/views/StartView.vue';
 import SceneView from './components/views/SceneView.vue';
 import CharacterPanel from './components/views/CharacterPanel.vue';
-import QuestPanel from './components/views/QuestPanel.vue';
+import QuestView from './components/views/QuestView.vue';
+import BaseBorderContainer from './components/common/BaseBorderContainer.vue';
 import { usePlayerStore } from '@/stores/player';
 import { useQuestStore } from '@/stores/quest';
 import { STORAGE_KEYS } from '@/constants';

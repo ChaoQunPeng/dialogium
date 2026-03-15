@@ -1,6 +1,6 @@
 <template>
   <div class="scene-view-wrapper">
-    <BorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
+    <BaseBorderContainer v-if="!currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
       <div class="scenes-list">
         <div v-for="scene in scenes" :key="scene.id" class="scene-item" @click="enterScene(scene)">
           <div class="scene-header">
@@ -11,10 +11,10 @@
           </div>
         </div>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
 
     <template v-else-if="currentScene && !isInBattle && !isConversationOpen && !isShopOpen">
-      <BorderContainer :title="`${currentScene.name}`">
+      <BaseBorderContainer :title="`${currentScene.name}`">
         <div class="scene-detail-content">
           <p class="scene-intro">{{ currentScene.description }}</p>
 
@@ -82,7 +82,7 @@
             </div>
           </div>
         </div>
-      </BorderContainer>
+      </BaseBorderContainer>
     </template>
 
     <!-- 战斗视图 -->
@@ -121,7 +121,7 @@ import type { Scene } from '@/interface/scene';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
 import { canFight } from '@/utils/battle';
-import BorderContainer from '../common/BorderContainer.vue';
+import BaseBorderContainer from '../common/BaseBorderContainer.vue';
 import BattleView from './BattleView.vue';
 import ConversationView from './ConversationView.vue';
 import ShopView from './ShopView.vue';
@@ -435,5 +435,4 @@ const canFightMonster = (monster: ICharacter): boolean => {
     margin-bottom: 8px;
   }
 }
-
 </style>

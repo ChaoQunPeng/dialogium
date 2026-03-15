@@ -1,6 +1,6 @@
 <template>
   <div class="mud-game-wrapper">
-    <BorderContainer v-if="!isInBattle" :title="`当前场景：${sceneName || '荒野林径'}`">
+    <BaseBorderContainer v-if="!isInBattle" :title="`当前场景：${sceneName || '荒野林径'}`">
       <!-- 敌人详细信息面板 -->
       <div class="enemy-detail-panel">
         <div class="enemy-header">
@@ -61,10 +61,10 @@
           返回
         </button>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
 
     <div v-else class="battle-scene">
-      <BorderContainer :title="`正在与 ${enemy.name} 厮杀 (回合 ${currentTurns || 1})`">
+      <BaseBorderContainer :title="`正在与 ${enemy.name} 厮杀 (回合 ${currentTurns || 1})`">
         <!-- 战斗对峙界面 -->
         <div class="battle-stage-horizontal">
           <div class="unit-panel">
@@ -132,9 +132,9 @@
             </div>
           </template>
         </div>
-      </BorderContainer>
+      </BaseBorderContainer>
 
-      <BorderContainer title="战斗记录">
+      <BaseBorderContainer title="战斗记录">
         <div class="log-list">
           <TransitionGroup name="log-slide">
             <div
@@ -163,7 +163,7 @@
             --- 双方凝视对方，战斗一触即发 ---
           </div>
         </div>
-      </BorderContainer>
+      </BaseBorderContainer>
     </div>
   </div>
 </template>
@@ -176,7 +176,7 @@ import { canFight } from '@/utils/battle';
 import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
 import { items } from '@/items';
-import BorderContainer from '../common/BorderContainer.vue';
+import BaseBorderContainer from '../common/BaseBorderContainer.vue';
 import { useQuestStore } from '@/stores/quest';
 
 // 重新导入store以刷新类型

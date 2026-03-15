@@ -1,6 +1,6 @@
 <template>
   <div class="conversation-view">
-    <BorderContainer class="conversation-container">
+    <BaseBorderContainer>
       <div class="conversation-content">
         <!-- NPC 信息 -->
         <div class="npc-info">
@@ -51,14 +51,14 @@
           </button>
         </div>
       </div>
-    </BorderContainer>
+    </BaseBorderContainer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import type { ICharacter } from '@/interface/character';
-import BorderContainer from '../common/BorderContainer.vue';
+import BaseBorderContainer from '../common/BaseBorderContainer.vue';
 import TypeWriter from '../common/TypeWriter/TypeWriter.vue';
 
 // Props

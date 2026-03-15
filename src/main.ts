@@ -9,7 +9,7 @@ import './assets/main.css';
 
 import App from './App.vue';
 import router from './router';
-import BorderContainer from './components/common/BorderContainer.vue';
+import BorderContainer from './components/common/BaseBorderContainer.vue';
 
 const app = createApp(App);
 
