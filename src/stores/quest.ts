@@ -64,26 +64,23 @@ export const useQuestStore = defineStore('quest', () => {
   );
 
   /** 当前选中的任务 */
-  const currentQuest = computed(() =>
-    quests.value.find((q) => q.id === activeQuestId.value),
-  );
+  const currentQuest = computed(() => quests.value.find((q) => q.id === activeQuestId.value));
 
   // --- 3. 核心方法 ---
-  /** 
+  /**
    * 从 localStorage 加载任务进度并合并到内存状态
    * 这是 Store 层的主要加载方法，应该在应用启动时调用
    */
   const loadQuests = () => {
     const savedProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
-    
     if (savedProgress) {
       try {
         const progressData = JSON.parse(savedProgress);
-        
+
         // 合并配置数据和存档进度
         const mergedQuests = initialQuests.map((configQuest) => {
           const savedQuest = progressData?.p?.[configQuest.id];
-          
+
           if (savedQuest) {
             // 有存档进度，覆盖状态和目标进度
             return {
@@ -99,7 +96,7 @@ export const useQuestStore = defineStore('quest', () => {
               }),
             };
           }
-          
+
           // 没有存档，使用配置数据
           return configQuest;
         });

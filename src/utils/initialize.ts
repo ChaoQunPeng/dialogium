@@ -5,7 +5,7 @@ import { DEFAULT_PLAYER_CONFIG, STORAGE_KEYS } from '@/constants';
  * 统一初始化方法
  * 同时初始化角色数据、背包数据和任务数据到 localStorage
  * 这是游戏启动时应该调用的主要初始化方法
- * 
+ *
  * 注意：此方法只负责向 localStorage 写入初始数据，不负责加载到内存
  */
 export const initializeGame = () => {
@@ -153,14 +153,14 @@ export const initializeQuestData = () => {
 
   // 1. 检查是否已经有任务存档
   const existingProgress = localStorage.getItem(STORAGE_KEYS.PLAYER_QUESTS);
-  
+
   if (!existingProgress) {
     // 首次游戏，初始化空的进度数据
     const initialProgress = {
       p: {}, // 空的进度对象
-      a: null, // 没有激活的任务
+      a: '', // 没有激活的任务
     };
-    
+
     try {
       localStorage.setItem(STORAGE_KEYS.PLAYER_QUESTS, JSON.stringify(initialProgress));
       console.log('📜 任务数据已初始化到 localStorage (新游戏)');
@@ -171,4 +171,3 @@ export const initializeQuestData = () => {
     console.log('📜 检测到已有任务存档，跳过初始化');
   }
 };
-

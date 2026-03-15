@@ -143,9 +143,6 @@ import { qianJieXing } from '@/scene/qianJieXing';
 const playerStore = usePlayerStore();
 const questStore = useQuestStore();
 
-// 从 localStorage 加载任务数据到内存
-questStore.loadQuests();
-
 const scenes: Scene[] = [tianTingXing, qianJieXing];
 
 const currentScene = ref<Scene | null>(null);

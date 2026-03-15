@@ -177,10 +177,13 @@ import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
 import { items } from '@/items';
 import BorderContainer from '../common/BorderContainer.vue';
+import { useQuestStore } from '@/stores/quest';
 
 // 重新导入store以刷新类型
 const playerStore = usePlayerStore();
 const { player, acquireItem } = playerStore;
+
+const questStore = useQuestStore();
 
 // 定义props
 const props = defineProps<{
@@ -264,6 +267,7 @@ const battleEnemy = () => {
           }
 
           playerStore.gainExp(result.loser?.battle?.exp ?? 0);
+          questStore.updateQuestsByTarget('kill', result.loser!.id, 1);
         }
 
         battleStatus.value = 'finished';

@@ -64,7 +64,7 @@ const handleStart = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // 1. 先执行游戏初始化（只负责写入 localStorage）
+    // 1. 先执行游戏初始化 (只负责写入 localStorage)
     await initializeGame();
 
     // 2. 然后从 localStorage 加载数据到各 store 的内存状态
