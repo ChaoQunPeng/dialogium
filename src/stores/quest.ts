@@ -6,6 +6,31 @@ import { usePlayerStore } from './player';
 import { STORAGE_KEYS } from '@/constants';
 
 /**
+ * 防抖工具函数
+ * @param func 需要防抖的函数
+ * @param wait 等待时间（毫秒）
+ * @returns 防抖后的函数
+ */
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  
+  return function(...args: Parameters<T>) {
+    // 如果已有定时器，清除它
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    
+    // 重新设置定时器
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, wait);
+  };
+}
+
+/**
  * 任务状态管理 Store
  */
 export const useQuestStore = defineStore('quest', () => {
@@ -289,10 +314,15 @@ export const useQuestStore = defineStore('quest', () => {
     console.log('💾 任务进度已自动保存');
   };
   
-  // 监听任务数据变化，自动保存
-  watch(quests, saveProgress, { deep: true });
+  /** 防抖版本的保存函数（1 秒延迟） */
+  const debouncedSaveProgress = debounce(saveProgress, 1000);
+
+  // 监听任务数据变化，使用防抖保存（避免频繁更新导致卡顿）
+  // 场景：战斗中每秒多次 updateObjective → 只会在最后一次更新后 1 秒保存一次
+  watch(quests, debouncedSaveProgress, { deep: true });
   
-  // 监听 activeQuestId 变化，自动保存
+  // 监听 activeQuestId 变化，立即保存（重要状态变更）
+  // 场景：接受任务、切换追踪目标等关键操作立即保存
   watch(activeQuestId, saveProgress);
 
   /** 显式初始化方法
