@@ -15,7 +15,7 @@
         <div class="basic-grid">
           <div class="grid-item">
             <span class="label">部位</span>
-            <span class="val">{{ getSlotName(currentItem.slot) }}</span>
+            <span class="val">{{ getSlotName(currentItem?.slot) }}</span>
           </div>
           <div v-if="currentItem?.level" class="grid-item">
             <span class="label">品阶</span>
@@ -117,6 +117,7 @@ const getSlotName = (slot: string) => {
 };
 
 const show = (item: any) => {
+  if (!item) return;
   currentItem.value = item;
   visible.value = true;
 };

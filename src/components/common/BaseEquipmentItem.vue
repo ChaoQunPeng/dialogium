@@ -4,12 +4,7 @@
       <slot :item="equipment">{{ equipment?.name }}</slot>
     </span>
 
-    <BaseItemDetailModal
-      ref="detailModalRef"
-      :item-data="equipment"
-      @remove="handleRemove"
-      @equip="handleEquip"
-    />
+    <BaseItemDetailModal ref="detailModalRef" :item-data="equipment" @remove="handleRemove" @equip="handleEquip" />
 
     <BaseDropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
   </div>
@@ -61,7 +56,7 @@ const getRarityClass = () => {
 
 // 显示详情 - 调用子组件的show方法
 const showDetail = () => {
-  detailModalRef.value?.show();
+  detailModalRef.value?.show(props.equipment);
 };
 
 // 装备处理
