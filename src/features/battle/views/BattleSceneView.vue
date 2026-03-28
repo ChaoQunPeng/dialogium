@@ -1,3 +1,4 @@
+<!-- 全屏战斗场景视图 - 提供沉浸式战斗体验的全屏视图 -->
 <template>
   <div class="battle-scene-view-full-screen">
     <div class="battle-scene-container">
@@ -23,6 +24,9 @@ import BattleStagePanel from '@/features/battle/components/BattleStagePanel.vue'
 import type { ICharacter } from '@/interface/character';
 import type { IBattleReward } from '@/utils/battle';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：玩家、玩家属性、敌人、回合数、战斗状态、奖励、日志
 defineProps<{
   player: ICharacter;
   playerStats: any;
@@ -33,6 +37,7 @@ defineProps<{
   battleLogs: string[];
 }>();
 
+// 组件事件：再次挑战、退出
 defineEmits<{
   (e: 'rematch'): void;
   (e: 'quit'): void;

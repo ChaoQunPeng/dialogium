@@ -1,3 +1,4 @@
+<!-- 任务列表 - 展示任务项集合 -->
 <template>
   <div class="quest-list">
     <div v-if="items.length === 0" class="empty-state">
@@ -19,10 +20,14 @@
 import type { IQuest } from '@/interface/quest';
 import QuestListItem from '@/features/quest/components/QuestListItem.vue';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：任务列表
 defineProps<{
   items: IQuest[];
 }>();
 
+// 组件事件：接受任务、领取奖励
 const emit = defineEmits<{
   (e: 'accept', questId: string): void;
   (e: 'claim', questId: string): void;

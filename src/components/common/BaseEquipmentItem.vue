@@ -1,10 +1,16 @@
+<!-- 基础装备物品 - 用于展示和操作装备物品的通用组件 -->
 <template>
   <div class="equipment-item" :class="getRarityClass()" @click="showDetail">
     <span class="equipment-name">
       <slot :item="equipment">{{ equipment?.name }}</slot>
     </span>
 
-    <BaseItemDetailModal ref="detailModalRef" :item-data="equipment" @remove="handleRemove" @equip="handleEquip" />
+    <BaseItemDetailModal
+      ref="detailModalRef"
+      :item-data="equipment"
+      @remove="handleRemove"
+      @equip="handleEquip"
+    />
 
     <BaseDropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
   </div>
@@ -16,12 +22,17 @@ import BaseItemDetailModal from './BaseItemDetailModal.vue';
 import BaseDropConfirmModal from './BaseDropConfirmModal.vue';
 import type { IInventoryItem } from '@/interface';
 import { usePlayerStore } from '@/stores/player';
+
 const playerStore = usePlayerStore();
 
+// ==================== 接口定义 ====================
+
+// 组件属性接口
 interface EquipmentItemProps {
   equipment?: IInventoryItem;
 }
 
+// 组件事件接口
 interface EquipmentItemEmits {
   (e: 'equip', instanceId: string): void;
   (e: 'unequip', item: any): void;
@@ -32,47 +43,54 @@ const props = withDefaults(defineProps<EquipmentItemProps>(), {});
 
 const emits = defineEmits<EquipmentItemEmits>();
 
-// 引用详情弹窗组件
+// ==================== 引用组件 ====================
+
+// 物品详情弹窗引用
 const detailModalRef = ref<InstanceType<typeof BaseItemDetailModal> | null>(null);
-// 引用丢弃确认弹窗组件
+// 丢弃确认弹窗引用
 const dropConfirmModalRef = ref<InstanceType<typeof BaseDropConfirmModal> | null>(null);
 
-// /** 品级配置信息（用于 UI 渲染） */
-// const GRADE_CONFIG: Record<ItemGrade, { label: string; color: string; level: number }> = {
-//   Normal: { label: '普通', color: '#ffffff', level: 1 },
-//   Advanced: { label: '高级', color: '#1eff00', level: 2 },
-//   Rare: { label: '稀有', color: '#0070dd', level: 3 },
-//   Artifact: { label: '神器', color: '#a335ee', level: 4 },
-//   Epic: { label: '史诗', color: '#ff8000', level: 5 },
-//   Legendary: { label: '传说', color: '#e6cc80', level: 6 },
-// };
+// ==================== 核心逻辑 ====================
 
-// 根据装备等级获取品级颜色类名
+/**
+ * 根据装备等级获取品级 CSS 类名
+ */
 const getRarityClass = () => {
   // 直接将 grade 字符串转为小写作为 CSS 类名，保持逻辑一致性
   const grade = props.equipment?.grade;
   return grade ? grade.toLowerCase() : 'normal';
 };
 
-// 显示详情 - 调用子组件的show方法
+// ==================== 事件处理 ====================
+
+/** 显示物品详情 - 调用子组件的 show 方法 */
 const showDetail = () => {
   detailModalRef.value?.show(props.equipment);
 };
 
-// 装备处理
+/**
+ * 装备物品
+ * @param instanceId 物品实例 ID
+ */
 const handleEquip = (instanceId: string) => {
   emits('equip', instanceId);
   playerStore.equipItem(instanceId);
 };
 
-// 移除处理（丢弃）
+/**
+ * 移除处理（丢弃）
+ * @param item 要丢弃的物品
+ */
 const handleRemove = (item: any) => {
   if (item.instanceId && !item.isEquipped && !item.isLocked) {
     dropConfirmModalRef.value?.show(item);
   }
 };
 
-// 确认丢弃处理
+/**
+ * 确认丢弃处理
+ * @param item 确认丢弃的物品
+ */
 const handleDropConfirm = (item: any) => {
   if (item.instanceId && !item.isEquipped && !item.isLocked) {
     playerStore.dropItem(item.instanceId);

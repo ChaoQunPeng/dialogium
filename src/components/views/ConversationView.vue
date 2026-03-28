@@ -1,3 +1,4 @@
+<!-- 对话视图组件 - 用于展示 NPC 对话内容，支持打字机效果 -->
 <template>
   <div class="conversation-view">
     <BaseBorderContainer>
@@ -61,31 +62,48 @@ import type { ICharacter } from '@/interface/character';
 import BaseBorderContainer from '../common/BaseBorderContainer.vue';
 import TypeWriter from '../common/TypeWriter/TypeWriter.vue';
 
-// Props
+// ==================== Props & Emits ====================
+
+// Props：NPC 角色信息
 const props = defineProps<{
   npc: ICharacter | null;
 }>();
 
-// Emits
+// Emits：关闭对话事件
 const emit = defineEmits<{
   close: [];
 }>();
 
-// 状态管理
+// ==================== 状态管理 ====================
+
+// 当前显示的对话索引
 const currentConvIndex = ref(0);
-const currentContentIndex = ref(-1); // -1 表示还没开始显示任何内容
+// 当前内容索引（-1 表示还没开始显示任何内容）
+const currentContentIndex = ref(-1);
+// 对话盒子引用
 const dialogueBoxRef = ref<HTMLElement | null>(null);
+// 打字机组件引用
 const typeWriters = ref<any[]>([]);
 
-// 判断是否应该显示
+// ==================== 核心逻辑 ====================
+
+/**
+ * 判断是否应该显示指定索引的对话内容
+ * @param convIndex 对话项索引
+ * @param contentIndex 内容索引
+ */
 const shouldShow = (convIndex: number, contentIndex: number) => {
+  // 已完成的对话项，全部显示
   if (convIndex < currentConvIndex.value) return true;
+  // 当前对话项中，已完成或正在显示的内容
   if (convIndex === currentConvIndex.value && contentIndex <= currentContentIndex.value)
     return true;
   return false;
 };
 
-// 获取当前正在打字的 TypeWriter
+/**
+ * 获取当前正在打字的 TypeWriter 组件
+ */
 const getCurrentTypeWriter = () => {
   const index = currentContentIndex.value;
   if (index >= 0 && index < typeWriters.value.length) {
@@ -94,7 +112,9 @@ const getCurrentTypeWriter = () => {
   return null;
 };
 
-// 滚动到底部
+/**
+ * 滚动对话盒子到底部
+ */
 const scrollToBottom = async () => {
   await nextTick();
   if (dialogueBoxRef.value) {
@@ -102,7 +122,9 @@ const scrollToBottom = async () => {
   }
 };
 
-// 显示下一句对话
+/**
+ * 显示下一句对话
+ */
 const showNextSentence = async () => {
   if (!props.npc?.conversations) return;
 
@@ -111,7 +133,7 @@ const showNextSentence = async () => {
   // 检查当前句子是否还在打字
   const currentTypeWriter = getCurrentTypeWriter();
   if (currentTypeWriter && currentTypeWriter.isTyping?.value) {
-    // 还在打字，等待
+    // 还在打字，等待完成
     return;
   }
 
@@ -141,7 +163,12 @@ const showNextSentence = async () => {
   }, 500); // 每句之间延迟 500ms
 };
 
-// 打字状态处理
+// ==================== 事件处理 ====================
+
+/**
+ * 处理打字状态变化
+ * @param isTyping 是否正在打字
+ */
 const handleTypingStatus = (isTyping: boolean) => {
   if (!isTyping) {
     // 当前句子打字完成，继续下一句
@@ -151,10 +178,14 @@ const handleTypingStatus = (isTyping: boolean) => {
   }
 };
 
-// 关闭对话
+/**
+ * 关闭对话
+ */
 const closeConversation = () => {
   emit('close');
 };
+
+// ==================== 生命周期 ====================
 
 // 初始化：开始显示第一句
 onMounted(() => {

@@ -1,3 +1,4 @@
+<!-- 角色背包卡片 - 展示和管理背包物品 -->
 <template>
   <BaseBorderContainer :title="`储物纳戒 (${items.length})`">
     <div class="tab-row">
@@ -52,12 +53,16 @@ import type {
   InventoryTabConfig,
 } from '@/features/character/model/inventory';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：当前标签页、标签页配置、物品列表
 defineProps<{
   activeTab: InventoryTab;
   tabs: InventoryTabConfig[];
   items: CharacterInventoryItem[];
 }>();
 
+// 组件事件：切换标签页
 defineEmits<{
   (e: 'change-tab', tab: InventoryTab): void;
 }>();

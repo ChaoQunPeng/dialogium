@@ -1,3 +1,4 @@
+// 系统设置面板 - 用于管理游戏进度和存档
 <template>
   <div class="system-panel">
     <BorderContainer title="系统设置">
@@ -94,12 +95,19 @@ import type { IQuest } from '@/interface/quest';
 const playerStore = usePlayerStore();
 const questStore = useQuestStore();
 
+// 文件输入引用
 const fileInput = ref<HTMLInputElement | null>(null);
+// 最后保存时间显示
 const lastSaveTime = ref<string>('自动保存中...');
 
-// 计算任务进度
+// ==================== 计算属性 ====================
+
+/**
+ * 计算任务进度统计信息
+ */
 const questProgress = computed(() => {
   const allQuests = questStore.quests as IQuest[];
+  // 统计已完成或已领取的任务数量
   const completed = allQuests.filter((q: IQuest) => 
     q.status === 'completed' || q.status === 'claimed'
   ).length;
@@ -109,6 +117,8 @@ const questProgress = computed(() => {
     total: allQuests.length,
   };
 });
+
+// ==================== 事件处理 ====================
 
 /** 导出存档到 JSON 文件 */
 const handleExportSave = async () => {
@@ -121,12 +131,15 @@ const handleExportSave = async () => {
   }
 };
 
-/** 触发文件选择 */
+/** 触发文件选择对话框 */
 const triggerImport = () => {
   fileInput.value?.click();
 };
 
-/** 处理文件选择 */
+/**
+ * 处理文件选择并导入存档
+ * @param event 文件输入框变化事件
+ */
 const handleFileSelect = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
@@ -160,7 +173,7 @@ const handleFileSelect = async (event: Event) => {
   target.value = '';
 };
 
-/** 确认重置 */
+/** 确认重置游戏 */
 const confirmReset = () => {
   const confirmed = confirm(
     '⚠️ 警告：此操作将清除所有游戏进度！\n\n确定要重置游戏吗？\n\n此操作不可恢复！'

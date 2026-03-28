@@ -1,3 +1,4 @@
+<!-- 场景列表组件 - 展示所有可用场景供玩家选择 -->
 <template>
   <BaseBorderContainer>
     <div class="scenes-list">
@@ -17,10 +18,14 @@
 import BaseBorderContainer from '@/components/common/BaseBorderContainer.vue';
 import type { Scene } from '@/interface/scene';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：场景列表
 defineProps<{
   scenes: Scene[];
 }>();
 
+// 组件事件：选择场景
 defineEmits<{
   (e: 'select', scene: Scene): void;
 }>();

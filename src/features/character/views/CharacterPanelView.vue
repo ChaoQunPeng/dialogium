@@ -1,3 +1,4 @@
+<!-- 角色面板视图 - 展示角色属性、装备和背包 -->
 <template>
   <div class="character-panel">
     <CharacterStatsCard
@@ -32,11 +33,21 @@ import {
 } from '@/features/character/model/inventory';
 
 const playerStore = usePlayerStore();
+
+// ==================== 状态管理 ====================
+
+// 当前选中的背包标签页
 const activeTab = ref<InventoryTab>('equipment');
+// 所有可用的背包标签页
 const tabs = INVENTORY_TABS;
 
+// ==================== 计算属性 ====================
+
+/** 映射后的背包物品列表 */
 const inventory = computed(() => mapInventoryItems(playerStore.inventory));
+/** 已装备物品的映射表 */
 const equippedMap = computed(() => buildEquippedMap(inventory.value));
+/** 根据标签页过滤后的背包物品 */
 const filteredInventory = computed(() => mergeInventoryItems(inventory.value, activeTab.value));
 </script>
 

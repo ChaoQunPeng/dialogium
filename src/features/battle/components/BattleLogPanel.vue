@@ -1,3 +1,4 @@
+<!-- 战斗日志面板 - 展示战斗过程的文本记录 -->
 <template>
   <BaseBorderContainer title="战斗记录">
     <div class="log-list">
@@ -29,6 +30,9 @@
 <script setup lang="ts">
 import BaseBorderContainer from '@/components/common/BaseBorderContainer.vue';
 
+// ==================== Props ====================
+
+// 组件属性：战斗日志数组
 defineProps<{
   battleLogs: string[];
 }>();

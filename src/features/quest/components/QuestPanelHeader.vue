@@ -1,3 +1,4 @@
+<!-- 任务面板头部 - 展示任务标题和标签页切换器 -->
 <template>
   <div>
     <div class="panel-header">
@@ -12,15 +13,20 @@
 import BaseTabSwitcher from '@/components/common/BaseTabSwitcher.vue';
 import type { QuestTabConfig, QuestTabId } from '@/features/quest/model/quest';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：当前选中的标签页、标签页配置
 defineProps<{
   modelValue: QuestTabId;
   tabs: QuestTabConfig[];
 }>();
 
+// 组件事件：更新选中值
 const emit = defineEmits<{
   (e: 'update:modelValue', value: QuestTabId): void;
 }>();
 
+/** 处理标签页切换 */
 const handleTabChange = (value: string) => {
   emit('update:modelValue', value as QuestTabId);
 };

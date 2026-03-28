@@ -1,3 +1,4 @@
+// 商店视图 - 用于展示 NPC 商店界面，支持商品浏览和购买
 <template>
   <div class="shop-view-wrapper">
     <BaseBorderContainer>
@@ -71,10 +72,14 @@ import type { IItem } from '@/interface/item';
 import BaseBorderContainer from '../common/BaseBorderContainer.vue';
 import BaseDropConfirmModal from '../common/BaseDropConfirmModal.vue';
 
+// ==================== 接口定义 ====================
+
+// 组件属性接口
 interface Props {
   npc: ICharacter;
 }
 
+// 组件事件接口
 interface Emits {
   (e: 'close'): void;
   (e: 'purchase', item: IItem): void;
@@ -83,11 +88,16 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-// 商店信息
+// ==================== 商店信息 ====================
+
+/** 商家名称 */
 const merchantName = computed(() => props.npc.name);
+/** 欢迎语 */
 const greeting = computed(() => props.npc.interact?.greeting || '欢迎光临，随便看看！');
 
-// 标签页
+// ==================== 标签页配置 ====================
+
+// 商品分类标签
 const tabs = [
   { type: 'all', label: '全部' },
   { type: 'consumable', label: '丹药' },
@@ -95,22 +105,30 @@ const tabs = [
   { type: 'material', label: '材料' },
 ];
 
+// 当前选中的标签
 const currentTab = ref<string>('all');
+// 当前选中的物品
 const selectedItem = ref<IItem | null>(null);
+// 确认弹窗组件引用
 const dropConfirmModalRef = ref<InstanceType<typeof BaseDropConfirmModal> | null>(null);
 
-// 商品列表
+// ==================== 商品数据 ====================
+
+/** 获取商店商品列表 */
 const shopItems = computed<IItem[]>(() => {
   return props.npc.interact?.shopItems || [];
 });
 
-// 处理购买确认（从弹窗组件事件转发到父组件）
+/**
+ * 处理购买确认（从弹窗组件事件转发到父组件）
+ * @param item 购买的物品
+ */
 const handlePurchase = (item: IItem) => {
   console.log(`🛒 ShopView 收到购买请求：${item.name}`);
   emit('purchase', item);
 };
 
-// 过滤后的商品
+/** 根据当前标签过滤商品列表 */
 const filteredItems = computed(() => {
   if (currentTab.value === 'all') {
     return shopItems.value;
@@ -118,7 +136,10 @@ const filteredItems = computed(() => {
   return shopItems.value.filter((item) => item.category === currentTab.value);
 });
 
-// 获取类型名称
+/**
+ * 获取物品类型名称
+ * @param category 物品类别
+ */
 const getItemTypeName = (category: string): string => {
   const typeMap: Record<string, string> = {
     consumable: '丹药',
@@ -128,24 +149,29 @@ const getItemTypeName = (category: string): string => {
   return typeMap[category] || '其他';
 };
 
-// 选择物品
+// ==================== 事件处理 ====================
+
+/**
+ * 选择物品并显示购买确认框
+ * @param item 选择的物品
+ */
 const selectItem = (item: IItem) => {
   selectedItem.value = item;
   // 调用弹窗组件的 show 方法显示确认框
   dropConfirmModalRef.value?.show(item);
 };
 
-// 关闭商店
+/** 关闭商店 */
 const closeShop = () => {
   emit('close');
 };
 
-// 处理确认弹窗的确认事件
+/** 处理确认弹窗的确认事件 */
 const handleDropConfirm = (item: IItem) => {
   handlePurchase(item);
 };
 
-// 处理确认弹窗的取消事件
+/** 处理确认弹窗的取消事件 */
 const handleDropCancel = () => {
   selectedItem.value = null;
 };

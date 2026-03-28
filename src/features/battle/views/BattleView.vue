@@ -1,3 +1,4 @@
+// 战斗视图 - 管理战斗准备阶段和全屏战斗执行的容器组件
 <template>
   <div class="battle-view-wrapper">
     <!-- 战斗准备阶段 - 嵌入在原页面中 -->
@@ -36,6 +37,9 @@ import type { IBattleSummary } from '@/utils/battle';
 
 const playerStore = usePlayerStore();
 
+// ==================== Props & Emits ====================
+
+// 组件属性：玩家角色、敌人、场景名称、是否显示关闭按钮
 const props = defineProps<{
   player: ICharacter;
   enemy: ICharacter;
@@ -43,11 +47,15 @@ const props = defineProps<{
   showCloseButton?: boolean;
 }>();
 
+// 组件事件：战斗结束、关闭
 const emit = defineEmits<{
   (e: 'battleEnd', result: IBattleSummary): void;
   (e: 'close'): void;
 }>();
 
+// ==================== 战斗流程管理 ====================
+
+// 使用战斗流程组合式函数
 const {
   enemy,
   isInBattle,
@@ -60,18 +68,20 @@ const {
   rematchEncounter,
 } = useBattleFlow(() => props.enemy);
 
-// 开始战斗 - 切换到全屏战斗视图
+// ==================== 事件处理 ====================
+
+/** 开始战斗 - 切换到全屏战斗视图 */
 const startBattle = () => {
   startEncounter();
 };
 
-// 退出战斗
+/** 退出战斗 */
 const quitBattle = () => {
   quitEncounter();
   emit('close');
 };
 
-// 再次挑战
+/** 再次挑战 */
 const rematchBattle = () => {
   rematchEncounter();
 };

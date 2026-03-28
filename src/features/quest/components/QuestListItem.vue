@@ -1,3 +1,4 @@
+<!-- 任务列表项 - 展示单个任务的详细信息和操作按钮 -->
 <template>
   <div class="quest-item" :class="[quest.type, quest.status]">
     <div class="quest-header">
@@ -67,10 +68,14 @@ import {
   getQuestTypeLabel,
 } from '@/features/quest/model/quest';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：任务对象
 defineProps<{
   quest: IQuest;
 }>();
 
+// 组件事件：接受任务、领取奖励
 const emit = defineEmits<{
   (e: 'accept', questId: string): void;
   (e: 'claim', questId: string): void;

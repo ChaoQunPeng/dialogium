@@ -1,3 +1,4 @@
+<!-- 基础丢弃确认弹窗 - 用于确认物品丢弃或购买的通用模态框 -->
 <template>
   <div v-if="visible" class="modal-overlay" @click="handleCancel">
     <div class="modal-box" @click.stop>
@@ -17,28 +18,44 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+// ==================== 事件定义 ====================
+
+// 定义组件事件接口
 interface DropConfirmModalEmits {
   (e: 'confirm', item: any): void;
 }
 
 const emits = defineEmits<DropConfirmModalEmits>();
 
-// 内部状态
+// ==================== 内部状态 ====================
+
+// 弹窗是否可见
 const visible = ref(false);
+// 当前操作的物品
 const currentItem = ref<any>(null);
 
-// 公共API方法
+// ==================== 公共 API 方法 ====================
+
+/**
+ * 显示确认弹窗
+ * @param item 要确认的物品
+ */
 const show = (item: any) => {
   currentItem.value = item;
   visible.value = true;
 };
 
+/**
+ * 隐藏弹窗
+ */
 const hide = () => {
   visible.value = false;
   currentItem.value = null;
 };
 
-// 事件处理方法
+// ==================== 事件处理 ====================
+
+/** 确认操作 */
 const handleConfirm = () => {
   if (currentItem.value) {
     emits('confirm', currentItem.value);
@@ -46,11 +63,12 @@ const handleConfirm = () => {
   hide();
 };
 
+/** 取消操作 */
 const handleCancel = () => {
   hide();
 };
 
-// 暴露公共API
+// 暴露公共 API 给父组件调用
 defineExpose({
   show,
   hide

@@ -1,16 +1,24 @@
+<!-- 开始屏幕视图 - 游戏启动界面，展示标题、特色功能和开始按钮 -->
 <template>
+  <!-- 开始屏幕容器 -->
   <div class="start-screen">
+    <!-- 开始内容区域 -->
     <div class="start-content">
+      <!-- 标题区域：包含游戏标题、致敬文字和标语 -->
       <div class="title-section">
+        <!-- 游戏主标题 -->
         <h1 class="game-title">
           <span class="title-main">飘邈之旅</span>
         </h1>
 
+        <!-- 致敬文字：说明游戏改编自同名小说 -->
         <div class="tribute-text">
           <span>根据同名小说《飘邈之旅》开发</span>
         </div>
 
+        <!-- 标语包装器 -->
         <div class="tagline-wrapper">
+          <!-- 游戏标语：介绍游戏特色 -->
           <p class="tagline">
             也许会看到先进的文明，也许会看到诱人的法宝，也许会看到仙人的遗迹...
             不用奇怪！这就是飘邈之旅！
@@ -18,6 +26,7 @@
         </div>
       </div>
 
+      <!-- 特色功能展示：横向排列的游戏特色 -->
       <div class="feature-text-flow">
         <span class="feat-node">历练战斗</span>
         <span class="feat-sep">·</span>
@@ -28,14 +37,21 @@
         <span class="feat-node">探索星域</span>
       </div>
 
+      <!-- 操作区域：包含加载提示和开始按钮 -->
       <div class="action-area">
+        <!-- 加载提示：当 isLoading 为 true 时显示 -->
         <div class="loading-hint" v-if="isLoading">
+          <!-- 加载旋转动画 -->
           <span class="loading-spinner"></span>
+          <!-- 加载文字提示 -->
           <span class="loading-text">正在进入修真界...</span>
         </div>
 
+        <!-- 开始按钮：当 isLoading 为 false 时显示 -->
         <button v-else class="text-btn" @click="handleStart">
+          <!-- 按钮文字 -->
           <span class="btn-text">[ 开启旅程 ]</span>
+          <!-- 按钮光晕效果 -->
           <span class="btn-glow"></span>
         </button>
       </div>
@@ -49,27 +65,60 @@ import { initializeGame } from '@/utils/initialize';
 import { usePlayerStore } from '@/stores/player';
 import { useQuestStore } from '@/stores/quest';
 
+// ==================== 状态管理 ====================
+
+// 是否正在加载中（控制加载动画和按钮的显示切换）
 const isLoading = ref(false);
+
+// 玩家数据管理器
 const playerStore = usePlayerStore();
+
+// 任务数据管理器
 const questStore = useQuestStore();
 
+// ==================== 事件定义 ====================
+
+// 组件事件定义：游戏已启动时通知父组件
 const emit = defineEmits<{
   'game-started': [];
 }>();
 
+// ==================== 事件处理 ====================
+
+/**
+ * 处理开始按钮点击事件
+ * 执行游戏初始化流程，包括延迟动画、初始化游戏、加载数据等
+ */
 const handleStart = async () => {
+  // 如果正在加载中，防止重复点击
   if (isLoading.value) return;
+  
+  // 设置为加载状态
   isLoading.value = true;
 
   try {
+    // 延迟 1.5 秒展示加载动画，提升用户体验
     await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    // 初始化游戏核心系统
     await initializeGame();
+    
+    // 从本地存储加载玩家数据
     playerStore.loadStorageData();
+    
+    // 加载任务数据
     questStore.loadQuests();
+    
+    // 通知父组件游戏已启动，切换到游戏主界面
     emit('game-started');
   } catch (error) {
+    // 捕获初始化错误并记录日志
     console.error('游戏初始化失败:', error);
+    
+    // 重置加载状态
     isLoading.value = false;
+    
+    // 提示用户初始化失败
     alert('游戏初始化失败，请刷新重试');
   }
 };

@@ -1,3 +1,4 @@
+<!-- 战斗准备面板 - 展示敌人信息和奖励，供玩家决策是否挑战 -->
 <template>
   <BaseBorderContainer :title="`当前场景：${sceneName || '荒野林径'}`">
     <div class="enemy-detail-panel">
@@ -61,17 +62,27 @@ import type { ICharacter } from '@/interface/character';
 import type { IItem } from '@/interface/item';
 import { items } from '@/items';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：敌人、场景名称、是否显示关闭按钮
 defineProps<{
   enemy: ICharacter;
   sceneName?: string;
   showCloseButton?: boolean;
 }>();
 
+// 组件事件：发起战斗、关闭
 defineEmits<{
   (e: 'battle'): void;
   (e: 'close'): void;
 }>();
 
+// ==================== 工具方法 ====================
+
+/**
+ * 根据物品 ID 获取掉落物品名称
+ * @param dropId 物品 ID
+ */
 const getDropItemName = (dropId: string): string => {
   const item = items[dropId] as IItem | undefined;
   return item?.name || dropId;

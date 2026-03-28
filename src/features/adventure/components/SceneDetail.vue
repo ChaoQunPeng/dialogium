@@ -1,3 +1,4 @@
+<!-- 场景详情组件 - 展示场景信息、敌人列表和 NPC 列表 -->
 <template>
   <BaseBorderContainer :title="scene.name">
     <div class="scene-detail-content">
@@ -62,6 +63,9 @@ import { getCharacterTypeClass } from '@/features/adventure/model/scene';
 import type { ICharacter } from '@/interface/character';
 import type { Scene } from '@/interface/scene';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：场景信息、敌人列表、NPC 列表、战斗能力检查函数
 const props = defineProps<{
   scene: Scene;
   enemies: ICharacter[];
@@ -69,13 +73,21 @@ const props = defineProps<{
   canFightMonster: (monster: ICharacter) => boolean;
 }>();
 
+// 组件事件：返回、挑战怪物、与 NPC 交谈
 const emit = defineEmits<{
   (e: 'back'): void;
   (e: 'challenge', monster: ICharacter): void;
   (e: 'talk', npc: ICharacter): void;
 }>();
 
+// ==================== 事件处理 ====================
+
+/**
+ * 处理挑战怪物请求
+ * @param monster 要挑战的怪物
+ */
 const handleChallenge = (monster: ICharacter) => {
+  // 检查是否可以挑战（等级限制）
   if (!props.canFightMonster(monster)) return;
   emit('challenge', monster);
 };

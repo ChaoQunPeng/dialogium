@@ -1,3 +1,4 @@
+<!-- 战斗舞台面板 - 展示战斗双方状态和战斗结果 -->
 <template>
   <BaseBorderContainer :title="`正在与 ${enemy.name} 厮杀 (回合 ${currentTurns || 1})`">
     <div class="battle-stage-horizontal">
@@ -61,6 +62,9 @@ import BaseBorderContainer from '@/components/common/BaseBorderContainer.vue';
 import type { ICharacter } from '@/interface/character';
 import type { IBattleReward } from '@/utils/battle';
 
+// ==================== Props & Emits ====================
+
+// 组件属性：玩家、玩家属性、敌人、回合数、战斗状态、奖励
 defineProps<{
   player: ICharacter;
   playerStats: {
@@ -75,6 +79,7 @@ defineProps<{
   battleRewards: IBattleReward | null;
 }>();
 
+// 组件事件：再次挑战、离开战场
 defineEmits<{
   (e: 'rematch'): void;
   (e: 'quit'): void;

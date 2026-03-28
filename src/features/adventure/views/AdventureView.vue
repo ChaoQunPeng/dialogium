@@ -1,3 +1,4 @@
+<!-- 冒险视图 - 场景探索主界面，管理场景、战斗、对话、商店等状态流转 -->
 <template>
   <div class="scene-view-wrapper">
     <SceneList
@@ -59,24 +60,50 @@ import { canFight } from '@/utils/battle';
 const playerStore = usePlayerStore();
 const questStore = useQuestStore();
 
+// ==================== 数据定义 ====================
+
+// 所有可用场景列表
 const scenes: Scene[] = [tianTingXing, qianJieXing];
 
+// ==================== 状态管理 ====================
+
+// 当前所在场景
 const currentScene = ref<Scene | null>(null);
+// 当前选中的怪物
 const selectedMonster = ref<ICharacter | null>(null);
+// 当前选中的 NPC
 const selectedNPC = ref<ICharacter | null>(null);
+// 当前选中的商人
 const selectedMerchant = ref<ICharacter | null>(null);
+// 是否处于战斗中
 const isInBattle = ref(false);
+// 是否正在对话中
 const isConversationOpen = ref(false);
+// 是否正在商店中
 const isShopOpen = ref(false);
 
+// ==================== 计算属性 ====================
+
+/** 当前场景中的所有角色 */
 const sceneCharacters = computed(() => partitionSceneCharacters(currentScene.value));
+/** 当前场景中的所有敌人 */
 const enemiesInScene = computed(() => sceneCharacters.value.enemies);
+/** 当前场景中的所有 NPC */
 const npcsInScene = computed(() => sceneCharacters.value.npcs);
 
+// ==================== 场景操作 ====================
+
+/**
+ * 进入指定场景
+ * @param scene 目标场景
+ */
 const enterScene = (scene: Scene) => {
   currentScene.value = scene;
 };
 
+/**
+ * 离开当前场景
+ */
 const exitScene = () => {
   currentScene.value = null;
   selectedMonster.value = null;
@@ -84,57 +111,93 @@ const exitScene = () => {
   selectedMerchant.value = null;
 };
 
+// ==================== 战斗操作 ====================
+
+/**
+ * 挑战怪物
+ * @param monster 要挑战的怪物
+ */
 const challengeMonster = (monster: ICharacter) => {
   selectedMonster.value = monster;
   isInBattle.value = true;
 };
 
+/**
+ * 战斗结束处理
+ * @param result 战斗结果摘要
+ */
 const onBattleEnd = (result: IBattleSummary) => {
   if (!selectedMonster.value) return;
 
+  // 胜利时更新任务进度
   if (isBattleVictory(result.winner?.id, playerStore.player.id)) {
     questStore.updateQuestsByTarget('kill', selectedMonster.value.id, 1);
     questStore.updateQuestsByTarget('kill', 'any', 1);
   }
 };
 
+/**
+ * 退出战斗
+ */
 const exitBattle = () => {
   isInBattle.value = false;
   selectedMonster.value = null;
 };
 
+// ==================== NPC 交互操作 ====================
+
+/**
+ * 选择 NPC 进行交互
+ * @param npc 选择的 NPC
+ */
 const selectNPC = (npc: ICharacter) => {
+  // 更新对话任务进度
   questStore.updateQuestsByTarget('talk', npc.id, 1);
 
+  // 如果是商人，打开商店
   if (npc.type === 'merchant') {
     selectedMerchant.value = npc;
     isShopOpen.value = true;
     return;
   }
 
+  // 否则打开对话
   selectedNPC.value = npc;
   isConversationOpen.value = true;
 };
 
+/** 关闭对话 */
 const closeConversation = () => {
   isConversationOpen.value = false;
   selectedNPC.value = null;
 };
 
+/** 关闭商店 */
 const closeShop = () => {
   isShopOpen.value = false;
   selectedMerchant.value = null;
 };
 
+/**
+ * 处理购买物品
+ * @param item 购买的物品
+ */
 const handlePurchase = (item: IItem) => {
   const result = playerStore.purchaseItem(item);
   alert(`【系统】${result.message}`);
 
+  // 更新购买任务进度
   if (result.success) {
     questStore.updateQuestsByTarget('purchase', item.id, 1);
   }
 };
 
+// ==================== 工具方法 ====================
+
+/**
+ * 判断是否可以挑战怪物（等级限制检查）
+ * @param monster 怪物对象
+ */
 const canFightMonster = (monster: ICharacter): boolean => {
   return !!monster.battle && canFight(playerStore.finalPlayer, monster).canFight;
 };

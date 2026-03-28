@@ -1,3 +1,4 @@
+<!-- 角色属性卡片 - 展示角色基础属性和境界 -->
 <template>
   <BaseBorderContainer title="个人属性">
     <div class="stats-grid">
@@ -32,6 +33,9 @@
 <script setup lang="ts">
 import BaseBorderContainer from '@/components/common/BaseBorderContainer.vue';
 
+// ==================== Props ====================
+
+// 组件属性：境界、等级、属性数据
 defineProps<{
   realm: string;
   level: number;
