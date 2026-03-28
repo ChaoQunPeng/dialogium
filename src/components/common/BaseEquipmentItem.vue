@@ -10,6 +10,7 @@
       :item-data="equipment"
       @remove="handleRemove"
       @equip="handleEquip"
+      @unequip="handleUnequip"
     />
 
     <BaseDropConfirmModal ref="dropConfirmModalRef" @confirm="handleDropConfirm" />
@@ -75,6 +76,16 @@ const showDetail = () => {
 const handleEquip = (instanceId: string) => {
   emits('equip', instanceId);
   playerStore.equipItem(instanceId);
+};
+
+/**
+ * 卸下装备
+ * @param item 要卸下的装备
+ */
+const handleUnequip = (item: any) => {
+  if (item.instanceId || item.id) {
+    playerStore.unequipItem(item.instanceId || item.id);
+  }
 };
 
 /**
