@@ -75,10 +75,10 @@ const startBattle = () => {
   startEncounter();
 };
 
-/** 退出战斗 */
+/** 退出战斗 - 返回战斗准备面板 */
 const quitBattle = () => {
   quitEncounter();
-  emit('close');
+  // 不再 emit('close')，而是让视图返回到 BattlePreparationPanel
 };
 
 /** 再次挑战 */
