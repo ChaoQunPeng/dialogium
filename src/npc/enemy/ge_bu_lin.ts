@@ -6,7 +6,7 @@ export const goblinMonster: ICharacter = {
   // 核心标识
   id: 'monster_goblin_001',
   name: '黑狱兵',
-  type: 'monster' as CharacterType,
+  type: 'enemy' as CharacterType,
 
   // 基础信息
   baseInfo: {
@@ -40,7 +40,7 @@ export const eliteGoblin: ICharacter = {
   // 核心标识
   id: 'monster_goblin_elite_001',
   name: '精英黑狱兵',
-  type: 'monster' as CharacterType,
+  type: 'enemy' as CharacterType,
 
   // 基础信息
   baseInfo: {

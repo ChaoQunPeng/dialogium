@@ -3,6 +3,9 @@
     <StartScreenView v-if="!playerStore.isGameStarted" @game-started="handleGameStarted" />
 
     <template v-else>
+      <!-- 调息视图（全屏覆盖） -->
+      <MeditationView v-if="playerStore.isMeditating" />
+
       <GameHeader />
 
       <main class="game-content">
@@ -25,6 +28,7 @@ import AdventureView from '@/features/adventure/views/AdventureView.vue';
 import CharacterPanelView from '@/features/character/views/CharacterPanelView.vue';
 import QuestView from '@/features/quest/views/QuestView.vue';
 import StartScreenView from '@/features/start/views/StartScreenView.vue';
+import MeditationView from '@/features/character/views/MeditationView.vue';
 import { usePlayerStore } from '@/stores/player';
 import { useQuestStore } from '@/stores/quest';
 import { STORAGE_KEYS } from '@/constants';

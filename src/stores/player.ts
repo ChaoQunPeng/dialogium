@@ -12,6 +12,11 @@ export const usePlayerStore = defineStore('player', () => {
   // 游戏启动状态（使用响应式变量而非计算属性）
   const isGameStarted = ref(false);
 
+  // 调息状态
+  const isMeditating = ref(false);
+  const meditationStartTime = ref(0);
+  const recoveredHp = ref(0);
+
   // 玩家基础信息
   const getInitialPlayer = (): ICharacter => {
     const local = localStorage.getItem(STORAGE_KEYS.PLAYER_DATA);
@@ -400,6 +405,54 @@ export const usePlayerStore = defineStore('player', () => {
     console.log('📢 调用后 isGameStarted.value =', isGameStarted.value);
   };
 
+  /**
+   * 开始调息
+   */
+  const startMeditation = () => {
+    isMeditating.value = true;
+    meditationStartTime.value = Date.now();
+    recoveredHp.value = 0;
+    
+    // 每秒恢复 1 点气血
+    const interval = setInterval(() => {
+      if (!isMeditating.value) {
+        clearInterval(interval);
+        return;
+      }
+      
+      const maxHp = finalStats.value.maxHp;
+      const currentHp = player.baseInfo.hp;
+      
+      // 如果气血已满，停止调息
+      if (currentHp >= maxHp) {
+        stopMeditation();
+        return;
+      }
+      
+      // 恢复 1 点气血
+      const newHp = Math.min(currentHp + 1, maxHp);
+      setHp(newHp);
+      recoveredHp.value = newHp - currentHp;
+    }, 1000);
+  };
+
+  /**
+   * 停止调息
+   */
+  const stopMeditation = () => {
+    isMeditating.value = false;
+    meditationStartTime.value = 0;
+    recoveredHp.value = 0;
+  };
+
+  /**
+   * 立即恢复全部气血（测试用）
+   */
+  const recoverFullHp = () => {
+    setHp(finalStats.value.maxHp);
+    stopMeditation();
+  };
+
   return {
     player,
     inventory,
@@ -407,6 +460,9 @@ export const usePlayerStore = defineStore('player', () => {
     realm,
     finalPlayer,
     isGameStarted,
+    isMeditating,
+    meditationStartTime,
+    recoveredHp,
     setGameStarted,
     acquireItem,
     equipItem,
@@ -419,5 +475,8 @@ export const usePlayerStore = defineStore('player', () => {
     mergeInventory,
     purchaseItem,
     loadStorageData,
+    startMeditation,
+    stopMeditation,
+    recoverFullHp,
   };
 });

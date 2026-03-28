@@ -6,7 +6,7 @@ export interface GameTab {
 }
 
 export const APP_TABS: GameTab[] = [
-  { id: 'realm', name: '修为' },
-  { id: 'adventure', name: '历练' },
-  { id: 'quest', name: '任务' },
+  { id: 'realm', name: '道体' }, // 法身/本尊/道体
+  { id: 'adventure', name: '游历' },
+  { id: 'quest', name: '因果' },
 ];

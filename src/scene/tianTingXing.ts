@@ -1,5 +1,10 @@
 import type { Scene } from '@/interface';
 import {
+  goblinMonster,
+  eliteGoblin,
+  goblinChief,
+} from '@/npc/enemy/ge_bu_lin';
+import {
   chengZiZhong,
   fengKaiYun,
   guSongHuangShang,
@@ -25,5 +30,8 @@ export const tianTingXing: Scene = {
     guSongHuangShang,
     fengKaiYun,
     linWanJin,
+    goblinMonster,
+    eliteGoblin,
+    goblinChief,
   ],
 };

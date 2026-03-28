@@ -7,6 +7,16 @@
       :stats="playerStore.finalStats"
     />
 
+    <!-- 调息按钮 -->
+    <div class="meditation-section">
+      <button class="btn-meditation" @click="handleStartMeditation" :disabled="isHpFull">
+        <span class="btn-icon">🧘</span>
+        <span class="btn-text">
+          {{ isHpFull ? '气血已满' : '闭目调息' }}
+        </span>
+      </button>
+    </div>
+
     <CharacterEquipmentCard :equipped-map="equippedMap" />
 
     <CharacterInventoryCard
@@ -49,6 +59,19 @@ const inventory = computed(() => mapInventoryItems(playerStore.inventory));
 const equippedMap = computed(() => buildEquippedMap(inventory.value));
 /** 根据标签页过滤后的背包物品 */
 const filteredInventory = computed(() => mergeInventoryItems(inventory.value, activeTab.value));
+/** 气血是否已满 */
+const isHpFull = computed(() => {
+  return playerStore.player.baseInfo.hp >= playerStore.finalStats.maxHp;
+});
+
+// ==================== 方法 ====================
+
+/** 开始调息 */
+const handleStartMeditation = () => {
+  if (!isHpFull.value) {
+    playerStore.startMeditation();
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -56,5 +79,61 @@ const filteredInventory = computed(() => mergeInventoryItems(inventory.value, ac
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.meditation-section {
+  padding: 0 8px;
+}
+
+.btn-meditation {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #40e0d0, #4dbd74);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 6px 20px rgba(64, 224, 208, 0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  .btn-icon {
+    font-size: 28px;
+  }
+
+  .btn-text {
+    letter-spacing: 4px;
+  }
+
+  .btn-hint {
+    font-size: 16px;
+    opacity: 0.8;
+    font-weight: normal;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(64, 224, 208, 0.6);
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 4px 15px rgba(64, 224, 208, 0.4);
+  }
+
+  &:disabled {
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+    cursor: not-allowed;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    opacity: 0.6;
+  }
 }
 </style>
