@@ -1,35 +1,34 @@
 <template>
-  <div class="battle-view">
+  <div class="battle-view-wrapper">
+    <!-- 战斗准备阶段 - 嵌入在原页面中 -->
     <BattlePreparationPanel
       v-if="!isInBattle"
       :enemy="enemy"
       :scene-name="sceneName"
       :show-close-button="showCloseButton"
-      @battle="battleEnemy"
+      @battle="startBattle"
       @close="emit('close')"
     />
 
-    <div v-else class="battle-scene">
-      <BattleStagePanel
-        :player="player"
-        :player-stats="playerStore.finalStats"
-        :enemy="enemy"
-        :current-turns="currentTurns"
-        :battle-status="battleStatus"
-        :battle-rewards="battleRewards"
-        @rematch="rematchBattle"
-        @quit="quitBattle"
-      />
-
-      <BattleLogPanel :battle-logs="battleLogs" />
-    </div>
+    <!-- 全屏战斗场景视图 -->
+    <BattleSceneView
+      v-else
+      :player="player"
+      :player-stats="playerStore.finalStats"
+      :enemy="enemy"
+      :current-turns="currentTurns"
+      :battle-status="battleStatus"
+      :battle-rewards="battleRewards"
+      :battle-logs="battleLogs"
+      @rematch="rematchBattle"
+      @quit="quitBattle"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import BattleLogPanel from '@/features/battle/components/BattleLogPanel.vue';
 import BattlePreparationPanel from '@/features/battle/components/BattlePreparationPanel.vue';
-import BattleStagePanel from '@/features/battle/components/BattleStagePanel.vue';
+import BattleSceneView from './BattleSceneView.vue';
 import { useBattleFlow } from '@/features/battle/composables/useBattleFlow';
 import type { ICharacter } from '@/interface/character';
 import { usePlayerStore } from '@/stores/player';
@@ -61,32 +60,25 @@ const {
   rematchEncounter,
 } = useBattleFlow(() => props.enemy);
 
-const battleEnemy = () => {
-  startEncounter((result) => emit('battleEnd', result));
+// 开始战斗 - 切换到全屏战斗视图
+const startBattle = () => {
+  startEncounter();
 };
 
+// 退出战斗
 const quitBattle = () => {
   quitEncounter();
   emit('close');
 };
 
+// 再次挑战
 const rematchBattle = () => {
-  rematchEncounter((result) => emit('battleEnd', result));
+  rematchEncounter();
 };
 </script>
 
 <style lang="scss" scoped>
-.battle-view {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 800px;
+.battle-view-wrapper {
   width: 100%;
-}
-
-.battle-scene {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 </style>
